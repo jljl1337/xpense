@@ -1,40 +1,64 @@
 package main
 
 import (
-	"log"
-	"os"
-	"strings"
+	"log/slog"
 
-	"github.com/pocketbase/pocketbase"
-	"github.com/pocketbase/pocketbase/plugins/migratecmd"
-
-	"github.com/jljl1337/xpense/internal/hook/bootstrap"
-	"github.com/jljl1337/xpense/internal/hook/request"
-	"github.com/jljl1337/xpense/internal/hook/serve"
-	_ "github.com/jljl1337/xpense/internal/migration"
+	"github.com/jljl1337/xpense/internal/db"
+	"github.com/jljl1337/xpense/internal/env"
+	"github.com/jljl1337/xpense/internal/log"
+	"github.com/jljl1337/xpense/internal/server"
 )
 
 func main() {
-	app := pocketbase.New()
+	env.LoadOptionalEnvFile()
 
-	// loosely check if it was executed using "go run"
-	isGoRun := strings.HasPrefix(os.Args[0], os.TempDir())
+	log.SetCustomLogger()
 
-	migratecmd.MustRegister(app, app.RootCmd, migratecmd.Config{
-		Dir: "./internal/migration",
-		// enable auto creation of migration files when making collection changes in the Dashboard
-		// (the isGoRun check is to enable it only during development)
-		Automigrate: isGoRun,
-	})
+	// Migrate the database
+	dbInstance, err := db.NewDB()
+	if err != nil {
+		slog.Error("Failed to connect to database: " + err.Error())
+		return
+	}
 
-	bootstrap.UpdateAppSettings(app)
-	bootstrap.UpsertSuperuser(app)
+	if err := db.Migrate(dbInstance); err != nil {
+		slog.Error("Failed to migrate database: " + err.Error())
+		return
+	}
 
-	serve.ServeSiteFiles(app)
+	// queries := db.NewRepositoryQueries(dbInstance)
+	// ctx := context.Background()
+	// queries.CreateUser(ctx, repository.CreateUserParams{
+	// 	ID:           ksuid.New().String(),
+	// 	Email:        "user@example.com",
+	// 	PasswordHash: "hashed_password",
+	// 	CreatedAt:    1234567890,
+	// 	UpdatedAt:    1234567890,
+	// })
+	// queries.CreateUser(ctx, repository.CreateUserParams{
+	// 	ID:           ksuid.New().String(),
+	// 	Email:        "user@example.com",
+	// 	PasswordHash: "hashed_password",
+	// 	CreatedAt:    1234567890,
+	// 	UpdatedAt:    1234567890,
+	// })
+	// user, err := queries.GetUser(ctx, "some_user_id")
+	// // user, err := queries.GetUser(ctx)
+	// if err != nil {
+	// 	if err == sql.ErrNoRows {
+	// 		slog.Info("No user found")
+	// 		return
+	// 	}
+	// 	slog.Error("Failed to get user: " + err.Error())
+	// 	return
+	// }
 
-	request.AddExpenseChecks(app)
-
-	if err := app.Start(); err != nil {
-		log.Fatal(err)
+	// slog.Info(fmt.Sprintf("User: %s", user.ID))
+	// // slog.Info(fmt.Sprintf("User count: %d", len(user)))
+	// _ = user
+	server := server.NewServer(dbInstance)
+	if err := server.Start(); err != nil {
+		slog.Error("Failed to start server: " + err.Error())
+		return
 	}
 }

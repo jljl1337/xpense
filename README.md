@@ -1,3 +1,9 @@
-# Xpense
+# xpense
 
-A simple and elegant application for managing your expenses in one container.
+## Install
+
+## Development
+
+```bash
+go run cmd/xpense/main.go
+```

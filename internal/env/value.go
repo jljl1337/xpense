@@ -43,7 +43,11 @@ func GetInt(key string, defaultValue int) (int, error) {
 		return 0, err
 	}
 
-	return strconv.Atoi(value)
+	intValue, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, err
+	}
+	return intValue, nil
 }
 
 func MustGetString(key string, defaultValue string) string {
