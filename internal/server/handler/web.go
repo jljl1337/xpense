@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/jljl1337/xpense/ui"
+	"github.com/jljl1337/xpense/web"
 )
 
-func UIHandler(w http.ResponseWriter, r *http.Request) {
+func WebHandler(w http.ResponseWriter, r *http.Request) {
 	// Get the embedded filesystem rooted at "build"
-	buildFS, err := fs.Sub(ui.SiteDir, "build/client")
+	buildFS, err := fs.Sub(web.SiteDir, "build/client")
 	if err != nil {
 		http.Error(w, "Failed to access embedded files", http.StatusInternalServerError)
 		return

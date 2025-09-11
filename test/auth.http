@@ -1,0 +1,37 @@
+@session_token = F239IqgMUeR5kaNR
+@csrf_token = o2XdXuOSAU661h4B
+
+###
+
+GET http://localhost:8080/health
+
+###
+
+POST http://localhost:8080/auth/sign-up
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+###
+
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+###
+
+POST http://localhost:8080/auth/logout
+Cookie: session_token={{session_token}}
+X-CSRF-Token: {{csrf_token}}
+
+###
+
+GET http://localhost:8080/user/me
+Cookie: session_token={{session_token}}

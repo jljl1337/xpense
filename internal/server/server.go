@@ -44,7 +44,7 @@ func NewServer(db *sql.DB) *Server {
 	mux.Handle("/api/", http.StripPrefix("/api", stack(apiMux)))
 
 	// Serve static files (React app)
-	mux.HandleFunc("/", handler.UIHandler)
+	mux.HandleFunc("/", handler.WebHandler)
 
 	return &Server{
 		queries: queries,
