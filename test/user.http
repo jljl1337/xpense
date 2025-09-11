@@ -1,2 +1,0 @@
-GET http://localhost:8080/user/me
-Cookie: session_token={{session_token}}
