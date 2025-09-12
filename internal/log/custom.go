@@ -15,10 +15,8 @@ func SetCustomLogger() {
 }
 
 func newCustomLogger() *slog.Logger {
-	defaultLogLevel := env.MustGetInt("LOG_LEVEL", 0)
-
 	return slog.New(&customHandler{
-		level: slog.Level(defaultLogLevel),
+		level: slog.Level(env.LogLevel),
 	})
 }
 
