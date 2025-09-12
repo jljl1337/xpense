@@ -27,6 +27,7 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 
 func (h *UserHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /user/me", h.getCurrentUser)
+	mux.HandleFunc("DELETE /user/me", h.deleteCurrentUser)
 }
 
 func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
@@ -51,4 +52,22 @@ func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
+}
+
+func (h *UserHandler) deleteCurrentUser(w http.ResponseWriter, r *http.Request) {
+	userID, err := middleware.GetUserIDFromContext(r.Context())
+	if err != nil {
+		slog.Error("Error getting user ID from context")
+		http.Error(w, "Failed to delete the current user", http.StatusInternalServerError)
+		return
+	}
+
+	if err := h.userService.DeleteUserByID(userID); err != nil {
+		slog.Error("Error deleting user with ID: " + userID + " - " + err.Error())
+		http.Error(w, "Failed to delete the current user", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("User deleted successfully"))
 }

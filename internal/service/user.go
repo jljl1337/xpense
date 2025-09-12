@@ -41,3 +41,17 @@ func (s *UserService) GetUserByID(userID string) (*repository.User, error) {
 	}
 	return &user, nil
 }
+
+func (s *UserService) DeleteUserByID(userID string) error {
+	ctx := context.Background()
+	rows, err := s.queries.DeleteUser(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	if rows <= 0 {
+		return errors.New("no user deleted")
+	}
+
+	return nil
+}
