@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/jljl1337/xpense/internal/env"
 	"github.com/jljl1337/xpense/internal/repository"
 	"github.com/jljl1337/xpense/internal/server/handler"
 	"github.com/jljl1337/xpense/internal/server/middleware"
@@ -49,13 +50,13 @@ func NewServer(db *sql.DB) *Server {
 	return &Server{
 		queries: queries,
 		httpServer: &http.Server{
-			Addr:    ":8080",
+			Addr:    ":" + env.Port,
 			Handler: mux,
 		},
 	}
 }
 
 func (s *Server) Start() error {
-	slog.Info("Starting server")
+	slog.Info("Starting server on port " + env.Port)
 	return s.httpServer.ListenAndServe()
 }

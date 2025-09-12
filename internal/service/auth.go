@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jljl1337/xpense/internal/crypto"
+	"github.com/jljl1337/xpense/internal/env"
 	"github.com/jljl1337/xpense/internal/generator"
 	"github.com/jljl1337/xpense/internal/repository"
 )
@@ -63,8 +64,8 @@ func (a *AuthService) Login(email, password string) (string, string, error) {
 	}
 
 	sessionID := generator.NewKSUID()
-	sessionToken := generator.NewToken(16)
-	CSRFToken := generator.NewToken(16)
+	sessionToken := generator.NewToken(env.SessionTokenLength, env.SessionTokenCharset)
+	CSRFToken := generator.NewToken(env.CSRFTokenLength, env.CSRFTokenCharset)
 	currentTime := time.Now().UnixMilli()
 	expiresAt := time.Now().Add(24 * time.Hour).UnixMilli()
 

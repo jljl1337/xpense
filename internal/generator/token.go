@@ -4,9 +4,7 @@ import (
 	"crypto/rand"
 )
 
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-func NewToken(length int) string {
+func NewToken(length int, charset string) string {
 	src := make([]byte, length)
 
 	rand.Read(src)
