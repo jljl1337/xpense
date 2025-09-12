@@ -1,13 +1,13 @@
-@session_token = F239IqgMUeR5kaNR
-@csrf_token = o2XdXuOSAU661h4B
+@session_token = wizXSRPJEfSwCOEg
+@csrf_token = AUeR57g3z9g1RAUe
 
 ###
 
-GET http://localhost:8080/health
+GET http://localhost:8080/api/health
 
 ###
 
-POST http://localhost:8080/auth/sign-up
+POST http://localhost:8080/api/auth/sign-up
 Content-Type: application/json
 
 {
@@ -17,7 +17,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8080/auth/login
+POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
@@ -27,11 +27,11 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8080/auth/logout
+POST http://localhost:8080/api/auth/logout
 Cookie: session_token={{session_token}}
 X-CSRF-Token: {{csrf_token}}
 
 ###
 
-GET http://localhost:8080/user/me
+GET http://localhost:8080/api/user/me
 Cookie: session_token={{session_token}}
