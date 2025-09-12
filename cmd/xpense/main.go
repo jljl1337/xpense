@@ -26,36 +26,6 @@ func main() {
 		return
 	}
 
-	// queries := db.NewRepositoryQueries(dbInstance)
-	// ctx := context.Background()
-	// queries.CreateUser(ctx, repository.CreateUserParams{
-	// 	ID:           ksuid.New().String(),
-	// 	Email:        "user@example.com",
-	// 	PasswordHash: "hashed_password",
-	// 	CreatedAt:    1234567890,
-	// 	UpdatedAt:    1234567890,
-	// })
-	// queries.CreateUser(ctx, repository.CreateUserParams{
-	// 	ID:           ksuid.New().String(),
-	// 	Email:        "user@example.com",
-	// 	PasswordHash: "hashed_password",
-	// 	CreatedAt:    1234567890,
-	// 	UpdatedAt:    1234567890,
-	// })
-	// user, err := queries.GetUser(ctx, "some_user_id")
-	// // user, err := queries.GetUser(ctx)
-	// if err != nil {
-	// 	if err == sql.ErrNoRows {
-	// 		slog.Info("No user found")
-	// 		return
-	// 	}
-	// 	slog.Error("Failed to get user: " + err.Error())
-	// 	return
-	// }
-
-	// slog.Info(fmt.Sprintf("User: %s", user.ID))
-	// // slog.Info(fmt.Sprintf("User count: %d", len(user)))
-	// _ = user
 	server := server.NewServer(dbInstance)
 	if err := server.Start(); err != nil {
 		slog.Error("Failed to start server: " + err.Error())
