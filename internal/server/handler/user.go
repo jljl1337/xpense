@@ -26,10 +26,10 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /user/me", h.getCurrentUserHandler)
+	mux.HandleFunc("GET /user/me", h.getCurrentUser)
 }
 
-func (h *UserHandler) getCurrentUserHandler(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		slog.Error("Error getting user ID from context")

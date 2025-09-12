@@ -28,12 +28,12 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 }
 
 func (h *AuthHandler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("POST /auth/sign-up", h.signUpHandler)
-	mux.HandleFunc("POST /auth/login", h.loginHandler)
-	mux.HandleFunc("POST /auth/logout", h.logoutHandler)
+	mux.HandleFunc("POST /auth/sign-up", h.signUp)
+	mux.HandleFunc("POST /auth/login", h.login)
+	mux.HandleFunc("POST /auth/logout", h.logout)
 }
 
-func (h *AuthHandler) signUpHandler(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
 	var req signUpLoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
@@ -55,7 +55,7 @@ func (h *AuthHandler) signUpHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("User signed up successfully"))
 }
 
-func (h *AuthHandler) loginHandler(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 	var req signUpLoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
@@ -92,7 +92,7 @@ func (h *AuthHandler) loginHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *AuthHandler) logoutHandler(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 	sessionToken, err := r.Cookie("session_token")
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)

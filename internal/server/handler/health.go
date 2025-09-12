@@ -11,10 +11,10 @@ func NewHealthHandler() *HealthHandler {
 }
 
 func (h *HealthHandler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /health", h.healthCheckHandler)
+	mux.HandleFunc("GET /health", h.healthCheck)
 }
 
-func (h *HealthHandler) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+func (h *HealthHandler) healthCheck(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("OK"))
 }
