@@ -13,6 +13,36 @@ type Book struct {
 	UpdatedAt   int64
 }
 
+type Category struct {
+	ID          string
+	BookID      string
+	Name        string
+	Description string
+	CreatedAt   int64
+	UpdatedAt   int64
+}
+
+type Expense struct {
+	ID              string
+	BookID          string
+	CategoryID      string
+	PaymentMethodID string
+	Date            int64
+	Amount          int64
+	Remark          string
+	CreatedAt       int64
+	UpdatedAt       int64
+}
+
+type PaymentMethod struct {
+	ID          string
+	BookID      string
+	Name        string
+	Description string
+	CreatedAt   int64
+	UpdatedAt   int64
+}
+
 type Session struct {
 	ID        string
 	UserID    string
