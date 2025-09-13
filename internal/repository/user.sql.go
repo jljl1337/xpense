@@ -9,7 +9,7 @@ import (
 	"context"
 )
 
-const createUser = `-- name: CreateUser :one
+const createUser = `-- name: CreateUser :execrows
 INSERT INTO user (
     id,
     email,
@@ -35,23 +35,18 @@ type CreateUserParams struct {
 	UpdatedAt    int64
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, createUser,
 		arg.ID,
 		arg.Email,
 		arg.PasswordHash,
 		arg.CreatedAt,
 		arg.UpdatedAt,
 	)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.PasswordHash,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 const deleteUser = `-- name: DeleteUser :execrows

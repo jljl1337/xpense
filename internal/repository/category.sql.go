@@ -9,7 +9,7 @@ import (
 	"context"
 )
 
-const createCategory = `-- name: CreateCategory :one
+const createCategory = `-- name: CreateCategory :execrows
 INSERT INTO category (
     id,
     book_id,
@@ -38,8 +38,8 @@ type CreateCategoryParams struct {
 	UpdatedAt   int64
 }
 
-func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) (Category, error) {
-	row := q.db.QueryRowContext(ctx, createCategory,
+func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, createCategory,
 		arg.ID,
 		arg.BookID,
 		arg.Name,
@@ -47,14 +47,8 @@ func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) 
 		arg.CreatedAt,
 		arg.UpdatedAt,
 	)
-	var i Category
-	err := row.Scan(
-		&i.ID,
-		&i.BookID,
-		&i.Name,
-		&i.Description,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }

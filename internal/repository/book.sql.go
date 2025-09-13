@@ -9,7 +9,7 @@ import (
 	"context"
 )
 
-const createBook = `-- name: CreateBook :one
+const createBook = `-- name: CreateBook :execrows
 INSERT INTO book (
     id,
     user_id,
@@ -38,8 +38,8 @@ type CreateBookParams struct {
 	UpdatedAt   int64
 }
 
-func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (Book, error) {
-	row := q.db.QueryRowContext(ctx, createBook,
+func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, createBook,
 		arg.ID,
 		arg.UserID,
 		arg.Name,
@@ -47,16 +47,10 @@ func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (Book, e
 		arg.CreatedAt,
 		arg.UpdatedAt,
 	)
-	var i Book
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.Name,
-		&i.Description,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 const deleteBookByID = `-- name: DeleteBookByID :execrows

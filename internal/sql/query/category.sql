@@ -1,4 +1,4 @@
--- name: CreateCategory :one
+-- name: CreateCategory :execrows
 INSERT INTO category (
     id,
     book_id,

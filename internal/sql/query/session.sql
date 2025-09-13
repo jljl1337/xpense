@@ -1,4 +1,4 @@
--- name: CreateSession :one
+-- name: CreateSession :execrows
 INSERT INTO session (
     id,
     user_id,

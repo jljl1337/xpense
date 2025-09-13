@@ -9,7 +9,7 @@ import (
 	"context"
 )
 
-const createSession = `-- name: CreateSession :one
+const createSession = `-- name: CreateSession :execrows
 INSERT INTO session (
     id,
     user_id,
@@ -41,8 +41,8 @@ type CreateSessionParams struct {
 	UpdatedAt int64
 }
 
-func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
-	row := q.db.QueryRowContext(ctx, createSession,
+func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, createSession,
 		arg.ID,
 		arg.UserID,
 		arg.Token,
@@ -51,17 +51,10 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (S
 		arg.CreatedAt,
 		arg.UpdatedAt,
 	)
-	var i Session
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.Token,
-		&i.CsrfToken,
-		&i.ExpiresAt,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 const deleteSession = `-- name: DeleteSession :execrows

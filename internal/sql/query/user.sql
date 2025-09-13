@@ -1,4 +1,4 @@
--- name: CreateUser :one
+-- name: CreateUser :execrows
 INSERT INTO user (
     id,
     email,

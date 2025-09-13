@@ -1,4 +1,4 @@
--- name: CreateBook :one
+-- name: CreateBook :execrows
 INSERT INTO book (
     id,
     user_id,
