@@ -7,3 +7,5 @@ CREATE TABLE session (
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL
 );
+
+CREATE INDEX idx_session_user_id ON session(user_id);

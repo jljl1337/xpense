@@ -6,3 +6,5 @@ CREATE TABLE payment_method (
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL
 );
+
+CREATE INDEX idx_payment_method_book_id ON payment_method(book_id);

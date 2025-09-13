@@ -9,3 +9,7 @@ CREATE TABLE expense (
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL
 );
+
+CREATE INDEX idx_expense_book_id ON expense(book_id);
+CREATE INDEX idx_expense_category_id ON expense(category_id);
+CREATE INDEX idx_expense_payment_method_id ON expense(payment_method_id);

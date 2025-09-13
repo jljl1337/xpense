@@ -6,3 +6,5 @@ CREATE TABLE category (
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL
 );
+
+CREATE INDEX idx_category_book_id ON category(book_id);
