@@ -11,6 +11,11 @@ import (
 	s "github.com/jljl1337/xpense/internal/sql"
 )
 
+type Migration struct {
+	ID        string
+	Statement string
+}
+
 const createMigrationTable = `
 	CREATE TABLE IF NOT EXISTS migration (
 		id TEXT PRIMARY KEY,
@@ -55,28 +60,28 @@ func Migrate(db *sql.DB) error {
 	}
 	defer rows.Close()
 
-	appliedMigrations := make(map[string]string)
+	appliedMigrations := make([]Migration, 0)
 	for rows.Next() {
 		var id string
 		var statement string
 		if err := rows.Scan(&id, &statement); err != nil {
 			return err
 		}
-		appliedMigrations[id] = statement
+		appliedMigrations = append(appliedMigrations, Migration{ID: id, Statement: statement})
 	}
 	if err := rows.Err(); err != nil {
 		return err
 	}
 
-	// Get the list of migration entryList from the embedded filesystem
+	// Get all migrations from the embedded filesystem
 	entryList, err := s.MigrationDir.ReadDir("migration")
 	if err != nil {
 		return err
 	}
 
-	// Apply each migration if it hasn't been applied yet
-	for _, entry := range entryList {
+	allMigrations := make([]Migration, 0)
 
+	for _, entry := range entryList {
 		// Skip directories
 		if entry.IsDir() {
 			slog.Warn("Skipping directory in migrations: " + entry.Name())
@@ -92,41 +97,52 @@ func Migrate(db *sql.DB) error {
 		}
 		statement := string(statementBytes)
 
-		// Skip if the exact same migration has already been applied
-		if appliedStatement, ok := appliedMigrations[id]; ok {
-			if appliedStatement == statement {
-				slog.Debug("Skipping already applied migration: " + id)
-				continue
-			} else {
-				return errors.New("migration conflict with different statements: " + id)
+		allMigrations = append(allMigrations, Migration{ID: id, Statement: statement})
+	}
+
+	// Apply the new migrations within a transaction
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	for i, migration := range allMigrations {
+		// Check the corresponding applied migration if it exists
+		if i < len(appliedMigrations) {
+			appliedMigration := appliedMigrations[i]
+
+			if migration.ID != appliedMigration.ID {
+				tx.Rollback()
+				return errors.New("migration not found in the applied migrations: " + migration.ID)
 			}
+			if migration.Statement != appliedMigration.Statement {
+				tx.Rollback()
+				return errors.New("migration statement does not match the applied migration: " + migration.ID)
+			}
+
+			// Migration already applied, skip it
+			slog.Debug("Skipping already applied migration: " + migration.ID)
+			continue
 		}
 
-		// Apply the migration within a transaction
-		tx, err := db.BeginTx(ctx, nil)
-		if err != nil {
-			return err
-		}
-
-		_, err = tx.ExecContext(ctx, statement)
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-
-		_, err = tx.ExecContext(ctx, insertMigration, id, statement)
+		// Apply the migration
+		_, err = tx.ExecContext(ctx, migration.Statement)
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
 
-		if err := tx.Commit(); err != nil {
+		_, err = tx.ExecContext(ctx, insertMigration, migration.ID, migration.Statement)
+		if err != nil {
+			tx.Rollback()
 			return err
 		}
 
-		// Optionally, update the appliedMigrations map
-		appliedMigrations[id] = statement
-		slog.Info("Applied migration: " + id)
+		slog.Info("Applied migration: " + migration.ID)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
 	}
 
 	return nil
