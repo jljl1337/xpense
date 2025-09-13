@@ -33,11 +33,11 @@ X-CSRF-Token: {{csrf_token}}
 
 ###
 
-GET http://localhost:8080/api/user/me
+GET http://localhost:8080/api/users/me
 Cookie: session_token={{session_token}}
 
 ###
 
-DELETE http://localhost:8080/api/user/me
+DELETE http://localhost:8080/api/users/me
 Cookie: session_token={{session_token}}
 X-CSRF-Token: {{csrf_token}}

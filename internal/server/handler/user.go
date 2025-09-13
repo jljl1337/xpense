@@ -26,8 +26,8 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /user/me", h.getCurrentUser)
-	mux.HandleFunc("DELETE /user/me", h.deleteCurrentUser)
+	mux.HandleFunc("GET /users/me", h.getCurrentUser)
+	mux.HandleFunc("DELETE /users/me", h.deleteCurrentUser)
 }
 
 func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
