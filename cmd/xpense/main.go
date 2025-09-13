@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	env.LoadOptionalEnvFile()
+	env.SetConstants()
 
 	log.SetCustomLogger()
 
