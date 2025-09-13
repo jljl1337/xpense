@@ -1,5 +1,5 @@
-@session_token = wizXSRPJEfSwCOEg
-@csrf_token = AUeR57g3z9g1RAUe
+@session_token = hhDirhCQMIPcjNRl
+@csrf_token = D1zwRWHJvXrbNFt4
 
 ###
 
@@ -35,3 +35,9 @@ X-CSRF-Token: {{csrf_token}}
 
 GET http://localhost:8080/api/user/me
 Cookie: session_token={{session_token}}
+
+###
+
+DELETE http://localhost:8080/api/user/me
+Cookie: session_token={{session_token}}
+X-CSRF-Token: {{csrf_token}}
