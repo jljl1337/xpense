@@ -45,7 +45,7 @@ func (h *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.authService.SignUp(req.Email, req.Password); err != nil {
+	if err := h.authService.SignUp(r.Context(), req.Email, req.Password); err != nil {
 		slog.Error("Error signing up user: " + err.Error())
 		http.Error(w, "Failed to sign up user", http.StatusInternalServerError)
 		return
@@ -67,7 +67,7 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionToken, CSRFToken, err := h.authService.Login(req.Email, req.Password)
+	sessionToken, CSRFToken, err := h.authService.Login(r.Context(), req.Email, req.Password)
 	if err != nil {
 		slog.Error("Error logging in user: " + err.Error())
 		http.Error(w, "Failed to log in user", http.StatusInternalServerError)
@@ -99,7 +99,7 @@ func (h *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.authService.Logout(sessionToken.Value); err != nil {
+	if err := h.authService.Logout(r.Context(), sessionToken.Value); err != nil {
 		slog.Error("Error logging out user: " + err.Error())
 		http.Error(w, "Failed to log out user", http.StatusInternalServerError)
 		return

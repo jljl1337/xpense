@@ -22,13 +22,12 @@ func NewAuthService(queries *repository.Queries) *AuthService {
 	}
 }
 
-func (a *AuthService) SignUp(email, password string) error {
+func (a *AuthService) SignUp(ctx context.Context, email, password string) error {
 	passwordHash, err := crypto.HashPassword(password)
 	if err != nil {
 		return err
 	}
 
-	ctx := context.Background()
 	currentTime := time.Now().UnixMilli()
 
 	_, err = a.queries.CreateUser(ctx, repository.CreateUserParams{
@@ -48,9 +47,7 @@ func (a *AuthService) SignUp(email, password string) error {
 // If the credentials are invalid, it returns empty strings and no error.
 //
 // If an error occurs during the process, it returns the error.
-func (a *AuthService) Login(email, password string) (string, string, error) {
-	ctx := context.Background()
-
+func (a *AuthService) Login(ctx context.Context, email, password string) (string, string, error) {
 	user, err := a.queries.GetUserByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -90,9 +87,7 @@ func (a *AuthService) Login(email, password string) (string, string, error) {
 // If the session is invalid or expired, it returns an empty string and no error.
 //
 // If an error occurs during the process, it returns the error.
-func (a *AuthService) GetSessionUserIDAndRefreshSession(sessionToken, CSRFToken string) (string, error) {
-	ctx := context.Background()
-
+func (a *AuthService) GetSessionUserIDAndRefreshSession(ctx context.Context, sessionToken, CSRFToken string) (string, error) {
 	session, err := a.queries.GetSessionByToken(ctx, sessionToken)
 
 	if err != nil {
@@ -133,8 +128,7 @@ func (a *AuthService) GetSessionUserIDAndRefreshSession(sessionToken, CSRFToken 
 	return session.UserID, nil
 }
 
-func (a *AuthService) Logout(sessionToken string) error {
-	ctx := context.Background()
+func (a *AuthService) Logout(ctx context.Context, sessionToken string) error {
 	now := time.Now().UnixMilli()
 	rows, err := a.queries.UpdateSessionByToken(ctx, repository.UpdateSessionByTokenParams{
 		Token:     sessionToken,

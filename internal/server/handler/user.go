@@ -38,7 +38,7 @@ func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userService.GetUserByID(userID)
+	user, err := h.userService.GetUserByID(r.Context(), userID)
 	if user == nil || err != nil {
 		slog.Error("User not found with ID: " + userID)
 		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
@@ -62,7 +62,7 @@ func (h *UserHandler) deleteCurrentUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err := h.userService.DeleteUserByID(userID); err != nil {
+	if err := h.userService.DeleteUserByID(r.Context(), userID); err != nil {
 		slog.Error("Error deleting user with ID: " + userID + " - " + err.Error())
 		http.Error(w, "Failed to delete the current user", http.StatusInternalServerError)
 		return

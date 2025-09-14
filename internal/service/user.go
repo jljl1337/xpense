@@ -18,8 +18,7 @@ func NewUserService(queries *repository.Queries) *UserService {
 	}
 }
 
-func (s *UserService) UserExistsByEmail(email string) (bool, error) {
-	ctx := context.Background()
+func (s *UserService) UserExistsByEmail(ctx context.Context, email string) (bool, error) {
 	_, err := s.queries.GetUserByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -30,8 +29,7 @@ func (s *UserService) UserExistsByEmail(email string) (bool, error) {
 	return true, nil
 }
 
-func (s *UserService) GetUserByID(userID string) (*repository.User, error) {
-	ctx := context.Background()
+func (s *UserService) GetUserByID(ctx context.Context, userID string) (*repository.User, error) {
 	user, err := s.queries.GetUserByID(ctx, userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -42,8 +40,7 @@ func (s *UserService) GetUserByID(userID string) (*repository.User, error) {
 	return &user, nil
 }
 
-func (s *UserService) DeleteUserByID(userID string) error {
-	ctx := context.Background()
+func (s *UserService) DeleteUserByID(ctx context.Context, userID string) error {
 	rows, err := s.queries.DeleteUser(ctx, userID)
 	if err != nil {
 		return err
