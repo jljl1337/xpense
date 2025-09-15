@@ -52,3 +52,113 @@ func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) 
 	}
 	return result.RowsAffected()
 }
+
+const deleteCategoryByID = `-- name: DeleteCategoryByID :execrows
+DELETE FROM
+    category
+WHERE
+    id = ?1
+`
+
+func (q *Queries) DeleteCategoryByID(ctx context.Context, id string) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteCategoryByID, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+const getCategoriesByBookID = `-- name: GetCategoriesByBookID :many
+SELECT
+    id, book_id, name, description, created_at, updated_at
+FROM
+    category
+WHERE
+    book_id = ?1
+ORDER BY
+    name ASC
+`
+
+func (q *Queries) GetCategoriesByBookID(ctx context.Context, bookID string) ([]Category, error) {
+	rows, err := q.db.QueryContext(ctx, getCategoriesByBookID, bookID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Category
+	for rows.Next() {
+		var i Category
+		if err := rows.Scan(
+			&i.ID,
+			&i.BookID,
+			&i.Name,
+			&i.Description,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getCategoryByID = `-- name: GetCategoryByID :one
+SELECT
+    id, book_id, name, description, created_at, updated_at
+FROM
+    category
+WHERE
+    id = ?1
+`
+
+func (q *Queries) GetCategoryByID(ctx context.Context, id string) (Category, error) {
+	row := q.db.QueryRowContext(ctx, getCategoryByID, id)
+	var i Category
+	err := row.Scan(
+		&i.ID,
+		&i.BookID,
+		&i.Name,
+		&i.Description,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateCategoryByID = `-- name: UpdateCategoryByID :execrows
+UPDATE 
+    category
+SET
+    name = ?1,
+    description = ?2,
+    updated_at = ?3
+WHERE
+    id = ?4
+`
+
+type UpdateCategoryByIDParams struct {
+	Name        string
+	Description string
+	UpdatedAt   int64
+	ID          string
+}
+
+func (q *Queries) UpdateCategoryByID(ctx context.Context, arg UpdateCategoryByIDParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateCategoryByID,
+		arg.Name,
+		arg.Description,
+		arg.UpdatedAt,
+		arg.ID,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}

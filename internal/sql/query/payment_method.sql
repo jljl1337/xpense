@@ -1,5 +1,5 @@
--- name: CreateCategory :execrows
-INSERT INTO category (
+-- name: CreatePaymentMethod :execrows
+INSERT INTO payment_method (
     id,
     book_id,
     name,
@@ -17,27 +17,27 @@ INSERT INTO category (
 RETURNING
     *;
 
--- name: GetCategoriesByBookID :many
+-- name: GetPaymentMethodsByBookID :many
 SELECT
     *
 FROM
-    category
+    payment_method
 WHERE
     book_id = @book_id
 ORDER BY
     name ASC;
 
--- name: GetCategoryByID :one
+-- name: GetPaymentMethodByID :one
 SELECT
     *
 FROM
-    category
+    payment_method
 WHERE
     id = @id;
 
--- name: UpdateCategoryByID :execrows
+-- name: UpdatePaymentMethodByID :execrows
 UPDATE 
-    category
+    payment_method
 SET
     name = @name,
     description = @description,
@@ -45,8 +45,8 @@ SET
 WHERE
     id = @id;
 
--- name: DeleteCategoryByID :execrows
+-- name: DeletePaymentMethodByID :execrows
 DELETE FROM
-    category
+    payment_method
 WHERE
     id = @id;
