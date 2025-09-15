@@ -31,6 +31,14 @@ LIMIT
 OFFSET
     @offset;
 
+-- name: GetBookByID :one
+SELECT
+    *
+FROM
+    book
+WHERE
+    id = @id;
+
 -- name: UpdateBookByID :execrows
 UPDATE
     book
