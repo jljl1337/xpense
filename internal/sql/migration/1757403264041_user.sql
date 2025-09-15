@@ -5,3 +5,5 @@ CREATE TABLE user (
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL
 );
+
+CREATE INDEX idx_user_email ON user(email);
