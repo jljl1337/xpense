@@ -36,15 +36,15 @@ RETURNING
 `
 
 type CreateExpenseParams struct {
-	ID              string
-	BookID          string
-	CategoryID      string
-	PaymentMethodID string
-	Date            int64
-	Amount          int64
-	Remark          string
-	CreatedAt       int64
-	UpdatedAt       int64
+	ID              string `json:"id"`
+	BookID          string `json:"book_id"`
+	CategoryID      string `json:"category_id"`
+	PaymentMethodID string `json:"payment_method_id"`
+	Date            int64  `json:"date"`
+	Amount          int64  `json:"amount"`
+	Remark          string `json:"remark"`
+	CreatedAt       int64  `json:"created_at"`
+	UpdatedAt       int64  `json:"updated_at"`
 }
 
 func (q *Queries) CreateExpense(ctx context.Context, arg CreateExpenseParams) (int64, error) {
@@ -123,9 +123,9 @@ OFFSET
 `
 
 type GetExpensesByBookIDParams struct {
-	BookID string
-	Offset int64
-	Limit  int64
+	BookID string `json:"book_id"`
+	Offset int64  `json:"offset"`
+	Limit  int64  `json:"limit"`
 }
 
 func (q *Queries) GetExpensesByBookID(ctx context.Context, arg GetExpensesByBookIDParams) ([]Expense, error) {
@@ -176,13 +176,13 @@ WHERE
 `
 
 type UpdateExpenseByIDParams struct {
-	CategoryID      string
-	PaymentMethodID string
-	Date            int64
-	Amount          int64
-	Remark          string
-	UpdatedAt       int64
-	ID              string
+	CategoryID      string `json:"category_id"`
+	PaymentMethodID string `json:"payment_method_id"`
+	Date            int64  `json:"date"`
+	Amount          int64  `json:"amount"`
+	Remark          string `json:"remark"`
+	UpdatedAt       int64  `json:"updated_at"`
+	ID              string `json:"id"`
 }
 
 func (q *Queries) UpdateExpenseByID(ctx context.Context, arg UpdateExpenseByIDParams) (int64, error) {

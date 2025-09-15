@@ -30,12 +30,12 @@ RETURNING
 `
 
 type CreateCategoryParams struct {
-	ID          string
-	BookID      string
-	Name        string
-	Description string
-	CreatedAt   int64
-	UpdatedAt   int64
+	ID          string `json:"id"`
+	BookID      string `json:"book_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	CreatedAt   int64  `json:"created_at"`
+	UpdatedAt   int64  `json:"updated_at"`
 }
 
 func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) (int64, error) {
@@ -144,10 +144,10 @@ WHERE
 `
 
 type UpdateCategoryByIDParams struct {
-	Name        string
-	Description string
-	UpdatedAt   int64
-	ID          string
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	UpdatedAt   int64  `json:"updated_at"`
+	ID          string `json:"id"`
 }
 
 func (q *Queries) UpdateCategoryByID(ctx context.Context, arg UpdateCategoryByIDParams) (int64, error) {

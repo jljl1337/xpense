@@ -5,58 +5,58 @@
 package repository
 
 type Book struct {
-	ID          string
-	UserID      string
-	Name        string
-	Description string
-	CreatedAt   int64
-	UpdatedAt   int64
+	ID          string `json:"id"`
+	UserID      string `json:"user_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	CreatedAt   int64  `json:"created_at"`
+	UpdatedAt   int64  `json:"updated_at"`
 }
 
 type Category struct {
-	ID          string
-	BookID      string
-	Name        string
-	Description string
-	CreatedAt   int64
-	UpdatedAt   int64
+	ID          string `json:"id"`
+	BookID      string `json:"book_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	CreatedAt   int64  `json:"created_at"`
+	UpdatedAt   int64  `json:"updated_at"`
 }
 
 type Expense struct {
-	ID              string
-	BookID          string
-	CategoryID      string
-	PaymentMethodID string
-	Date            int64
-	Amount          int64
-	Remark          string
-	CreatedAt       int64
-	UpdatedAt       int64
+	ID              string `json:"id"`
+	BookID          string `json:"book_id"`
+	CategoryID      string `json:"category_id"`
+	PaymentMethodID string `json:"payment_method_id"`
+	Date            int64  `json:"date"`
+	Amount          int64  `json:"amount"`
+	Remark          string `json:"remark"`
+	CreatedAt       int64  `json:"created_at"`
+	UpdatedAt       int64  `json:"updated_at"`
 }
 
 type PaymentMethod struct {
-	ID          string
-	BookID      string
-	Name        string
-	Description string
-	CreatedAt   int64
-	UpdatedAt   int64
+	ID          string `json:"id"`
+	BookID      string `json:"book_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	CreatedAt   int64  `json:"created_at"`
+	UpdatedAt   int64  `json:"updated_at"`
 }
 
 type Session struct {
-	ID        string
-	UserID    string
-	Token     string
-	CsrfToken string
-	ExpiresAt int64
-	CreatedAt int64
-	UpdatedAt int64
+	ID        string `json:"id"`
+	UserID    string `json:"user_id"`
+	Token     string `json:"token"`
+	CsrfToken string `json:"csrf_token"`
+	ExpiresAt int64  `json:"expires_at"`
+	CreatedAt int64  `json:"created_at"`
+	UpdatedAt int64  `json:"updated_at"`
 }
 
 type User struct {
-	ID           string
-	Email        string
-	PasswordHash string
-	CreatedAt    int64
-	UpdatedAt    int64
+	ID           string `json:"id"`
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
+	CreatedAt    int64  `json:"created_at"`
+	UpdatedAt    int64  `json:"updated_at"`
 }

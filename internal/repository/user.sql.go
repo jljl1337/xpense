@@ -28,11 +28,11 @@ RETURNING
 `
 
 type CreateUserParams struct {
-	ID           string
-	Email        string
-	PasswordHash string
-	CreatedAt    int64
-	UpdatedAt    int64
+	ID           string `json:"id"`
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
+	CreatedAt    int64  `json:"created_at"`
+	UpdatedAt    int64  `json:"updated_at"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int64, error) {
@@ -120,10 +120,10 @@ WHERE
 `
 
 type UpdateUserParams struct {
-	Email        string
-	PasswordHash string
-	UpdatedAt    int64
-	ID           string
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
+	UpdatedAt    int64  `json:"updated_at"`
+	ID           string `json:"id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (int64, error) {
