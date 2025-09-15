@@ -27,9 +27,9 @@ WHERE
 ORDER BY
     name ASC
 LIMIT
-    @pageSize
+    @limit
 OFFSET
-    @pageSize * (@page - 1);
+    @offset;
 
 -- name: UpdateBookByID :execrows
 UPDATE

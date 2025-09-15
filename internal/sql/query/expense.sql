@@ -34,9 +34,9 @@ ORDER BY
     date DESC,
     updated_at DESC
 LIMIT
-    @pageSize
+    @limit
 OFFSET
-    @pageSize * (@page - 1);
+    @offset;
 
 -- name: GetExpenseByID :one
 SELECT

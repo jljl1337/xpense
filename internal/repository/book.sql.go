@@ -78,19 +78,19 @@ WHERE
 ORDER BY
     name ASC
 LIMIT
-    ?2
+    ?3
 OFFSET
-    ?2 * (?3 - 1)
+    ?2
 `
 
 type GetBooksByUserIDParams struct {
-	UserID   string
-	PageSize int64
-	Page     interface{}
+	UserID string
+	Offset int64
+	Limit  int64
 }
 
 func (q *Queries) GetBooksByUserID(ctx context.Context, arg GetBooksByUserIDParams) ([]Book, error) {
-	rows, err := q.db.QueryContext(ctx, getBooksByUserID, arg.UserID, arg.PageSize, arg.Page)
+	rows, err := q.db.QueryContext(ctx, getBooksByUserID, arg.UserID, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

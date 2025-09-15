@@ -117,19 +117,19 @@ ORDER BY
     date DESC,
     updated_at DESC
 LIMIT
-    ?2
+    ?3
 OFFSET
-    ?2 * (?3 - 1)
+    ?2
 `
 
 type GetExpensesByBookIDParams struct {
-	BookID   string
-	PageSize int64
-	Page     interface{}
+	BookID string
+	Offset int64
+	Limit  int64
 }
 
 func (q *Queries) GetExpensesByBookID(ctx context.Context, arg GetExpensesByBookIDParams) ([]Expense, error) {
-	rows, err := q.db.QueryContext(ctx, getExpensesByBookID, arg.BookID, arg.PageSize, arg.Page)
+	rows, err := q.db.QueryContext(ctx, getExpensesByBookID, arg.BookID, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
