@@ -9,6 +9,28 @@ import (
 	"context"
 )
 
+const checkBookAccess = `-- name: CheckBookAccess :one
+SELECT
+    COUNT(*) > 0 AS can_access
+FROM
+    book
+WHERE
+    id = ?1 AND
+    user_id = ?2
+`
+
+type CheckBookAccessParams struct {
+	BookID string `json:"book_id"`
+	UserID string `json:"user_id"`
+}
+
+func (q *Queries) CheckBookAccess(ctx context.Context, arg CheckBookAccessParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, checkBookAccess, arg.BookID, arg.UserID)
+	var can_access bool
+	err := row.Scan(&can_access)
+	return can_access, err
+}
+
 const createBook = `-- name: CreateBook :execrows
 INSERT INTO book (
     id,

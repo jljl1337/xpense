@@ -54,3 +54,12 @@ DELETE FROM
     book
 WHERE
     id = @id;
+
+-- name: CheckBookAccess :one
+SELECT
+    COUNT(*) > 0 AS can_access
+FROM
+    book
+WHERE
+    id = @book_id AND
+    user_id = @user_id;
