@@ -1,18 +1,21 @@
-@session_token = hhDirhCQMIPcjNRl
-@csrf_token = D1zwRWHJvXrbNFt4
+@email = user@example.com
+@password = password123
+@session_token = dNhLRUq1cNzfkp33
+@csrf_token = tWCszmPSPmR9RioK
+@book_id = 32lh8fbiU1OtA1zlsbxhM8i1yoC
 
-###
+############################## Health
 
 GET http://localhost:8080/api/health
 
-###
+################################ Auth
 
 POST http://localhost:8080/api/auth/sign-up
 Content-Type: application/json
 
 {
-  "email": "user@example.com",
-  "password": "password123"
+  "email": "{{email}}",
+  "password": "{{password}}"
 }
 
 ###
@@ -21,8 +24,8 @@ POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "user@example.com",
-  "password": "password123"
+  "email": "{{email}}",
+  "password": "{{password}}"
 }
 
 ###
@@ -31,7 +34,7 @@ POST http://localhost:8080/api/auth/logout
 Cookie: session_token={{session_token}}
 X-CSRF-Token: {{csrf_token}}
 
-###
+############################ User
 
 GET http://localhost:8080/api/users/me
 Cookie: session_token={{session_token}}
@@ -39,5 +42,41 @@ Cookie: session_token={{session_token}}
 ###
 
 DELETE http://localhost:8080/api/users/me
+Cookie: session_token={{session_token}}
+X-CSRF-Token: {{csrf_token}}
+
+############################ Book
+
+POST http://localhost:8080/api/books
+Cookie: session_token={{session_token}}
+X-CSRF-Token: {{csrf_token}}
+Content-Type: application/json
+
+{
+  "name": "My First Book",
+  "description": "This is my first book"
+}
+
+###
+
+GET http://localhost:8080/api/books
+# GET http://localhost:8080/api/books?page=2&page_size=20
+Cookie: session_token={{session_token}}
+
+###
+
+PUT http://localhost:8080/api/books/{{book_id}}
+Cookie: session_token={{session_token}}
+X-CSRF-Token: {{csrf_token}}
+Content-Type: application/json
+
+{
+  "name": "New Book Name",
+  "description": "Updated description for my book"
+}
+
+###
+
+DELETE http://localhost:8080/api/books/{{book_id}}
 Cookie: session_token={{session_token}}
 X-CSRF-Token: {{csrf_token}}
