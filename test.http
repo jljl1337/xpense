@@ -1,8 +1,9 @@
 @email = user@example.com
 @password = password123
-@session_token = dNhLRUq1cNzfkp33
-@csrf_token = tWCszmPSPmR9RioK
-@book_id = 32lh7Mg3ZPh82gFUg1oTyEouRUx
+@session_token = vWD2GHnGgcTi3Mia
+@csrf_token = hJ5yX72V3KzpX3Vt
+@book_id = 32lh7M9AfAtV4ZyplKuy1QLtJEx
+@category_id = 32mY2SzRY2SPD9okynd1TeaD1jo
 
 ############################## Health
 
@@ -83,5 +84,46 @@ Content-Type: application/json
 ###
 
 DELETE http://localhost:8080/api/books/{{book_id}}
+Cookie: session_token={{session_token}}
+X-CSRF-Token: {{csrf_token}}
+
+############################ Category
+
+POST http://localhost:8080/api/categories
+Cookie: session_token={{session_token}}
+X-CSRF-Token: {{csrf_token}}
+Content-Type: application/json
+
+{
+  "book_id": "{{book_id}}",
+  "name": "Food",
+  "description": "Expenses for food and groceries"
+}
+
+###
+
+GET http://localhost:8080/api/categories?book_id={{book_id}}
+Cookie: session_token={{session_token}}
+
+###
+
+GET http://localhost:8080/api/categories/{{category_id}}
+Cookie: session_token={{session_token}}
+
+###
+
+PUT http://localhost:8080/api/categories/{{category_id}}
+Cookie: session_token={{session_token}}
+X-CSRF-Token: {{csrf_token}}
+Content-Type: application/json
+
+{
+  "name": "Food 2",
+  "description": "Updated description for food expenses"
+}
+
+###
+
+DELETE http://localhost:8080/api/categories/{{category_id}}
 Cookie: session_token={{session_token}}
 X-CSRF-Token: {{csrf_token}}
