@@ -19,7 +19,7 @@ INSERT INTO session (
 RETURNING
     *;
 
--- name: GetSessionByToken :one
+-- name: GetSessionByToken :many
 SELECT
     *
 FROM

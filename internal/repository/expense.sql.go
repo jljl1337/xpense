@@ -80,7 +80,7 @@ func (q *Queries) DeleteExpenseByID(ctx context.Context, id string) (int64, erro
 	return result.RowsAffected()
 }
 
-const getExpenseByID = `-- name: GetExpenseByID :one
+const getExpenseByID = `-- name: GetExpenseByID :many
 SELECT
     id, book_id, category_id, payment_method_id, date, amount, remark, created_at, updated_at
 FROM
@@ -89,21 +89,37 @@ WHERE
     id = ?1
 `
 
-func (q *Queries) GetExpenseByID(ctx context.Context, id string) (Expense, error) {
-	row := q.db.QueryRowContext(ctx, getExpenseByID, id)
-	var i Expense
-	err := row.Scan(
-		&i.ID,
-		&i.BookID,
-		&i.CategoryID,
-		&i.PaymentMethodID,
-		&i.Date,
-		&i.Amount,
-		&i.Remark,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+func (q *Queries) GetExpenseByID(ctx context.Context, id string) ([]Expense, error) {
+	rows, err := q.db.QueryContext(ctx, getExpenseByID, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Expense{}
+	for rows.Next() {
+		var i Expense
+		if err := rows.Scan(
+			&i.ID,
+			&i.BookID,
+			&i.CategoryID,
+			&i.PaymentMethodID,
+			&i.Date,
+			&i.Amount,
+			&i.Remark,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getExpensesByBookID = `-- name: GetExpensesByBookID :many
@@ -134,7 +150,7 @@ func (q *Queries) GetExpensesByBookID(ctx context.Context, arg GetExpensesByBook
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Expense
+	items := []Expense{}
 	for rows.Next() {
 		var i Expense
 		if err := rows.Scan(

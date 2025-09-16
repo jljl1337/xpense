@@ -31,7 +31,7 @@ LIMIT
 OFFSET
     @offset;
 
--- name: GetBookByID :one
+-- name: GetBookByID :many
 SELECT
     *
 FROM

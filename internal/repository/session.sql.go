@@ -72,7 +72,7 @@ func (q *Queries) DeleteSession(ctx context.Context, expiresAt int64) (int64, er
 	return result.RowsAffected()
 }
 
-const getSessionByToken = `-- name: GetSessionByToken :one
+const getSessionByToken = `-- name: GetSessionByToken :many
 SELECT
     id, user_id, token, csrf_token, expires_at, created_at, updated_at
 FROM
@@ -81,19 +81,35 @@ WHERE
     token = ?1
 `
 
-func (q *Queries) GetSessionByToken(ctx context.Context, token string) (Session, error) {
-	row := q.db.QueryRowContext(ctx, getSessionByToken, token)
-	var i Session
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.Token,
-		&i.CsrfToken,
-		&i.ExpiresAt,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+func (q *Queries) GetSessionByToken(ctx context.Context, token string) ([]Session, error) {
+	rows, err := q.db.QueryContext(ctx, getSessionByToken, token)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Session{}
+	for rows.Next() {
+		var i Session
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Token,
+			&i.CsrfToken,
+			&i.ExpiresAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateSessionByToken = `-- name: UpdateSessionByToken :execrows

@@ -15,7 +15,7 @@ INSERT INTO user (
 RETURNING
     *;
 
--- name: GetUserByID :one
+-- name: GetUserByID :many
 SELECT
     *
 FROM
@@ -23,7 +23,7 @@ FROM
 WHERE
     id = @id;
 
--- name: GetUserByEmail :one
+-- name: GetUserByEmail :many
 SELECT
     *
 FROM

@@ -85,7 +85,7 @@ func (q *Queries) GetCategoriesByBookID(ctx context.Context, bookID string) ([]C
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Category
+	items := []Category{}
 	for rows.Next() {
 		var i Category
 		if err := rows.Scan(
@@ -109,7 +109,7 @@ func (q *Queries) GetCategoriesByBookID(ctx context.Context, bookID string) ([]C
 	return items, nil
 }
 
-const getCategoryByID = `-- name: GetCategoryByID :one
+const getCategoryByID = `-- name: GetCategoryByID :many
 SELECT
     id, book_id, name, description, created_at, updated_at
 FROM
@@ -118,18 +118,34 @@ WHERE
     id = ?1
 `
 
-func (q *Queries) GetCategoryByID(ctx context.Context, id string) (Category, error) {
-	row := q.db.QueryRowContext(ctx, getCategoryByID, id)
-	var i Category
-	err := row.Scan(
-		&i.ID,
-		&i.BookID,
-		&i.Name,
-		&i.Description,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+func (q *Queries) GetCategoryByID(ctx context.Context, id string) ([]Category, error) {
+	rows, err := q.db.QueryContext(ctx, getCategoryByID, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Category{}
+	for rows.Next() {
+		var i Category
+		if err := rows.Scan(
+			&i.ID,
+			&i.BookID,
+			&i.Name,
+			&i.Description,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateCategoryByID = `-- name: UpdateCategoryByID :execrows

@@ -68,7 +68,7 @@ func (q *Queries) DeletePaymentMethodByID(ctx context.Context, id string) (int64
 	return result.RowsAffected()
 }
 
-const getPaymentMethodByID = `-- name: GetPaymentMethodByID :one
+const getPaymentMethodByID = `-- name: GetPaymentMethodByID :many
 SELECT
     id, book_id, name, description, created_at, updated_at
 FROM
@@ -77,18 +77,34 @@ WHERE
     id = ?1
 `
 
-func (q *Queries) GetPaymentMethodByID(ctx context.Context, id string) (PaymentMethod, error) {
-	row := q.db.QueryRowContext(ctx, getPaymentMethodByID, id)
-	var i PaymentMethod
-	err := row.Scan(
-		&i.ID,
-		&i.BookID,
-		&i.Name,
-		&i.Description,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+func (q *Queries) GetPaymentMethodByID(ctx context.Context, id string) ([]PaymentMethod, error) {
+	rows, err := q.db.QueryContext(ctx, getPaymentMethodByID, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PaymentMethod{}
+	for rows.Next() {
+		var i PaymentMethod
+		if err := rows.Scan(
+			&i.ID,
+			&i.BookID,
+			&i.Name,
+			&i.Description,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getPaymentMethodsByBookID = `-- name: GetPaymentMethodsByBookID :many
@@ -108,7 +124,7 @@ func (q *Queries) GetPaymentMethodsByBookID(ctx context.Context, bookID string) 
 		return nil, err
 	}
 	defer rows.Close()
-	var items []PaymentMethod
+	items := []PaymentMethod{}
 	for rows.Next() {
 		var i PaymentMethod
 		if err := rows.Scan(

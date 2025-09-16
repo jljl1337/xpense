@@ -27,7 +27,7 @@ WHERE
 ORDER BY
     name ASC;
 
--- name: GetCategoryByID :one
+-- name: GetCategoryByID :many
 SELECT
     *
 FROM

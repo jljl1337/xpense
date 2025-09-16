@@ -27,7 +27,7 @@ WHERE
 ORDER BY
     name ASC;
 
--- name: GetPaymentMethodByID :one
+-- name: GetPaymentMethodByID :many
 SELECT
     *
 FROM

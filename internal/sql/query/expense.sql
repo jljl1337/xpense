@@ -38,7 +38,7 @@ LIMIT
 OFFSET
     @offset;
 
--- name: GetExpenseByID :one
+-- name: GetExpenseByID :many
 SELECT
     *
 FROM

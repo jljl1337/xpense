@@ -68,7 +68,7 @@ func (q *Queries) DeleteBookByID(ctx context.Context, id string) (int64, error) 
 	return result.RowsAffected()
 }
 
-const getBookByID = `-- name: GetBookByID :one
+const getBookByID = `-- name: GetBookByID :many
 SELECT
     id, user_id, name, description, created_at, updated_at
 FROM
@@ -77,18 +77,34 @@ WHERE
     id = ?1
 `
 
-func (q *Queries) GetBookByID(ctx context.Context, id string) (Book, error) {
-	row := q.db.QueryRowContext(ctx, getBookByID, id)
-	var i Book
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.Name,
-		&i.Description,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+func (q *Queries) GetBookByID(ctx context.Context, id string) ([]Book, error) {
+	rows, err := q.db.QueryContext(ctx, getBookByID, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Book{}
+	for rows.Next() {
+		var i Book
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.Description,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getBooksByUserID = `-- name: GetBooksByUserID :many
@@ -118,7 +134,7 @@ func (q *Queries) GetBooksByUserID(ctx context.Context, arg GetBooksByUserIDPara
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Book
+	items := []Book{}
 	for rows.Next() {
 		var i Book
 		if err := rows.Scan(
