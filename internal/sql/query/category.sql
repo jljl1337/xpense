@@ -50,3 +50,16 @@ DELETE FROM
     category
 WHERE
     id = @id;
+
+-- name: CheckCategoryAccess :one
+SELECT
+    COUNT(*) > 0 AS can_access
+FROM
+    category AS c
+LEFT JOIN
+    book AS b
+ON
+    c.book_id = b.id
+WHERE
+    c.id = @category_id AND
+    b.user_id = @user_id;

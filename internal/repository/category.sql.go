@@ -9,6 +9,32 @@ import (
 	"context"
 )
 
+const checkCategoryAccess = `-- name: CheckCategoryAccess :one
+SELECT
+    COUNT(*) > 0 AS can_access
+FROM
+    category AS c
+LEFT JOIN
+    book AS b
+ON
+    c.book_id = b.id
+WHERE
+    c.id = ?1 AND
+    b.user_id = ?2
+`
+
+type CheckCategoryAccessParams struct {
+	CategoryID string `json:"category_id"`
+	UserID     string `json:"user_id"`
+}
+
+func (q *Queries) CheckCategoryAccess(ctx context.Context, arg CheckCategoryAccessParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, checkCategoryAccess, arg.CategoryID, arg.UserID)
+	var can_access bool
+	err := row.Scan(&can_access)
+	return can_access, err
+}
+
 const createCategory = `-- name: CreateCategory :execrows
 INSERT INTO category (
     id,
