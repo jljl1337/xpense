@@ -31,7 +31,7 @@ func (m *MiddlewareProvider) Auth() Middleware {
 			// Get CSRF token from header
 			CSRFToken := r.Header.Get("X-CSRF-Token")
 
-			if CSRFToken == "" && (r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete) {
+			if CSRFToken == "" && (r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete || r.Method == http.MethodPatch) {
 				http.Error(w, "CSRF token is required", http.StatusUnauthorized)
 				return
 			}
