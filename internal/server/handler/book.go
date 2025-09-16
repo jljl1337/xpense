@@ -57,7 +57,8 @@ func (h *BookHandler) createBook(w http.ResponseWriter, r *http.Request) {
 
 	err = h.bookService.CreateBook(ctx, userID, req.Name, req.Description)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		slog.Error("Error creating book: " + err.Error())
+		http.Error(w, "Failed to create book", http.StatusInternalServerError)
 		return
 	}
 
@@ -164,7 +165,8 @@ func (h *BookHandler) deleteBook(w http.ResponseWriter, r *http.Request) {
 
 	ok, err := h.bookService.DeleteBookByID(ctx, userID, bookID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		slog.Error("Error deleting book: " + err.Error())
+		http.Error(w, "Failed to delete book", http.StatusInternalServerError)
 		return
 	}
 
