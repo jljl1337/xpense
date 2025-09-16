@@ -1,7 +1,14 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"log/slog"
+	"net/http"
+	"os/signal"
+	"syscall"
+
+	"golang.org/x/sync/errgroup"
 
 	"github.com/jljl1337/xpense/internal/db"
 	"github.com/jljl1337/xpense/internal/env"
@@ -27,8 +34,19 @@ func main() {
 	}
 
 	server := server.NewServer(dbInstance)
-	if err := server.Start(); err != nil {
-		slog.Error("Failed to start server: " + err.Error())
-		return
+
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer cancel()
+
+	g, gCtx := errgroup.WithContext(ctx)
+
+	g.Go(func() error { return server.Start() })
+	g.Go(func() error {
+		<-gCtx.Done()
+		return server.Stop(context.Background())
+	})
+
+	if err := g.Wait(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		slog.Error("Server error: " + err.Error())
 	}
 }

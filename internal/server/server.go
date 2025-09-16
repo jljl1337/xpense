@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"database/sql"
 	"log/slog"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 )
 
 type Server struct {
+	db         *sql.DB
 	queries    *repository.Queries
 	httpServer *http.Server
 }
@@ -52,6 +54,7 @@ func NewServer(db *sql.DB) *Server {
 	mux.HandleFunc("/", webHandler.ServeSite)
 
 	return &Server{
+		db:      db,
 		queries: queries,
 		httpServer: &http.Server{
 			Addr:    ":" + env.Port,
@@ -63,4 +66,14 @@ func NewServer(db *sql.DB) *Server {
 func (s *Server) Start() error {
 	slog.Info("Starting server on port " + env.Port)
 	return s.httpServer.ListenAndServe()
+}
+
+func (s *Server) Stop(ctx context.Context) error {
+	slog.Info("Stopping server")
+
+	if err := s.db.Close(); err != nil {
+		slog.Error("Failed to close database connection: " + err.Error())
+	}
+
+	return s.httpServer.Shutdown(ctx)
 }
