@@ -31,6 +31,7 @@ func (h *UserHandler) RegisterRoutes(mux *http.ServeMux) {
 }
 
 func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
+	// Process the request
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		slog.Error("Error getting user ID from context")
@@ -45,6 +46,7 @@ func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Respond to the client
 	response := getCurrentUserResponse{
 		ID:        user.ID,
 		Email:     user.Email,
@@ -55,6 +57,7 @@ func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) deleteCurrentUser(w http.ResponseWriter, r *http.Request) {
+	// Process the request
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		slog.Error("Error getting user ID from context")
@@ -68,6 +71,7 @@ func (h *UserHandler) deleteCurrentUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// Respond to the client
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("User deleted successfully"))
 }

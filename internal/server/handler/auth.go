@@ -34,6 +34,7 @@ func (h *AuthHandler) RegisterRoutes(mux *http.ServeMux) {
 }
 
 func (h *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
+	// Input validation
 	var req signUpLoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
@@ -45,17 +46,20 @@ func (h *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Process the request
 	if err := h.authService.SignUp(r.Context(), req.Email, req.Password); err != nil {
 		slog.Error("Error signing up user: " + err.Error())
 		http.Error(w, "Failed to sign up user", http.StatusInternalServerError)
 		return
 	}
 
+	// Respond to the client
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("User signed up successfully"))
 }
 
 func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
+	// Input validation
 	var req signUpLoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
@@ -67,6 +71,7 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Process the request
 	sessionToken, CSRFToken, err := h.authService.Login(r.Context(), req.Email, req.Password)
 	if err != nil {
 		slog.Error("Error logging in user: " + err.Error())
@@ -79,6 +84,7 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Respond to the client
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
 		Value:    sessionToken,
@@ -93,18 +99,21 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
+	// Input validation
 	sessionToken, err := r.Cookie("session_token")
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
+	// Process the request
 	if err := h.authService.Logout(r.Context(), sessionToken.Value); err != nil {
 		slog.Error("Error logging out user: " + err.Error())
 		http.Error(w, "Failed to log out user", http.StatusInternalServerError)
 		return
 	}
 
+	// Respond to the client
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
 		Value:    "",
