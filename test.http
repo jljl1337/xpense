@@ -2,7 +2,7 @@
 @password = password123
 @session_token = dNhLRUq1cNzfkp33
 @csrf_token = tWCszmPSPmR9RioK
-@book_id = 32lh8fbiU1OtA1zlsbxhM8i1yoC
+@book_id = 32lh7Mg3ZPh82gFUg1oTyEouRUx
 
 ############################## Health
 
@@ -65,13 +65,18 @@ Cookie: session_token={{session_token}}
 
 ###
 
+GET http://localhost:8080/api/books/{{book_id}}
+Cookie: session_token={{session_token}}
+
+###
+
 PUT http://localhost:8080/api/books/{{book_id}}
 Cookie: session_token={{session_token}}
 X-CSRF-Token: {{csrf_token}}
 Content-Type: application/json
 
 {
-  "name": "New Book Name",
+  "name": "A New Book Name",
   "description": "Updated description for my book"
 }
 

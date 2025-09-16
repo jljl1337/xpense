@@ -29,6 +29,7 @@ func NewBookHandler(bookService *service.BookService) *BookHandler {
 func (h *BookHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /books", h.createBook)
 	mux.HandleFunc("GET /books", h.getBooks)
+	mux.HandleFunc("GET /books/{id}", h.getBook)
 	mux.HandleFunc("PUT /books/{id}", h.updateBook)
 	mux.HandleFunc("DELETE /books/{id}", h.deleteBook)
 }
@@ -99,6 +100,40 @@ func (h *BookHandler) getBooks(w http.ResponseWriter, r *http.Request) {
 	// Respond to the client
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(books)
+}
+
+func (h *BookHandler) getBook(w http.ResponseWriter, r *http.Request) {
+	// Input validation
+	bookID := r.PathValue("id")
+	if bookID == "" {
+		http.Error(w, "Book ID is required", http.StatusBadRequest)
+		return
+	}
+
+	// Process the request
+	ctx := r.Context()
+	userID, err := middleware.GetUserIDFromContext(ctx)
+	if err != nil {
+		slog.Error("Error getting user ID from context")
+		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		return
+	}
+
+	book, err := h.bookService.GetBookByID(ctx, userID, bookID)
+	if err != nil {
+		slog.Error("Error getting book: " + err.Error())
+		http.Error(w, "Failed to get book", http.StatusInternalServerError)
+		return
+	}
+
+	if book == nil {
+		http.Error(w, "Book not found or access denied", http.StatusNotFound)
+		return
+	}
+
+	// Respond to the client
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(book)
 }
 
 func (h *BookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
