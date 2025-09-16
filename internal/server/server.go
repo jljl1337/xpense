@@ -25,14 +25,17 @@ func NewServer(db *sql.DB) *Server {
 
 	authService := service.NewAuthService(queries)
 	userService := service.NewUserService(queries)
+	bookService := service.NewBookService(queries)
 
 	healthHandler := handler.NewHealthHandler()
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userService)
+	bookHandler := handler.NewBookHandler(bookService)
 
 	healthHandler.RegisterRoutes(apiMux)
 	authHandler.RegisterRoutes(apiMux)
 	userHandler.RegisterRoutes(apiMux)
+	bookHandler.RegisterRoutes(apiMux)
 
 	middlewareProvider := middleware.NewMiddlewareProvider(authService)
 
