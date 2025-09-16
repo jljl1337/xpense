@@ -50,6 +50,27 @@ func GetInt(key string, defaultValue int) (int, error) {
 	return intValue, nil
 }
 
+func MustGetInt64(key string, defaultValue int64) int64 {
+	value, err := GetInt64(key, defaultValue)
+	if err != nil {
+		panic(err)
+	}
+	return value
+}
+
+func GetInt64(key string, defaultValue int64) (int64, error) {
+	value, err := GetString(key, fmt.Sprintf("%d", defaultValue))
+	if err != nil {
+		return 0, err
+	}
+
+	intValue, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return intValue, nil
+}
+
 func MustGetString(key string, defaultValue string) string {
 	value, err := GetString(key, defaultValue)
 	if err != nil {

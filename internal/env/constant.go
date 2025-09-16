@@ -8,6 +8,8 @@ var (
 	SessionTokenCharset string
 	CSRFTokenLength     int
 	CSRFTokenCharset    string
+	PageSizeMax         int64
+	PageSizeDefault     int64
 )
 
 func SetConstants() {
@@ -20,4 +22,6 @@ func SetConstants() {
 	SessionTokenCharset = MustGetString("SESSION_TOKEN_CHARSET", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	CSRFTokenLength = MustGetInt("CSRF_TOKEN_LENGTH", 16)
 	CSRFTokenCharset = MustGetString("CSRF_TOKEN_CHARSET", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	PageSizeMax = MustGetInt64("PAGE_SIZE_MAX", 100)
+	PageSizeDefault = MustGetInt64("PAGE_SIZE_DEFAULT", 10)
 }

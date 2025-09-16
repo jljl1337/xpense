@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/jljl1337/xpense/internal/env"
 	"github.com/jljl1337/xpense/internal/server/middleware"
 	"github.com/jljl1337/xpense/internal/service"
 )
@@ -75,8 +76,8 @@ func (h *BookHandler) getBooks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pageSize, err := strconv.ParseInt(queryValues.Get("page_size"), 10, 64)
-	if err != nil || pageSize < 1 || pageSize > 100 {
-		pageSize = 10
+	if err != nil || pageSize < 1 || pageSize > env.PageSizeMax {
+		pageSize = env.PageSizeDefault
 	}
 
 	// Process the request
