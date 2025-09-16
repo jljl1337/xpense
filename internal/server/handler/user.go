@@ -40,7 +40,7 @@ func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.userService.GetUserByID(r.Context(), userID)
 	if user == nil || err != nil {
-		slog.Error("User not found with ID: " + userID)
+		slog.Error("Failed to get user with ID: " + userID)
 		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
 		return
 	}
