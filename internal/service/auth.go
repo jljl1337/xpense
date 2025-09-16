@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"time"
 
@@ -48,13 +47,20 @@ func (a *AuthService) SignUp(ctx context.Context, email, password string) error 
 //
 // If an error occurs during the process, it returns the error.
 func (a *AuthService) Login(ctx context.Context, email, password string) (string, string, error) {
-	user, err := a.queries.GetUserByEmail(ctx, email)
+	users, err := a.queries.GetUserByEmail(ctx, email)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return "", "", nil
-		}
 		return "", "", err
 	}
+
+	if len(users) > 1 {
+		return "", "", errors.New("multiple users found with the same email")
+	}
+
+	if len(users) < 1 {
+		return "", "", nil
+	}
+
+	user := users[0]
 
 	if !crypto.CheckPasswordHash(password, user.PasswordHash) {
 		return "", "", nil
@@ -88,15 +94,21 @@ func (a *AuthService) Login(ctx context.Context, email, password string) (string
 //
 // If an error occurs during the process, it returns the error.
 func (a *AuthService) GetSessionUserIDAndRefreshSession(ctx context.Context, sessionToken, CSRFToken string) (string, error) {
-	session, err := a.queries.GetSessionByToken(ctx, sessionToken)
+	sessions, err := a.queries.GetSessionByToken(ctx, sessionToken)
 
 	if err != nil {
-		// No session with the given token
-		if errors.Is(err, sql.ErrNoRows) {
-			return "", nil
-		}
 		return "", err
 	}
+
+	if len(sessions) > 1 {
+		return "", errors.New("multiple sessions found with the same token")
+	}
+
+	if len(sessions) < 1 {
+		return "", nil
+	}
+
+	session := sessions[0]
 
 	// CSRF token does not match
 	if CSRFToken != "" && session.CsrfToken != CSRFToken {
