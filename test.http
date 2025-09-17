@@ -1,7 +1,7 @@
 @email = user@example.com
 @password = password123
-@session_token = p6zTbV3lbaCoV5U2
-@csrf_token = f5C5wBrmDGmVD6G5
+@session_token = ScUsj2lOJz1jksoN
+@csrf_token = s4LfAkCXthEr2iQJ
 @book_id = 32lh7M9AfAtV4ZyplKuy1QLtJEx
 @category_id = 32mY2SzRY2SPD9okynd1TeaD1jo
 
@@ -40,6 +40,11 @@ X-CSRF-Token: {{csrf_token}}
 POST http://localhost:8080/api/auth/logout-all
 Cookie: session_token={{session_token}}
 X-CSRF-Token: {{csrf_token}}
+
+###
+
+GET http://localhost:8080/api/auth/csrf-token
+Cookie: session_token={{session_token}}
 
 ############################ User
 

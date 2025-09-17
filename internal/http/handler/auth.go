@@ -14,7 +14,7 @@ type signUpLoginRequest struct {
 	Password string `json:"password"`
 }
 
-type loginResponse struct {
+type loginCSRFTokenResponse struct {
 	CSRFToken string `json:"csrf_token"`
 }
 
@@ -33,6 +33,7 @@ func (h *AuthHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /auth/login", h.login)
 	mux.HandleFunc("POST /auth/logout", h.logout)
 	mux.HandleFunc("POST /auth/logout-all", h.logoutAll)
+	mux.HandleFunc("GET /auth/csrf-token", h.csrfToken)
 }
 
 func (h *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
@@ -94,8 +95,8 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 		Secure:   true,
 	})
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(loginResponse{
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(loginCSRFTokenResponse{
 		CSRFToken: CSRFToken,
 	})
 }
@@ -155,4 +156,32 @@ func (h *AuthHandler) logoutAll(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("User logged out from all sessions successfully"))
+}
+
+func (h *AuthHandler) csrfToken(w http.ResponseWriter, r *http.Request) {
+	// Input validation
+	sessionToken, err := r.Cookie("session_token")
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Process the request
+	CSRFToken, err := h.authService.CSRFToken(r.Context(), sessionToken.Value)
+	if err != nil {
+		slog.Error("Error getting CSRF token: " + err.Error())
+		http.Error(w, "Failed to get CSRF token", http.StatusInternalServerError)
+		return
+	}
+
+	if CSRFToken == "" {
+		http.Error(w, "Invalid session", http.StatusUnauthorized)
+		return
+	}
+
+	// Respond to the client
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(loginCSRFTokenResponse{
+		CSRFToken: CSRFToken,
+	})
 }

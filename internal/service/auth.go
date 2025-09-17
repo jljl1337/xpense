@@ -170,3 +170,23 @@ func (a *AuthService) LogoutAllSessions(ctx context.Context, userID string) erro
 
 	return nil
 }
+
+func (a *AuthService) CSRFToken(ctx context.Context, sessionToken string) (string, error) {
+	sessions, err := a.queries.GetSessionByToken(ctx, sessionToken)
+
+	if err != nil {
+		return "", err
+	}
+
+	if len(sessions) > 1 {
+		return "", errors.New("multiple sessions found with the same token")
+	}
+
+	if len(sessions) < 1 {
+		return "", nil
+	}
+
+	session := sessions[0]
+
+	return session.CsrfToken, nil
+}
