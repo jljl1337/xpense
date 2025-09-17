@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/jljl1337/xpense/internal/http/middleware"
 	"github.com/jljl1337/xpense/internal/service"
 )
 
@@ -31,6 +32,7 @@ func (h *AuthHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /auth/sign-up", h.signUp)
 	mux.HandleFunc("POST /auth/login", h.login)
 	mux.HandleFunc("POST /auth/logout", h.logout)
+	mux.HandleFunc("POST /auth/logout-all", h.logoutAll)
 }
 
 func (h *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
@@ -124,4 +126,33 @@ func (h *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("User logged out successfully"))
+}
+
+func (h *AuthHandler) logoutAll(w http.ResponseWriter, r *http.Request) {
+	// Process the request
+	ctx := r.Context()
+	userID, err := middleware.GetUserIDFromContext(ctx)
+	if err != nil {
+		slog.Error("Error getting user ID from context")
+		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		return
+	}
+
+	if err := h.authService.LogoutAllSessions(r.Context(), userID); err != nil {
+		slog.Error("Error logging out user from all sessions: " + err.Error())
+		http.Error(w, "Failed to log out user from all sessions", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond to the client
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_token",
+		Value:    "",
+		HttpOnly: true,
+		Secure:   true,
+		MaxAge:   -1,
+	})
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("User logged out from all sessions successfully"))
 }

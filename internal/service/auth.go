@@ -157,3 +157,16 @@ func (a *AuthService) Logout(ctx context.Context, sessionToken string) error {
 
 	return nil
 }
+
+func (a *AuthService) LogoutAllSessions(ctx context.Context, userID string) error {
+	rows, err := a.queries.DeleteSessionByUserID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	if rows < 1 {
+		return errors.New("no sessions deleted")
+	}
+
+	return nil
+}
