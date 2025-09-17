@@ -36,7 +36,13 @@ SET
 WHERE
     token = @token;
 
--- name: DeleteSession :execrows
+-- name: DeleteSessionByUserID :execrows
+DELETE FROM
+    session
+WHERE
+    user_id = @user_id;
+
+-- name: DeleteSessionByExpiresAt :execrows
 DELETE FROM
     session
 WHERE
