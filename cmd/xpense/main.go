@@ -21,18 +21,20 @@ func main() {
 
 	log.SetCustomLogger()
 
-	// Migrate the database
-	dbInstance, err := db.NewDB()
+	// Connect to the database
+	dbInstance, err := db.NewDB(env.DbPath)
 	if err != nil {
 		slog.Error("Failed to connect to database: " + err.Error())
 		return
 	}
 
+	// Migrate the database
 	if err := db.Migrate(dbInstance); err != nil {
 		slog.Error("Failed to migrate database: " + err.Error())
 		return
 	}
 
+	// Start the server with graceful shutdown
 	server := server.NewServer(dbInstance)
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
