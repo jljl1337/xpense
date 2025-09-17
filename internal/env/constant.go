@@ -6,6 +6,7 @@ var (
 	BackupCronSchedule  string
 	LogLevel            int
 	Port                string
+	CORSOrigins         string
 	SessionTokenLength  int
 	SessionTokenCharset string
 	CSRFTokenLength     int
@@ -22,6 +23,7 @@ func SetConstants() {
 	BackupCronSchedule = MustGetString("BACKUP_CRON_SCHEDULE", "0 0 * * *")
 	LogLevel = MustGetInt("LOG_LEVEL", 0)
 	Port = MustGetString("PORT", "8080")
+	CORSOrigins = MustGetString("CORS_ORIGINS", "*")
 	SessionTokenLength = MustGetInt("SESSION_TOKEN_LENGTH", 32)
 	SessionTokenCharset = MustGetString("SESSION_TOKEN_CHARSET", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	CSRFTokenLength = MustGetInt("CSRF_TOKEN_LENGTH", 32)
