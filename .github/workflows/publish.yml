@@ -92,7 +92,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY_IMAGE }}
           tags: |
-            type=sha
+            type=raw,value={{sha}}
             type=raw,value=preview
             type=semver,pattern={{major}}
             type=semver,pattern={{major}}.{{minor}}
