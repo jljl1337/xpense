@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/jljl1337/xpense/internal/server/middleware"
+	"github.com/jljl1337/xpense/internal/http/middleware"
 	"github.com/jljl1337/xpense/internal/service"
 )
 

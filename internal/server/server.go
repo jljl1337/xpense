@@ -7,9 +7,9 @@ import (
 	"net/http"
 
 	"github.com/jljl1337/xpense/internal/env"
+	"github.com/jljl1337/xpense/internal/http/handler"
+	"github.com/jljl1337/xpense/internal/http/middleware"
 	"github.com/jljl1337/xpense/internal/repository"
-	"github.com/jljl1337/xpense/internal/server/handler"
-	"github.com/jljl1337/xpense/internal/server/middleware"
 	"github.com/jljl1337/xpense/internal/service"
 )
 
