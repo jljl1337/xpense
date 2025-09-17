@@ -10,7 +10,6 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/jljl1337/xpense/internal/db"
 	"github.com/jljl1337/xpense/internal/env"
 	"github.com/jljl1337/xpense/internal/log"
 	"github.com/jljl1337/xpense/internal/server"
@@ -21,21 +20,12 @@ func main() {
 
 	log.SetCustomLogger()
 
-	// Connect to the database
-	dbInstance, err := db.NewDB(env.DbPath)
-	if err != nil {
-		slog.Error("Failed to connect to database: " + err.Error())
-		return
-	}
-
-	// Migrate the database
-	if err := db.Migrate(dbInstance); err != nil {
-		slog.Error("Failed to migrate database: " + err.Error())
-		return
-	}
-
 	// Start the server with graceful shutdown
-	server := server.NewServer(dbInstance)
+	server, err := server.NewServer()
+	if err != nil {
+		slog.Error("Failed to create server: " + err.Error())
+		return
+	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()

@@ -2,6 +2,8 @@ package env
 
 var (
 	DbPath              string
+	BackupDbPath        string
+	BackupCronSchedule  string
 	LogLevel            int
 	Port                string
 	SessionTokenLength  int
@@ -16,6 +18,8 @@ func SetConstants() {
 	loadOptionalEnvFile()
 
 	DbPath = MustGetString("DB_PATH", "data/live/db/live.db")
+	BackupDbPath = MustGetString("BACKUP_DB_PATH", "data/backup/db/backup.db")
+	BackupCronSchedule = MustGetString("BACKUP_CRON_SCHEDULE", "0 0 * * *")
 	LogLevel = MustGetInt("LOG_LEVEL", 0)
 	Port = MustGetString("PORT", "8080")
 	SessionTokenLength = MustGetInt("SESSION_TOKEN_LENGTH", 16)
