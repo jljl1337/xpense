@@ -1,18 +1,21 @@
 package env
 
 var (
-	DbPath              string
-	BackupDbPath        string
-	BackupCronSchedule  string
-	LogLevel            int
-	Port                string
-	CORSOrigins         string
-	SessionTokenLength  int
-	SessionTokenCharset string
-	CSRFTokenLength     int
-	CSRFTokenCharset    string
-	PageSizeMax         int64
-	PageSizeDefault     int64
+	DbPath                string
+	BackupDbPath          string
+	BackupCronSchedule    string
+	LogLevel              int
+	Port                  string
+	CORSOrigins           string
+	SessionCookieName     string
+	SessionCookieHttpOnly bool
+	SessionCookieSecure   bool
+	SessionTokenLength    int
+	SessionTokenCharset   string
+	CSRFTokenLength       int
+	CSRFTokenCharset      string
+	PageSizeMax           int64
+	PageSizeDefault       int64
 )
 
 func SetConstants() {
@@ -24,6 +27,9 @@ func SetConstants() {
 	LogLevel = MustGetInt("LOG_LEVEL", 0)
 	Port = MustGetString("PORT", "8080")
 	CORSOrigins = MustGetString("CORS_ORIGINS", "*")
+	SessionCookieName = MustGetString("SESSION_COOKIE_NAME", "session_token")
+	SessionCookieHttpOnly = MustGetBool("SESSION_COOKIE_HTTP_ONLY", true)
+	SessionCookieSecure = MustGetBool("SESSION_COOKIE_SECURE", false)
 	SessionTokenLength = MustGetInt("SESSION_TOKEN_LENGTH", 32)
 	SessionTokenCharset = MustGetString("SESSION_TOKEN_CHARSET", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	CSRFTokenLength = MustGetInt("CSRF_TOKEN_LENGTH", 32)

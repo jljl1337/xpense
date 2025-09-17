@@ -2,9 +2,11 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 
+	"github.com/jljl1337/xpense/internal/env"
 	"github.com/jljl1337/xpense/internal/http/middleware"
 	"github.com/jljl1337/xpense/internal/service"
 )
@@ -89,11 +91,14 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 
 	// Respond to the client
 	http.SetCookie(w, &http.Cookie{
-		Name:     "session_token",
+		Name:     env.SessionCookieName,
 		Value:    sessionToken,
-		HttpOnly: true,
-		Secure:   true,
+		HttpOnly: env.SessionCookieHttpOnly,
+		Secure:   env.SessionCookieSecure,
+		Path:     "/",
 	})
+
+	slog.Debug(fmt.Sprintf("Set-Cookie: %s=%s; HttpOnly=%t; Secure=%t; Path=/", env.SessionCookieName, sessionToken, env.SessionCookieHttpOnly, env.SessionCookieSecure))
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(loginCSRFTokenResponse{
@@ -103,7 +108,7 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 	// Input validation
-	sessionToken, err := r.Cookie("session_token")
+	sessionToken, err := r.Cookie(env.SessionCookieName)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -118,10 +123,11 @@ func (h *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 
 	// Respond to the client
 	http.SetCookie(w, &http.Cookie{
-		Name:     "session_token",
+		Name:     env.SessionCookieName,
 		Value:    "",
-		HttpOnly: true,
-		Secure:   true,
+		HttpOnly: env.SessionCookieHttpOnly,
+		Secure:   env.SessionCookieSecure,
+		Path:     "/",
 		MaxAge:   -1,
 	})
 
@@ -147,10 +153,11 @@ func (h *AuthHandler) logoutAll(w http.ResponseWriter, r *http.Request) {
 
 	// Respond to the client
 	http.SetCookie(w, &http.Cookie{
-		Name:     "session_token",
+		Name:     env.SessionCookieName,
 		Value:    "",
-		HttpOnly: true,
-		Secure:   true,
+		HttpOnly: env.SessionCookieHttpOnly,
+		Secure:   env.SessionCookieSecure,
+		Path:     "/",
 		MaxAge:   -1,
 	})
 
@@ -160,7 +167,7 @@ func (h *AuthHandler) logoutAll(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) csrfToken(w http.ResponseWriter, r *http.Request) {
 	// Input validation
-	sessionToken, err := r.Cookie("session_token")
+	sessionToken, err := r.Cookie(env.SessionCookieName)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return

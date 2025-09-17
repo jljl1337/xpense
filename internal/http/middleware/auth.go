@@ -5,6 +5,8 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+
+	"github.com/jljl1337/xpense/internal/env"
 )
 
 type contextKey string
@@ -21,7 +23,7 @@ func (m *MiddlewareProvider) Auth() Middleware {
 			}
 
 			// Get session token from cookie
-			cookie, err := r.Cookie("session_token")
+			cookie, err := r.Cookie(env.SessionCookieName)
 			if err != nil {
 				// err is not nil only if the cookie is not present
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
