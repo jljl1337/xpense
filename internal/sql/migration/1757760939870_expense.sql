@@ -1,13 +1,18 @@
 CREATE TABLE expense (
-    id TEXT PRIMARY KEY,
-    book_id TEXT NOT NULL REFERENCES book(id) ON DELETE CASCADE,
-    category_id TEXT NOT NULL REFERENCES category(id) ON DELETE CASCADE,
-    payment_method_id TEXT NOT NULL REFERENCES payment_method(id) ON DELETE CASCADE,
+    id TEXT NOT NULL,
+    book_id TEXT NOT NULL,
+    category_id TEXT NOT NULL,
+    payment_method_id TEXT NOT NULL,
     date INTEGER NOT NULL,
     amount INTEGER NOT NULL,
     remark TEXT NOT NULL,
     created_at INTEGER NOT NULL,
-    updated_at INTEGER NOT NULL
+    updated_at INTEGER NOT NULL,
+
+    PRIMARY KEY (id),
+    FOREIGN KEY (book_id) REFERENCES book(id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE,
+    FOREIGN KEY (payment_method_id) REFERENCES payment_method(id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_expense_book_id ON expense(book_id);
