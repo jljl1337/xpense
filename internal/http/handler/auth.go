@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -97,8 +96,6 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 		Secure:   env.SessionCookieSecure,
 		Path:     "/",
 	})
-
-	slog.Debug(fmt.Sprintf("Set-Cookie: %s=%s; HttpOnly=%t; Secure=%t; Path=/", env.SessionCookieName, sessionToken, env.SessionCookieHttpOnly, env.SessionCookieSecure))
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(loginCSRFTokenResponse{
