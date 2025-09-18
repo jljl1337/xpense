@@ -100,6 +100,10 @@ func Migrate(db *sql.DB) error {
 		allMigrations = append(allMigrations, Migration{ID: id, Statement: statement})
 	}
 
+	if len(appliedMigrations) > len(allMigrations) {
+		return errors.New("applied migrations are more than the available migrations")
+	}
+
 	// Apply the new migrations within a transaction
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
