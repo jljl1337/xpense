@@ -1,9 +1,13 @@
 package crypto
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"golang.org/x/crypto/bcrypt"
+
+	"github.com/jljl1337/xpense/internal/env"
+)
 
 func HashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), env.PasswordBcryptCost)
 	return string(bytes), err
 }
 
