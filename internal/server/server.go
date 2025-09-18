@@ -47,18 +47,21 @@ func NewServer() (*Server, error) {
 	userService := service.NewUserService(queries)
 	bookService := service.NewBookService(queries)
 	categoryService := service.NewCategoryService(queries)
+	paymentMethodService := service.NewPaymentMethodService(queries)
 
 	healthHandler := handler.NewHealthHandler()
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userService)
 	bookHandler := handler.NewBookHandler(bookService)
 	categoryHandler := handler.NewCategoryHandler(categoryService)
+	paymentMethodHandler := handler.NewPaymentMethodHandler(paymentMethodService)
 
 	healthHandler.RegisterRoutes(apiMux)
 	authHandler.RegisterRoutes(apiMux)
 	userHandler.RegisterRoutes(apiMux)
 	bookHandler.RegisterRoutes(apiMux)
 	categoryHandler.RegisterRoutes(apiMux)
+	paymentMethodHandler.RegisterRoutes(apiMux)
 
 	middlewareProvider := middleware.NewMiddlewareProvider(authService)
 
