@@ -62,4 +62,4 @@ ON
     pm.book_id = b.id
 WHERE
     pm.id = @payment_method_id AND
-    b.id = @book_id;
+    b.user_id = @user_id;

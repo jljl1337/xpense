@@ -20,16 +20,16 @@ ON
     e.book_id = b.id
 WHERE
     e.id = ?1 AND
-    b.id = ?2
+    b.user_id = ?2
 `
 
 type CheckExpenseAccessParams struct {
 	ExpenseID string `json:"expense_id"`
-	BookID    string `json:"book_id"`
+	UserID    string `json:"user_id"`
 }
 
 func (q *Queries) CheckExpenseAccess(ctx context.Context, arg CheckExpenseAccessParams) (bool, error) {
-	row := q.db.QueryRowContext(ctx, checkExpenseAccess, arg.ExpenseID, arg.BookID)
+	row := q.db.QueryRowContext(ctx, checkExpenseAccess, arg.ExpenseID, arg.UserID)
 	var can_access bool
 	err := row.Scan(&can_access)
 	return can_access, err

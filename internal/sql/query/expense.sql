@@ -76,7 +76,7 @@ ON
     e.book_id = b.id
 WHERE
     e.id = @expense_id AND
-    b.id = @book_id;
+    b.user_id = @user_id;
 
 -- name: CountExpensesByCategoryID :one
 SELECT
