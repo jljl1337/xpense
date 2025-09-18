@@ -9,6 +9,32 @@ import (
 	"context"
 )
 
+const checkPaymentMethodAccess = `-- name: CheckPaymentMethodAccess :one
+SELECT
+    COUNT(*) > 0 AS can_access
+FROM
+    payment_method AS pm
+LEFT JOIN
+    book AS b
+ON
+    pm.book_id = b.id
+WHERE
+    pm.id = ?1 AND
+    b.id = ?2
+`
+
+type CheckPaymentMethodAccessParams struct {
+	PaymentMethodID string `json:"payment_method_id"`
+	BookID          string `json:"book_id"`
+}
+
+func (q *Queries) CheckPaymentMethodAccess(ctx context.Context, arg CheckPaymentMethodAccessParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, checkPaymentMethodAccess, arg.PaymentMethodID, arg.BookID)
+	var can_access bool
+	err := row.Scan(&can_access)
+	return can_access, err
+}
+
 const createPaymentMethod = `-- name: CreatePaymentMethod :execrows
 INSERT INTO payment_method (
     id,

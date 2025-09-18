@@ -50,3 +50,16 @@ DELETE FROM
     payment_method
 WHERE
     id = @id;
+
+-- name: CheckPaymentMethodAccess :one
+SELECT
+    COUNT(*) > 0 AS can_access
+FROM
+    payment_method AS pm
+LEFT JOIN
+    book AS b
+ON
+    pm.book_id = b.id
+WHERE
+    pm.id = @payment_method_id AND
+    b.id = @book_id;

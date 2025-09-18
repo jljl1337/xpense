@@ -9,6 +9,64 @@ import (
 	"context"
 )
 
+const checkExpenseAccess = `-- name: CheckExpenseAccess :one
+SELECT
+    COUNT(*) > 0 AS can_access
+FROM
+    expense AS e
+LEFT JOIN
+    book AS b
+ON
+    e.book_id = b.id
+WHERE
+    e.id = ?1 AND
+    b.id = ?2
+`
+
+type CheckExpenseAccessParams struct {
+	ExpenseID string `json:"expense_id"`
+	BookID    string `json:"book_id"`
+}
+
+func (q *Queries) CheckExpenseAccess(ctx context.Context, arg CheckExpenseAccessParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, checkExpenseAccess, arg.ExpenseID, arg.BookID)
+	var can_access bool
+	err := row.Scan(&can_access)
+	return can_access, err
+}
+
+const countExpensesByCategoryID = `-- name: CountExpensesByCategoryID :one
+SELECT
+    COUNT(*) AS count
+FROM
+    expense
+WHERE
+    category_id = ?1
+`
+
+func (q *Queries) CountExpensesByCategoryID(ctx context.Context, categoryID string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countExpensesByCategoryID, categoryID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countExpensesByPaymentMethodID = `-- name: CountExpensesByPaymentMethodID :one
+SELECT
+    COUNT(*) AS count
+FROM
+    expense
+WHERE
+    payment_method_id = ?1
+`
+
+func (q *Queries) CountExpensesByPaymentMethodID(ctx context.Context, paymentMethodID string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countExpensesByPaymentMethodID, paymentMethodID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createExpense = `-- name: CreateExpense :execrows
 INSERT INTO expense (
     id,

@@ -64,3 +64,32 @@ DELETE FROM
     expense
 WHERE
     id = @id;
+
+-- name: CheckExpenseAccess :one
+SELECT
+    COUNT(*) > 0 AS can_access
+FROM
+    expense AS e
+LEFT JOIN
+    book AS b
+ON
+    e.book_id = b.id
+WHERE
+    e.id = @expense_id AND
+    b.id = @book_id;
+
+-- name: CountExpensesByCategoryID :one
+SELECT
+    COUNT(*) AS count
+FROM
+    expense
+WHERE
+    category_id = @category_id;
+
+-- name: CountExpensesByPaymentMethodID :one
+SELECT
+    COUNT(*) AS count
+FROM
+    expense
+WHERE
+    payment_method_id = @payment_method_id;
