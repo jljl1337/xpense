@@ -21,7 +21,7 @@ func NewAuthService(queries *repository.Queries) *AuthService {
 	}
 }
 
-func (a *AuthService) SignUp(ctx context.Context, email, password string) error {
+func (a *AuthService) SignUp(ctx context.Context, username, password string) error {
 	passwordHash, err := crypto.HashPassword(password)
 	if err != nil {
 		return err
@@ -31,7 +31,7 @@ func (a *AuthService) SignUp(ctx context.Context, email, password string) error 
 
 	_, err = a.queries.CreateUser(ctx, repository.CreateUserParams{
 		ID:           generator.NewKSUID(),
-		Email:        email,
+		Username:     username,
 		PasswordHash: passwordHash,
 		CreatedAt:    currentTime,
 		UpdatedAt:    currentTime,
@@ -46,14 +46,14 @@ func (a *AuthService) SignUp(ctx context.Context, email, password string) error 
 // If the credentials are invalid, it returns empty strings and no error.
 //
 // If an error occurs during the process, it returns the error.
-func (a *AuthService) Login(ctx context.Context, email, password string) (string, string, error) {
-	users, err := a.queries.GetUserByEmail(ctx, email)
+func (a *AuthService) Login(ctx context.Context, username, password string) (string, string, error) {
+	users, err := a.queries.GetUserByUsername(ctx, username)
 	if err != nil {
 		return "", "", err
 	}
 
 	if len(users) > 1 {
-		return "", "", errors.New("multiple users found with the same email")
+		return "", "", errors.New("multiple users found with the same username")
 	}
 
 	if len(users) < 1 {

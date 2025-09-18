@@ -11,7 +11,7 @@ import (
 
 type getCurrentUserResponse struct {
 	ID        string `json:"id"`
-	Email     string `json:"email"`
+	Username  string `json:"username"`
 	CreatedAt int64  `json:"created_at"`
 }
 
@@ -49,7 +49,7 @@ func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
 	// Respond to the client
 	response := getCurrentUserResponse{
 		ID:        user.ID,
-		Email:     user.Email,
+		Username:  user.Username,
 		CreatedAt: user.CreatedAt,
 	}
 	w.Header().Set("Content-Type", "application/json")

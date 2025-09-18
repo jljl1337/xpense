@@ -11,7 +11,7 @@ import (
 )
 
 type signUpLoginRequest struct {
-	Email    string `json:"email"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
@@ -45,13 +45,13 @@ func (h *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Email == "" || req.Password == "" {
-		http.Error(w, "Email and password are required", http.StatusBadRequest)
+	if req.Username == "" || req.Password == "" {
+		http.Error(w, "Username and password are required", http.StatusBadRequest)
 		return
 	}
 
 	// Process the request
-	if err := h.authService.SignUp(r.Context(), req.Email, req.Password); err != nil {
+	if err := h.authService.SignUp(r.Context(), req.Username, req.Password); err != nil {
 		slog.Error("Error signing up user: " + err.Error())
 		http.Error(w, "Failed to sign up user", http.StatusInternalServerError)
 		return
@@ -70,13 +70,13 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Email == "" || req.Password == "" {
-		http.Error(w, "Email and password are required", http.StatusBadRequest)
+	if req.Username == "" || req.Password == "" {
+		http.Error(w, "Username and password are required", http.StatusBadRequest)
 		return
 	}
 
 	// Process the request
-	sessionToken, CSRFToken, err := h.authService.Login(r.Context(), req.Email, req.Password)
+	sessionToken, CSRFToken, err := h.authService.Login(r.Context(), req.Username, req.Password)
 	if err != nil {
 		slog.Error("Error logging in user: " + err.Error())
 		http.Error(w, "Failed to log in user", http.StatusInternalServerError)

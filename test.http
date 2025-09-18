@@ -1,7 +1,7 @@
-@email = user@example.com
+@username = user1
 @password = password123
-@session_token = ScUsj2lOJz1jksoN
-@csrf_token = s4LfAkCXthEr2iQJ
+@session_token = nAwVHM2m5BydXrwENPHuOxCSPKKLujl8
+@csrf_token = LSisPWUfmotA8oh74RfY6PkszwRWS5M6
 @book_id = 32lh7M9AfAtV4ZyplKuy1QLtJEx
 @category_id = 32mY2SzRY2SPD9okynd1TeaD1jo
 
@@ -15,7 +15,7 @@ POST http://localhost:8080/api/auth/sign-up
 Content-Type: application/json
 
 {
-  "email": "{{email}}",
+  "username": "{{username}}",
   "password": "{{password}}"
 }
 
@@ -25,7 +25,7 @@ POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "{{email}}",
+  "username": "{{username}}",
   "password": "{{password}}"
 }
 

@@ -1,13 +1,13 @@
 -- name: CreateUser :execrows
 INSERT INTO user (
     id,
-    email,
+    username,
     password_hash,
     created_at,
     updated_at
 ) VALUES (
     @id,
-    @email,
+    @username,
     @password_hash,
     @created_at,
     @updated_at
@@ -23,19 +23,19 @@ FROM
 WHERE
     id = @id;
 
--- name: GetUserByEmail :many
+-- name: GetUserByUsername :many
 SELECT
     *
 FROM
     user
 WHERE
-    email = @email;
+    username = @username;
 
 -- name: UpdateUser :execrows
 UPDATE
     user
 SET
-    email = @email,
+    username = @username,
     password_hash = @password_hash,
     updated_at = @updated_at
 WHERE

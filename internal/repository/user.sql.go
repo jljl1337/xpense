@@ -12,7 +12,7 @@ import (
 const createUser = `-- name: CreateUser :execrows
 INSERT INTO user (
     id,
-    email,
+    username,
     password_hash,
     created_at,
     updated_at
@@ -24,12 +24,12 @@ INSERT INTO user (
     ?5
 )
 RETURNING
-    id, email, password_hash, created_at, updated_at
+    id, username, password_hash, created_at, updated_at
 `
 
 type CreateUserParams struct {
 	ID           string `json:"id"`
-	Email        string `json:"email"`
+	Username     string `json:"username"`
 	PasswordHash string `json:"password_hash"`
 	CreatedAt    int64  `json:"created_at"`
 	UpdatedAt    int64  `json:"updated_at"`
@@ -38,7 +38,7 @@ type CreateUserParams struct {
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int64, error) {
 	result, err := q.db.ExecContext(ctx, createUser,
 		arg.ID,
-		arg.Email,
+		arg.Username,
 		arg.PasswordHash,
 		arg.CreatedAt,
 		arg.UpdatedAt,
@@ -64,47 +64,9 @@ func (q *Queries) DeleteUser(ctx context.Context, id string) (int64, error) {
 	return result.RowsAffected()
 }
 
-const getUserByEmail = `-- name: GetUserByEmail :many
-SELECT
-    id, email, password_hash, created_at, updated_at
-FROM
-    user
-WHERE
-    email = ?1
-`
-
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getUserByEmail, email)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []User{}
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.Email,
-			&i.PasswordHash,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getUserByID = `-- name: GetUserByID :many
 SELECT
-    id, email, password_hash, created_at, updated_at
+    id, username, password_hash, created_at, updated_at
 FROM
     user
 WHERE
@@ -122,7 +84,45 @@ func (q *Queries) GetUserByID(ctx context.Context, id string) ([]User, error) {
 		var i User
 		if err := rows.Scan(
 			&i.ID,
-			&i.Email,
+			&i.Username,
+			&i.PasswordHash,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserByUsername = `-- name: GetUserByUsername :many
+SELECT
+    id, username, password_hash, created_at, updated_at
+FROM
+    user
+WHERE
+    username = ?1
+`
+
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, getUserByUsername, username)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Username,
 			&i.PasswordHash,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -144,7 +144,7 @@ const updateUser = `-- name: UpdateUser :execrows
 UPDATE
     user
 SET
-    email = ?1,
+    username = ?1,
     password_hash = ?2,
     updated_at = ?3
 WHERE
@@ -152,7 +152,7 @@ WHERE
 `
 
 type UpdateUserParams struct {
-	Email        string `json:"email"`
+	Username     string `json:"username"`
 	PasswordHash string `json:"password_hash"`
 	UpdatedAt    int64  `json:"updated_at"`
 	ID           string `json:"id"`
@@ -160,7 +160,7 @@ type UpdateUserParams struct {
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (int64, error) {
 	result, err := q.db.ExecContext(ctx, updateUser,
-		arg.Email,
+		arg.Username,
 		arg.PasswordHash,
 		arg.UpdatedAt,
 		arg.ID,

@@ -17,14 +17,14 @@ func NewUserService(queries *repository.Queries) *UserService {
 	}
 }
 
-func (s *UserService) UserExistsByEmail(ctx context.Context, email string) (bool, error) {
-	users, err := s.queries.GetUserByEmail(ctx, email)
+func (s *UserService) UserExistsByUsername(ctx context.Context, username string) (bool, error) {
+	users, err := s.queries.GetUserByUsername(ctx, username)
 	if err != nil {
 		return false, err
 	}
 
 	if len(users) > 1 {
-		return false, errors.New("multiple users found with the same email")
+		return false, errors.New("multiple users found with the same username")
 	}
 
 	return len(users) == 1, nil
