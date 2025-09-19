@@ -48,6 +48,7 @@ func NewServer() (*Server, error) {
 	bookService := service.NewBookService(queries)
 	categoryService := service.NewCategoryService(queries)
 	paymentMethodService := service.NewPaymentMethodService(queries)
+	expenseService := service.NewExpenseService(queries)
 
 	healthHandler := handler.NewHealthHandler()
 	authHandler := handler.NewAuthHandler(authService)
@@ -55,6 +56,7 @@ func NewServer() (*Server, error) {
 	bookHandler := handler.NewBookHandler(bookService)
 	categoryHandler := handler.NewCategoryHandler(categoryService)
 	paymentMethodHandler := handler.NewPaymentMethodHandler(paymentMethodService)
+	expenseHandler := handler.NewExpenseHandler(expenseService)
 
 	healthHandler.RegisterRoutes(apiMux)
 	authHandler.RegisterRoutes(apiMux)
@@ -62,6 +64,7 @@ func NewServer() (*Server, error) {
 	bookHandler.RegisterRoutes(apiMux)
 	categoryHandler.RegisterRoutes(apiMux)
 	paymentMethodHandler.RegisterRoutes(apiMux)
+	expenseHandler.RegisterRoutes(apiMux)
 
 	middlewareProvider := middleware.NewMiddlewareProvider(authService)
 

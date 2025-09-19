@@ -1,10 +1,11 @@
 @username = user1
 @password = password123
-@session_token = pkAmWxi3p2JrVuzloFPDTDUvBfViPVDq
-@csrf_token = ok55MLVeKXpyv94uY20vech3tsTmhj9J
-@book_id = 32rwhIRRjK5pYHbOBfhHYvRRk92
-@category_id = 32mY2SzRY2SPD9okynd1TeaD1jo
-@payment_method_id = 32rwjWg2maUAvnPyo4bAC0gBpf8
+@session_token = 8daKAUIGK04AJdnNmFQms3wCHyeCDXKV
+@csrf_token = 8sWTNWY1nq1oigALnw7XkKLeGb35OWe9
+@book_id = 32sfrqn4W7Tteo9dQ22a2mUnXh6
+@category_id = 32sfszG1YtMLv4snkJu7I25asZz
+@payment_method_id = 32sfw5xJWLeOUU2YHSCBmnsBuOW
+@expense_id = 32sgAI3JJmYCkQ48Pefg0i7kmiP
 
 ############################## Health
 
@@ -178,5 +179,52 @@ Content-Type: application/json
 ###
 
 DELETE http://localhost:8080/api/payment-methods/{{payment_method_id}}
+Cookie: session_token={{session_token}}
+X-CSRF-Token: {{csrf_token}}
+
+############################ Expense
+
+POST http://localhost:8080/api/expenses
+Cookie: session_token={{session_token}}
+X-CSRF-Token: {{csrf_token}}
+Content-Type: application/json
+
+{
+  "book_id": "{{book_id}}",
+  "category_id": "{{category_id}}",
+  "payment_method_id": "{{payment_method_id}}",
+  "date": 1095379200000,
+  "amount": 50.75,
+  "remark": "Grocery shopping"
+}
+
+###
+
+GET http://localhost:8080/api/expenses?book_id={{book_id}}
+Cookie: session_token={{session_token}}
+
+###
+
+GET http://localhost:8080/api/expenses/{{expense_id}}
+Cookie: session_token={{session_token}}
+
+###
+PUT http://localhost:8080/api/expenses/{{expense_id}}
+Cookie: session_token={{session_token}}
+X-CSRF-Token: {{csrf_token}}
+Content-Type: application/json
+
+{
+  "book_id": "{{book_id}}",
+  "category_id": "{{category_id}}",
+  "payment_method_id": "{{payment_method_id}}",
+  "date": 1095379200000,
+  "amount": 75.00,
+  "remark": "Updated grocery shopping"
+}
+
+###
+
+DELETE http://localhost:8080/api/expenses/{{expense_id}}
 Cookie: session_token={{session_token}}
 X-CSRF-Token: {{csrf_token}}
