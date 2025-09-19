@@ -23,15 +23,15 @@ type Category struct {
 }
 
 type Expense struct {
-	ID              string `json:"id"`
-	BookID          string `json:"book_id"`
-	CategoryID      string `json:"category_id"`
-	PaymentMethodID string `json:"payment_method_id"`
-	Date            int64  `json:"date"`
-	Amount          int64  `json:"amount"`
-	Remark          string `json:"remark"`
-	CreatedAt       int64  `json:"created_at"`
-	UpdatedAt       int64  `json:"updated_at"`
+	ID              string  `json:"id"`
+	BookID          string  `json:"book_id"`
+	CategoryID      string  `json:"category_id"`
+	PaymentMethodID string  `json:"payment_method_id"`
+	Date            int64   `json:"date"`
+	Amount          float64 `json:"amount"`
+	Remark          string  `json:"remark"`
+	CreatedAt       int64   `json:"created_at"`
+	UpdatedAt       int64   `json:"updated_at"`
 }
 
 type PaymentMethod struct {
