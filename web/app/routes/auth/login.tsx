@@ -94,7 +94,7 @@ export default function Page() {
                         <FormControl>
                           <Input
                             type="password"
-                            placeholder="your_Very_secure_password!"
+                            placeholder="yourVerySecureP@ssw0rd!"
                             {...field}
                           />
                         </FormControl>

@@ -116,7 +116,7 @@ export default function Page() {
                         <FormControl>
                           <Input
                             type="password"
-                            placeholder="password_8_to_32_char"
+                            placeholder="P@assw0rd8to32char"
                             {...field}
                           />
                         </FormControl>
@@ -133,7 +133,7 @@ export default function Page() {
                         <FormControl>
                           <Input
                             type="password"
-                            placeholder="password_8_to_32_char"
+                            placeholder="P@assw0rd8to32char"
                             {...field}
                           />
                         </FormControl>
