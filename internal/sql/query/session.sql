@@ -36,9 +36,12 @@ SET
 WHERE
     token = @token;
 
--- name: DeleteSessionByUserID :execrows
-DELETE FROM
+-- name: UpdateSessionByUserID :execrows
+UPDATE
     session
+SET
+    expires_at = @expires_at,
+    updated_at = @updated_at
 WHERE
     user_id = @user_id;
 

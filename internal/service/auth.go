@@ -159,7 +159,12 @@ func (a *AuthService) Logout(ctx context.Context, sessionToken string) error {
 }
 
 func (a *AuthService) LogoutAllSessions(ctx context.Context, userID string) error {
-	rows, err := a.queries.DeleteSessionByUserID(ctx, userID)
+	now := time.Now().UnixMilli()
+	rows, err := a.queries.UpdateSessionByUserID(ctx, repository.UpdateSessionByUserIDParams{
+		UserID:    userID,
+		ExpiresAt: now,
+		UpdatedAt: now,
+	})
 	if err != nil {
 		return err
 	}

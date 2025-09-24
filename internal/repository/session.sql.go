@@ -72,21 +72,6 @@ func (q *Queries) DeleteSessionByExpiresAt(ctx context.Context, expiresAt int64)
 	return result.RowsAffected()
 }
 
-const deleteSessionByUserID = `-- name: DeleteSessionByUserID :execrows
-DELETE FROM
-    session
-WHERE
-    user_id = ?1
-`
-
-func (q *Queries) DeleteSessionByUserID(ctx context.Context, userID string) (int64, error) {
-	result, err := q.db.ExecContext(ctx, deleteSessionByUserID, userID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
-}
-
 const getSessionByToken = `-- name: GetSessionByToken :many
 SELECT
     id, user_id, token, csrf_token, expires_at, created_at, updated_at
@@ -145,6 +130,30 @@ type UpdateSessionByTokenParams struct {
 
 func (q *Queries) UpdateSessionByToken(ctx context.Context, arg UpdateSessionByTokenParams) (int64, error) {
 	result, err := q.db.ExecContext(ctx, updateSessionByToken, arg.ExpiresAt, arg.UpdatedAt, arg.Token)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+const updateSessionByUserID = `-- name: UpdateSessionByUserID :execrows
+UPDATE
+    session
+SET
+    expires_at = ?1,
+    updated_at = ?2
+WHERE
+    user_id = ?3
+`
+
+type UpdateSessionByUserIDParams struct {
+	ExpiresAt int64  `json:"expires_at"`
+	UpdatedAt int64  `json:"updated_at"`
+	UserID    string `json:"user_id"`
+}
+
+func (q *Queries) UpdateSessionByUserID(ctx context.Context, arg UpdateSessionByUserIDParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateSessionByUserID, arg.ExpiresAt, arg.UpdatedAt, arg.UserID)
 	if err != nil {
 		return 0, err
 	}
