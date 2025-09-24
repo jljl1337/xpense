@@ -1,11 +1,11 @@
-@username = user1
+@username = user3
 @password = password123
-@session_token = 8daKAUIGK04AJdnNmFQms3wCHyeCDXKV
-@csrf_token = 8sWTNWY1nq1oigALnw7XkKLeGb35OWe9
-@book_id = 32sfrqn4W7Tteo9dQ22a2mUnXh6
-@category_id = 32sfszG1YtMLv4snkJu7I25asZz
-@payment_method_id = 32sfw5xJWLeOUU2YHSCBmnsBuOW
-@expense_id = 32sgAI3JJmYCkQ48Pefg0i7kmiP
+@sessionToken = 7mfP0dr1eBBjwbgSCK0oAA635ht6ei2P
+@csrfToken = AijqNVDl4HaUuUJYN9vTQea9dwzHQrpe
+@bookID = 338uD1dqj1DvZ6b7zezPF6dY3pR
+@categoryID = 338uJU9sQ8AV1EZC2wSfapErB6o
+@paymentMethodID = 338uMcjcvfit2h1WTrzLRAhxoVl
+@expenseID = 338uPWGBEsaS5TMGzEfdsqbFDTU
 
 ############################## Health
 
@@ -34,36 +34,36 @@ Content-Type: application/json
 ###
 
 POST http://localhost:8080/api/auth/logout
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 
 ###
 
 POST http://localhost:8080/api/auth/logout-all
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 
 ###
 
 GET http://localhost:8080/api/auth/csrf-token
-Cookie: session_token={{session_token}}
+Cookie: xpense_session_token={{sessionToken}}
 
 ############################ User
 
 GET http://localhost:8080/api/users/me
-Cookie: session_token={{session_token}}
+Cookie: xpense_session_token={{sessionToken}}
 
 ###
 
 DELETE http://localhost:8080/api/users/me
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 
 ############################ Book
 
 POST http://localhost:8080/api/books
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 Content-Type: application/json
 
 {
@@ -75,18 +75,18 @@ Content-Type: application/json
 
 GET http://localhost:8080/api/books
 # GET http://localhost:8080/api/books?page=2&page_size=20
-Cookie: session_token={{session_token}}
+Cookie: xpense_session_token={{sessionToken}}
 
 ###
 
-GET http://localhost:8080/api/books/{{book_id}}
-Cookie: session_token={{session_token}}
+GET http://localhost:8080/api/books/{{bookID}}
+Cookie: xpense_session_token={{sessionToken}}
 
 ###
 
-PUT http://localhost:8080/api/books/{{book_id}}
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+PUT http://localhost:8080/api/books/{{bookID}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 Content-Type: application/json
 
 {
@@ -96,38 +96,38 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:8080/api/books/{{book_id}}
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+DELETE http://localhost:8080/api/books/{{bookID}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 
 ############################ Category
 
 POST http://localhost:8080/api/categories
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 Content-Type: application/json
 
 {
-  "book_id": "{{book_id}}",
+  "bookID": "{{bookID}}",
   "name": "Food",
   "description": "Expenses for food and groceries"
 }
 
 ###
 
-GET http://localhost:8080/api/categories?book_id={{book_id}}
-Cookie: session_token={{session_token}}
+GET http://localhost:8080/api/categories?book-id={{bookID}}
+Cookie: xpense_session_token={{sessionToken}}
 
 ###
 
-GET http://localhost:8080/api/categories/{{category_id}}
-Cookie: session_token={{session_token}}
+GET http://localhost:8080/api/categories/{{categoryID}}
+Cookie: xpense_session_token={{sessionToken}}
 
 ###
 
-PUT http://localhost:8080/api/categories/{{category_id}}
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+PUT http://localhost:8080/api/categories/{{categoryID}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 Content-Type: application/json
 
 {
@@ -137,38 +137,38 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:8080/api/categories/{{category_id}}
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+DELETE http://localhost:8080/api/categories/{{categoryID}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 
 ############################ Payment Method
 
 POST http://localhost:8080/api/payment-methods
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 Content-Type: application/json
 
 {
-  "book_id": "{{book_id}}",
+  "bookID": "{{bookID}}",
   "name": "Credit Card",
   "description": "My primary credit card"
 }
 
 ###
 
-GET http://localhost:8080/api/payment-methods?book_id={{book_id}}
-Cookie: session_token={{session_token}}
+GET http://localhost:8080/api/payment-methods?book-id={{bookID}}
+Cookie: xpense_session_token={{sessionToken}}
 
 ###
 
-GET http://localhost:8080/api/payment-methods/{{payment_method_id}}
-Cookie: session_token={{session_token}}
+GET http://localhost:8080/api/payment-methods/{{paymentMethodID}}
+Cookie: xpense_session_token={{sessionToken}}
 
 ###
 
-PUT http://localhost:8080/api/payment-methods/{{payment_method_id}}
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+PUT http://localhost:8080/api/payment-methods/{{paymentMethodID}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 Content-Type: application/json
 
 {
@@ -178,21 +178,21 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:8080/api/payment-methods/{{payment_method_id}}
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+DELETE http://localhost:8080/api/payment-methods/{{paymentMethodID}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 
 ############################ Expense
 
 POST http://localhost:8080/api/expenses
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 Content-Type: application/json
 
 {
-  "book_id": "{{book_id}}",
-  "category_id": "{{category_id}}",
-  "payment_method_id": "{{payment_method_id}}",
+  "bookID": "{{bookID}}",
+  "categoryID": "{{categoryID}}",
+  "paymentMethodID": "{{paymentMethodID}}",
   "date": 1095379200000,
   "amount": 50.75,
   "remark": "Grocery shopping"
@@ -200,24 +200,24 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:8080/api/expenses?book_id={{book_id}}
-Cookie: session_token={{session_token}}
+GET http://localhost:8080/api/expenses?book-id={{bookID}}
+Cookie: xpense_session_token={{sessionToken}}
 
 ###
 
-GET http://localhost:8080/api/expenses/{{expense_id}}
-Cookie: session_token={{session_token}}
+GET http://localhost:8080/api/expenses/{{expenseID}}
+Cookie: xpense_session_token={{sessionToken}}
 
 ###
-PUT http://localhost:8080/api/expenses/{{expense_id}}
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+PUT http://localhost:8080/api/expenses/{{expenseID}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 Content-Type: application/json
 
 {
-  "book_id": "{{book_id}}",
-  "category_id": "{{category_id}}",
-  "payment_method_id": "{{payment_method_id}}",
+  "bookID": "{{bookID}}",
+  "categoryID": "{{categoryID}}",
+  "paymentMethodID": "{{paymentMethodID}}",
   "date": 1095379200000,
   "amount": 75.00,
   "remark": "Updated grocery shopping"
@@ -225,6 +225,6 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:8080/api/expenses/{{expense_id}}
-Cookie: session_token={{session_token}}
-X-CSRF-Token: {{csrf_token}}
+DELETE http://localhost:8080/api/expenses/{{expenseID}}
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}

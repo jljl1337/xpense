@@ -16,7 +16,7 @@ type signUpLoginRequest struct {
 }
 
 type loginCSRFTokenResponse struct {
-	CSRFToken string `json:"csrf_token"`
+	CSRFToken string `json:"csrfToken"`
 }
 
 type AuthHandler struct {

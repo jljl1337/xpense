@@ -33,12 +33,12 @@ RETURNING
 
 type CreateSessionParams struct {
 	ID        string `json:"id"`
-	UserID    string `json:"user_id"`
+	UserID    string `json:"userID"`
 	Token     string `json:"token"`
-	CsrfToken string `json:"csrf_token"`
-	ExpiresAt int64  `json:"expires_at"`
-	CreatedAt int64  `json:"created_at"`
-	UpdatedAt int64  `json:"updated_at"`
+	CsrfToken string `json:"csrfToken"`
+	ExpiresAt int64  `json:"expiresAt"`
+	CreatedAt int64  `json:"createdAt"`
+	UpdatedAt int64  `json:"updatedAt"`
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (int64, error) {
@@ -123,8 +123,8 @@ WHERE
 `
 
 type UpdateSessionByTokenParams struct {
-	ExpiresAt int64  `json:"expires_at"`
-	UpdatedAt int64  `json:"updated_at"`
+	ExpiresAt int64  `json:"expiresAt"`
+	UpdatedAt int64  `json:"updatedAt"`
 	Token     string `json:"token"`
 }
 
@@ -147,9 +147,9 @@ WHERE
 `
 
 type UpdateSessionByUserIDParams struct {
-	ExpiresAt int64  `json:"expires_at"`
-	UpdatedAt int64  `json:"updated_at"`
-	UserID    string `json:"user_id"`
+	ExpiresAt int64  `json:"expiresAt"`
+	UpdatedAt int64  `json:"updatedAt"`
+	UserID    string `json:"userID"`
 }
 
 func (q *Queries) UpdateSessionByUserID(ctx context.Context, arg UpdateSessionByUserIDParams) (int64, error) {

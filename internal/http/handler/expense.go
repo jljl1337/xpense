@@ -12,17 +12,17 @@ import (
 )
 
 type createExpenseRequest struct {
-	BookID          string  `json:"book_id"`
-	CategoryID      string  `json:"category_id"`
-	PaymentMethodID string  `json:"payment_method_id"`
+	BookID          string  `json:"bookID"`
+	CategoryID      string  `json:"categoryID"`
+	PaymentMethodID string  `json:"paymentMethodID"`
 	Date            int64   `json:"date"`
 	Amount          float64 `json:"amount"`
 	Remark          string  `json:"remark"`
 }
 
 type updateExpenseRequest struct {
-	CategoryID      string  `json:"category_id"`
-	PaymentMethodID string  `json:"payment_method_id"`
+	CategoryID      string  `json:"categoryID"`
+	PaymentMethodID string  `json:"paymentMethodID"`
 	Date            int64   `json:"date"`
 	Amount          float64 `json:"amount"`
 	Remark          string  `json:"remark"`
@@ -92,7 +92,7 @@ func (h *ExpenseHandler) createExpense(w http.ResponseWriter, r *http.Request) {
 
 func (h *ExpenseHandler) getExpensesByBookID(w http.ResponseWriter, r *http.Request) {
 	// Input validation
-	bookID := r.URL.Query().Get("book_id")
+	bookID := r.URL.Query().Get("book-id")
 	if bookID == "" {
 		http.Error(w, "Book ID is required", http.StatusBadRequest)
 		return

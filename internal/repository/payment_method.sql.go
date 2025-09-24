@@ -24,8 +24,8 @@ WHERE
 `
 
 type CheckPaymentMethodAccessParams struct {
-	PaymentMethodID string `json:"payment_method_id"`
-	UserID          string `json:"user_id"`
+	PaymentMethodID string `json:"paymentMethodID"`
+	UserID          string `json:"userID"`
 }
 
 func (q *Queries) CheckPaymentMethodAccess(ctx context.Context, arg CheckPaymentMethodAccessParams) (bool, error) {
@@ -57,11 +57,11 @@ RETURNING
 
 type CreatePaymentMethodParams struct {
 	ID          string `json:"id"`
-	BookID      string `json:"book_id"`
+	BookID      string `json:"bookID"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	CreatedAt   int64  `json:"created_at"`
-	UpdatedAt   int64  `json:"updated_at"`
+	CreatedAt   int64  `json:"createdAt"`
+	UpdatedAt   int64  `json:"updatedAt"`
 }
 
 func (q *Queries) CreatePaymentMethod(ctx context.Context, arg CreatePaymentMethodParams) (int64, error) {
@@ -188,7 +188,7 @@ WHERE
 type UpdatePaymentMethodByIDParams struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	UpdatedAt   int64  `json:"updated_at"`
+	UpdatedAt   int64  `json:"updatedAt"`
 	ID          string `json:"id"`
 }
 

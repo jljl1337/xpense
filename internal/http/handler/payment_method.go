@@ -12,7 +12,7 @@ import (
 type createPaymentMethodRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	BookID      string `json:"book_id"`
+	BookID      string `json:"bookID"`
 }
 
 type updatePaymentMethodRequest struct {
@@ -78,7 +78,7 @@ func (h *PaymentMethodHandler) createPaymentMethod(w http.ResponseWriter, r *htt
 
 func (h *PaymentMethodHandler) getPaymentMethodsByBookID(w http.ResponseWriter, r *http.Request) {
 	// Input validation
-	bookID := r.URL.Query().Get("book_id")
+	bookID := r.URL.Query().Get("book-id")
 	if bookID == "" {
 		http.Error(w, "Book ID is required", http.StatusBadRequest)
 		return

@@ -29,7 +29,7 @@ func SetConstants() {
 	Port = MustGetString("PORT", "8080")
 	CORSOrigins = MustGetString("CORS_ORIGINS", "*")
 	PasswordBcryptCost = MustGetInt("PASSWORD_BCRYPT_COST", 12)
-	SessionCookieName = MustGetString("SESSION_COOKIE_NAME", "session_token")
+	SessionCookieName = MustGetString("SESSION_COOKIE_NAME", "xpense_session_token")
 	SessionCookieHttpOnly = MustGetBool("SESSION_COOKIE_HTTP_ONLY", true)
 	SessionCookieSecure = MustGetBool("SESSION_COOKIE_SECURE", false)
 	SessionTokenLength = MustGetInt("SESSION_TOKEN_LENGTH", 32)

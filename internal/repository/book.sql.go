@@ -20,8 +20,8 @@ WHERE
 `
 
 type CheckBookAccessParams struct {
-	BookID string `json:"book_id"`
-	UserID string `json:"user_id"`
+	BookID string `json:"bookID"`
+	UserID string `json:"userID"`
 }
 
 func (q *Queries) CheckBookAccess(ctx context.Context, arg CheckBookAccessParams) (bool, error) {
@@ -53,11 +53,11 @@ RETURNING
 
 type CreateBookParams struct {
 	ID          string `json:"id"`
-	UserID      string `json:"user_id"`
+	UserID      string `json:"userID"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	CreatedAt   int64  `json:"created_at"`
-	UpdatedAt   int64  `json:"updated_at"`
+	CreatedAt   int64  `json:"createdAt"`
+	UpdatedAt   int64  `json:"updatedAt"`
 }
 
 func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (int64, error) {
@@ -145,7 +145,7 @@ OFFSET
 `
 
 type GetBooksByUserIDParams struct {
-	UserID string `json:"user_id"`
+	UserID string `json:"userID"`
 	Offset int64  `json:"offset"`
 	Limit  int64  `json:"limit"`
 }
@@ -194,7 +194,7 @@ WHERE
 type UpdateBookByIDParams struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	UpdatedAt   int64  `json:"updated_at"`
+	UpdatedAt   int64  `json:"updatedAt"`
 	ID          string `json:"id"`
 }
 

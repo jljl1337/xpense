@@ -24,8 +24,8 @@ WHERE
 `
 
 type CheckCategoryAccessParams struct {
-	CategoryID string `json:"category_id"`
-	UserID     string `json:"user_id"`
+	CategoryID string `json:"categoryID"`
+	UserID     string `json:"userID"`
 }
 
 func (q *Queries) CheckCategoryAccess(ctx context.Context, arg CheckCategoryAccessParams) (bool, error) {
@@ -57,11 +57,11 @@ RETURNING
 
 type CreateCategoryParams struct {
 	ID          string `json:"id"`
-	BookID      string `json:"book_id"`
+	BookID      string `json:"bookID"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	CreatedAt   int64  `json:"created_at"`
-	UpdatedAt   int64  `json:"updated_at"`
+	CreatedAt   int64  `json:"createdAt"`
+	UpdatedAt   int64  `json:"updatedAt"`
 }
 
 func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) (int64, error) {
@@ -188,7 +188,7 @@ WHERE
 type UpdateCategoryByIDParams struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	UpdatedAt   int64  `json:"updated_at"`
+	UpdatedAt   int64  `json:"updatedAt"`
 	ID          string `json:"id"`
 }
 

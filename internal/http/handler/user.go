@@ -12,7 +12,7 @@ import (
 type getCurrentUserResponse struct {
 	ID        string `json:"id"`
 	Username  string `json:"username"`
-	CreatedAt int64  `json:"created_at"`
+	CreatedAt int64  `json:"createdAt"`
 }
 
 type UserHandler struct {
