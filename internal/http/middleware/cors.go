@@ -13,7 +13,8 @@ func (m *MiddlewareProvider) CORS() Middleware {
 			w.Header().Set("Access-Control-Allow-Origin", env.CORSOrigins)
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
 			w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, X-CSRF-Token")
-			w.Header().Set("Access-Control-Allow-Credentials", "false") // Set to "true" if credentials are required
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+			w.Header().Set("Access-Control-Max-Age", "600") // 10 minutes
 
 			// Handle preflight OPTIONS requests
 			if r.Method == http.MethodOptions {
