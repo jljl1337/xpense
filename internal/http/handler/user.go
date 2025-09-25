@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/jljl1337/xpense/internal/env"
 	"github.com/jljl1337/xpense/internal/http/middleware"
 	"github.com/jljl1337/xpense/internal/service"
 )
@@ -72,6 +73,15 @@ func (h *UserHandler) deleteCurrentUser(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Respond to the client
+	http.SetCookie(w, &http.Cookie{
+		Name:     env.SessionCookieName,
+		Value:    "",
+		HttpOnly: env.SessionCookieHttpOnly,
+		Secure:   env.SessionCookieSecure,
+		Path:     "/",
+		MaxAge:   -1,
+	})
+
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("User deleted successfully"))
 }
