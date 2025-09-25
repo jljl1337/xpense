@@ -66,7 +66,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
     const { error } = await logout(loaderData.data.csrfToken);
     if (error) {
-      console.error("Failed to log out:", error);
       setError(error);
       return;
     }
@@ -86,7 +85,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
     const { error } = await logoutAll(loaderData.data.csrfToken);
     if (error) {
-      console.error("Failed to log out of all devices:", error);
       setError(error);
       return;
     }
@@ -106,7 +104,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
     const { error } = await deleteMe(loaderData.data.csrfToken);
     if (error) {
-      console.error("Failed to delete account:", error);
       setError(error);
       return;
     }
