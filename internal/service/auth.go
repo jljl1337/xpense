@@ -30,7 +30,7 @@ func (a *AuthService) SignUp(ctx context.Context, username, password string) err
 	currentTime := time.Now().UnixMilli()
 
 	_, err = a.queries.CreateUser(ctx, repository.CreateUserParams{
-		ID:           generator.NewKSUID(),
+		ID:           generator.NewULID(),
 		Username:     username,
 		PasswordHash: passwordHash,
 		CreatedAt:    currentTime,
@@ -66,7 +66,7 @@ func (a *AuthService) Login(ctx context.Context, username, password string) (str
 		return "", "", nil
 	}
 
-	sessionID := generator.NewKSUID()
+	sessionID := generator.NewULID()
 	sessionToken := generator.NewToken(env.SessionTokenLength, env.SessionTokenCharset)
 	CSRFToken := generator.NewToken(env.CSRFTokenLength, env.CSRFTokenCharset)
 	currentTime := time.Now().UnixMilli()

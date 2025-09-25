@@ -39,7 +39,7 @@ func (s *CategoryService) CreateCategory(ctx context.Context, userID, bookID, na
 	currentTime := time.Now().UnixMilli()
 
 	_, err = s.queries.CreateCategory(ctx, repository.CreateCategoryParams{
-		ID:          generator.NewKSUID(),
+		ID:          generator.NewULID(),
 		BookID:      bookID,
 		Name:        name,
 		Description: description,

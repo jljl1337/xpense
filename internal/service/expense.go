@@ -40,7 +40,7 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, userID, bookID, cate
 	currentTime := time.Now().UnixMilli()
 
 	_, err = s.queries.CreateExpense(ctx, repository.CreateExpenseParams{
-		ID:              generator.NewKSUID(),
+		ID:              generator.NewULID(),
 		BookID:          bookID,
 		CategoryID:      categoryID,
 		PaymentMethodID: paymentMethodID,

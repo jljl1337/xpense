@@ -39,7 +39,7 @@ func (s *PaymentMethodService) CreatePaymentMethod(ctx context.Context, userID, 
 	currentTime := time.Now().UnixMilli()
 
 	_, err = s.queries.CreatePaymentMethod(ctx, repository.CreatePaymentMethodParams{
-		ID:          generator.NewKSUID(),
+		ID:          generator.NewULID(),
 		BookID:      bookID,
 		Name:        name,
 		Description: description,

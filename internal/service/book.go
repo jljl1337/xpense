@@ -24,7 +24,7 @@ func (s *BookService) CreateBook(ctx context.Context, userID, name, description 
 	currentTime := time.Now().UnixMilli()
 
 	_, err := s.queries.CreateBook(ctx, repository.CreateBookParams{
-		ID:          generator.NewKSUID(),
+		ID:          generator.NewULID(),
 		UserID:      userID,
 		Name:        name,
 		Description: description,

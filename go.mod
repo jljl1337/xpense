@@ -6,7 +6,7 @@ require (
 	github.com/go-co-op/gocron/v2 v2.16.5
 	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-sqlite3 v1.14.32
-	github.com/segmentio/ksuid v1.0.4
+	github.com/oklog/ulid/v2 v2.1.1
 	golang.org/x/crypto v0.42.0
 	golang.org/x/sync v0.17.0
 )
