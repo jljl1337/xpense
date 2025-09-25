@@ -1,12 +1,13 @@
-import { getUrl } from "~/lib/db/url";
+import { customFetch } from "~/lib/db/url";
+
+type CsrfToken = {
+  csrfToken: string;
+};
 
 export async function signUp(username: string, password: string) {
-  const response = await fetch(getUrl("/api/auth/sign-up"), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ username, password }),
+  const response = await customFetch("/api/auth/sign-up", "POST", {
+    username,
+    password,
   });
 
   if (!response.ok) {
@@ -18,13 +19,9 @@ export async function signUp(username: string, password: string) {
 }
 
 export async function login(username: string, password: string) {
-  const response = await fetch(getUrl("/api/auth/login"), {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ username, password }),
+  const response = await customFetch("/api/auth/login", "POST", {
+    username,
+    password,
   });
 
   if (!response.ok) {
@@ -35,10 +32,25 @@ export async function login(username: string, password: string) {
   return { error: null };
 }
 
-export async function logout() {
-  const response = await fetch(getUrl("/api/auth/logout"), {
-    method: "POST",
-  });
+export async function getCsrfToken() {
+  const response = await customFetch("/api/auth/csrf-token", "GET");
+
+  if (!response.ok) {
+    const error = await response.text();
+    return { data: null, error };
+  }
+
+  const data: CsrfToken = await response.json();
+  return { data: data.csrfToken, error: null };
+}
+
+export async function logout(csrfToken: string) {
+  const response = await customFetch(
+    "/api/auth/logout",
+    "POST",
+    null,
+    csrfToken,
+  );
 
   if (!response.ok) {
     const error = await response.text();
@@ -48,10 +60,13 @@ export async function logout() {
   return { error: null };
 }
 
-export async function logoutAll() {
-  const response = await fetch(getUrl("/api/auth/logout-all"), {
-    method: "POST",
-  });
+export async function logoutAll(csrfToken: string) {
+  const response = await customFetch(
+    "/api/auth/logout-all",
+    "POST",
+    null,
+    csrfToken,
+  );
 
   if (!response.ok) {
     const error = await response.text();

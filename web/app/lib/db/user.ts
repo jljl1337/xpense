@@ -1,4 +1,4 @@
-import { getUrl } from "~/lib/db/url";
+import { customFetch } from "~/lib/db/url";
 
 type User = {
   id: string;
@@ -6,11 +6,8 @@ type User = {
   createdAt: number;
 };
 
-export async function me() {
-  const response = await fetch(getUrl("/api/users/me"), {
-    method: "GET",
-    credentials: "include",
-  });
+export async function getMe() {
+  const response = await customFetch("/api/users/me", "GET");
 
   if (!response.ok) {
     const error = await response.text();
@@ -19,4 +16,20 @@ export async function me() {
 
   const data: User = await response.json();
   return { data, error: null };
+}
+
+export async function deleteMe(csrfToken: string) {
+  const response = await customFetch(
+    "/api/users/me",
+    "DELETE",
+    null,
+    csrfToken,
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    return { error };
+  }
+
+  return { error: null };
 }
