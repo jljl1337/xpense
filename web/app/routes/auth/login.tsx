@@ -42,7 +42,7 @@ export default function Page() {
     formState: { isSubmitting, errors },
   } = form;
 
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const { error } = await login(values.username, values.password);
