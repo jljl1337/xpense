@@ -264,7 +264,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                       onClick={onDeleteAccount}
                       disabled={isLoading}
                     >
-                      Yes, delete my account
+                      Yes
                     </Button>
                     {error && !isLoading && (
                       <p className="text-red-500 text-sm mt-2">{error}</p>
