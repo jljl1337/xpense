@@ -10,6 +10,10 @@ import (
 	"github.com/jljl1337/xpense/internal/service"
 )
 
+type usernameExistResponse struct {
+	Exists bool `json:"exists"`
+}
+
 type getCurrentUserResponse struct {
 	ID        string `json:"id"`
 	Username  string `json:"username"`
@@ -27,8 +31,31 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("GET /users/exists", h.getUsernameExist)
 	mux.HandleFunc("GET /users/me", h.getCurrentUser)
 	mux.HandleFunc("DELETE /users/me", h.deleteCurrentUser)
+}
+
+func (h *UserHandler) getUsernameExist(w http.ResponseWriter, r *http.Request) {
+	// Input validation
+	username := r.URL.Query().Get("username")
+	if username == "" {
+		http.Error(w, "Username is required", http.StatusBadRequest)
+		return
+	}
+
+	// Process the request
+	exists, err := h.userService.UserExistsByUsername(r.Context(), username)
+	if err != nil {
+		slog.Error("Error checking username existence: " + err.Error())
+		http.Error(w, "Failed to check username existence", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond to the client
+	response := usernameExistResponse{Exists: exists}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
 
 func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {

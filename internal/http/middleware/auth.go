@@ -17,7 +17,7 @@ func (m *MiddlewareProvider) Auth() Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Skip for public routes
-			if r.URL.Path == "/auth/sign-up" || r.URL.Path == "/auth/login" || r.URL.Path == "/health" {
+			if r.URL.Path == "/auth/sign-up" || r.URL.Path == "/auth/login" || r.URL.Path == "/health" || r.URL.Path == "/users/exists" {
 				next.ServeHTTP(w, r)
 				return
 			}
