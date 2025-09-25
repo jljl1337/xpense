@@ -7,14 +7,18 @@ import {
 } from "@react-router/dev/routes";
 
 export default [
-  layout("layouts/theme.tsx", [
-    index("routes/home.tsx"),
+  index("routes/home.tsx"),
 
-    ...prefix("auth", [
-      route("login", "routes/auth/login.tsx"),
-      route("sign-up", "routes/auth/sign-up.tsx"),
-    ]),
-
-    route("account", "routes/account.tsx"),
+  ...prefix("auth", [
+    route("login", "routes/auth/login.tsx"),
+    route("sign-up", "routes/auth/sign-up.tsx"),
   ]),
+
+  layout("layouts/sidebar.tsx", [
+    route("account", "routes/account.tsx"),
+
+    route("books", "routes/books/index.tsx"),
+  ]),
+
+  route("*", "routes/not-found.tsx"),
 ] satisfies RouteConfig;

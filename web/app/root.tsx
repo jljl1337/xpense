@@ -10,6 +10,8 @@ import {
 
 import "./app.css";
 
+import { ThemeProvider } from "./components/theme-provider";
+
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -45,8 +47,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+export function HydrateFallback() {
+  // Render a grey screen while hydrating to avoid a flash of unstyled content
+  return <div className="h-screen w-screen bg-gray-500 dark:bg-gray-500" />;
+}
+
 export default function App() {
-  return <Outlet />;
+  return (
+    <ThemeProvider>
+      <Outlet />
+    </ThemeProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
