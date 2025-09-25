@@ -26,19 +26,20 @@ import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 
 import { getCsrfToken, logout, logoutAll } from "~/lib/db/auth";
+import { isUnauthorizedError } from "~/lib/db/common";
 import { deleteMe, getMe } from "~/lib/db/user";
 
 export async function clientLoader() {
   const [user, csrfToken] = await Promise.all([getMe(), getCsrfToken()]);
 
   if (user.error != null) {
-    if (user.error.trim() == "Unauthorized") {
+    if (isUnauthorizedError(user.error)) {
       return redirect("/auth/login");
     }
     return { data: null, error: user.error };
   }
   if (csrfToken.error != null) {
-    if (csrfToken.error.trim() == "Unauthorized") {
+    if (isUnauthorizedError(csrfToken.error)) {
       return redirect("/auth/login");
     }
     return { data: null, error: csrfToken.error };
