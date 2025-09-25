@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
-import { z } from "zod";
+import { check, z } from "zod";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -22,6 +22,7 @@ import {
 import { Input } from "~/components/ui/input";
 
 import { signUp } from "~/lib/db/auth";
+import { checkUsernameExists } from "~/lib/db/user";
 
 const formSchema = z
   .object({
@@ -64,6 +65,23 @@ export default function Page() {
   let navigate = useNavigate();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const { data: exists, error: checkUsernameError } =
+      await checkUsernameExists(values.username);
+
+    if (checkUsernameError) {
+      setError("root", {
+        message: checkUsernameError,
+      });
+      return;
+    }
+
+    if (exists) {
+      setError("username", {
+        message: "Username is already taken",
+      });
+      return;
+    }
+
     const { error } = await signUp(values.username, values.password);
     if (error) {
       setError("root", {

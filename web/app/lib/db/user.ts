@@ -6,6 +6,21 @@ type User = {
   createdAt: number;
 };
 
+export async function checkUsernameExists(username: string) {
+  const response = await customFetch(
+    `/api/users/exists?username=${encodeURIComponent(username)}`,
+    "GET",
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    return { data: null, error };
+  }
+
+  const data: { exists: boolean } = await response.json();
+  return { data: data.exists, error: null };
+}
+
 export async function getMe() {
   const response = await customFetch("/api/users/me", "GET");
 
