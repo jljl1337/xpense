@@ -148,7 +148,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               </div>
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="destructive">
+                  <Button variant="destructive" className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </Button>
@@ -162,10 +162,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   </DialogHeader>
                   <DialogFooter>
                     <DialogClose asChild>
-                      <Button variant="outline">Cancel</Button>
+                      <Button variant="outline" className="cursor-pointer">
+                        Cancel
+                      </Button>
                     </DialogClose>
                     <Button
                       variant="destructive"
+                      className="cursor-pointer"
                       onClick={onSignOut}
                       disabled={isLoading}
                     >
@@ -189,7 +192,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               </div>
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="destructive">
+                  <Button variant="destructive" className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out (all devices)
                   </Button>
@@ -204,10 +207,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   </DialogHeader>
                   <DialogFooter>
                     <DialogClose asChild>
-                      <Button variant="outline">Cancel</Button>
+                      <Button variant="outline" className="cursor-pointer">
+                        Cancel
+                      </Button>
                     </DialogClose>
                     <Button
                       variant="destructive"
+                      className="cursor-pointer"
                       onClick={onSignOutAll}
                       disabled={isLoading}
                     >
@@ -240,7 +246,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               </div>
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="destructive">
+                  <Button variant="destructive" className="cursor-pointer">
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete Account
                   </Button>
@@ -255,10 +261,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   </DialogHeader>
                   <DialogFooter>
                     <DialogClose asChild>
-                      <Button variant="outline">Cancel</Button>
+                      <Button variant="outline" className="cursor-pointer">
+                        Cancel
+                      </Button>
                     </DialogClose>
                     <Button
                       variant="destructive"
+                      className="cursor-pointer"
                       onClick={onDeleteAccount}
                       disabled={isLoading}
                     >
