@@ -1,4 +1,4 @@
-import { customFetch } from "~/lib/db/url";
+import { customFetch } from "~/lib/db/fetch";
 
 type CsrfToken = {
   csrfToken: string;
