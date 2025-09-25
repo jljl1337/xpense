@@ -89,7 +89,7 @@ export default function Page() {
       });
       return;
     }
-    navigate("/auth/login");
+    navigate("/auth/sign-in");
   }
 
   return (
@@ -174,10 +174,10 @@ export default function Page() {
                   <div className="mt-4 text-center text-sm">
                     Already have an account?{" "}
                     <Link
-                      to="/auth/login"
+                      to="/auth/sign-in"
                       className="underline underline-offset-4"
                     >
-                      Log in
+                      Sign in
                     </Link>
                   </div>
                 </form>

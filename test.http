@@ -23,7 +23,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8080/api/auth/login
+POST http://localhost:8080/api/auth/sign-in
 Content-Type: application/json
 
 {
@@ -33,13 +33,13 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8080/api/auth/logout
+POST http://localhost:8080/api/auth/sign-out
 Cookie: xpense_session_token={{sessionToken}}
 X-CSRF-Token: {{csrfToken}}
 
 ###
 
-POST http://localhost:8080/api/auth/logout-all
+POST http://localhost:8080/api/auth/sign-out-all
 Cookie: xpense_session_token={{sessionToken}}
 X-CSRF-Token: {{csrfToken}}
 

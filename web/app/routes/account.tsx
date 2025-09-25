@@ -25,7 +25,7 @@ import {
 import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 
-import { getCsrfToken, logout, logoutAll } from "~/lib/db/auth";
+import { getCsrfToken, signOut, signOutAll } from "~/lib/db/auth";
 import { isUnauthorizedError } from "~/lib/db/common";
 import { deleteMe, getMe } from "~/lib/db/user";
 
@@ -34,13 +34,13 @@ export async function clientLoader() {
 
   if (user.error != null) {
     if (isUnauthorizedError(user.error)) {
-      return redirect("/auth/login");
+      return redirect("/auth/sign-in");
     }
     return { data: null, error: user.error };
   }
   if (csrfToken.error != null) {
     if (isUnauthorizedError(csrfToken.error)) {
-      return redirect("/auth/login");
+      return redirect("/auth/sign-in");
     }
     return { data: null, error: csrfToken.error };
   }
@@ -56,7 +56,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function onLogout() {
+  async function onSignOut() {
     if (loaderData.error != null) {
       return;
     }
@@ -64,7 +64,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     setIsLoading(true);
     setError(null);
 
-    const { error } = await logout(loaderData.data.csrfToken);
+    const { error } = await signOut(loaderData.data.csrfToken);
     if (error) {
       setError(error);
       return;
@@ -72,10 +72,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
     setIsLoading(false);
 
-    navigate("/auth/login");
+    navigate("/auth/sign-in");
   }
 
-  async function onLogoutAll() {
+  async function onSignOutAll() {
     if (loaderData.error != null) {
       return;
     }
@@ -83,7 +83,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     setIsLoading(true);
     setError(null);
 
-    const { error } = await logoutAll(loaderData.data.csrfToken);
+    const { error } = await signOutAll(loaderData.data.csrfToken);
     if (error) {
       setError(error);
       return;
@@ -91,7 +91,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
     setIsLoading(false);
 
-    navigate("/auth/login");
+    navigate("/auth/sign-in");
   }
 
   async function onDeleteAccount() {
@@ -110,7 +110,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
     setIsLoading(false);
 
-    navigate("/auth/login");
+    navigate("/auth/sign-in");
   }
 
   return (
@@ -138,26 +138,26 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             <CardDescription>Manage your account settings</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Log Out */}
+            {/* Sign Out */}
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label className="text-base">Log Out</Label>
+                <Label className="text-base">Sign Out</Label>
                 <p className="text-muted-foreground text-sm">
-                  Log out of your account on this device
+                  Sign out of your account on this device
                 </p>
               </div>
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="destructive">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Log Out
+                    Sign Out
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                   <DialogHeader>
-                    <DialogTitle>Log Out</DialogTitle>
+                    <DialogTitle>Sign Out</DialogTitle>
                     <DialogDescription>
-                      Are you sure you want to log out of your account?
+                      Are you sure you want to sign out of your account?
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
@@ -166,7 +166,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                     </DialogClose>
                     <Button
                       variant="destructive"
-                      onClick={onLogout}
+                      onClick={onSignOut}
                       disabled={isLoading}
                     >
                       Yes
@@ -179,26 +179,26 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               </Dialog>
             </div>
             <Separator />
-            {/* Log Out (all devices) */}
+            {/* Sign Out (all devices) */}
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label className="text-base">Log Out (all devices)</Label>
+                <Label className="text-base">Sign Out (all devices)</Label>
                 <p className="text-muted-foreground text-sm">
-                  Log out of your account on all devices
+                  Sign out of your account on all devices
                 </p>
               </div>
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="destructive">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Log Out (all devices)
+                    Sign Out (all devices)
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                   <DialogHeader>
-                    <DialogTitle>Log Out</DialogTitle>
+                    <DialogTitle>Sign Out</DialogTitle>
                     <DialogDescription>
-                      Are you sure you want to log out of your account on all
+                      Are you sure you want to sign out of your account on all
                       devices?
                     </DialogDescription>
                   </DialogHeader>
@@ -208,7 +208,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                     </DialogClose>
                     <Button
                       variant="destructive"
-                      onClick={onLogoutAll}
+                      onClick={onSignOutAll}
                       disabled={isLoading}
                     >
                       Yes

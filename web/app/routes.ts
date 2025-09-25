@@ -10,7 +10,7 @@ export default [
   index("routes/home.tsx"),
 
   ...prefix("auth", [
-    route("login", "routes/auth/login.tsx"),
+    route("sign-in", "routes/auth/sign-in.tsx"),
     route("sign-up", "routes/auth/sign-up.tsx"),
   ]),
 

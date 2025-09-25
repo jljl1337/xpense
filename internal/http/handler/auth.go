@@ -10,12 +10,12 @@ import (
 	"github.com/jljl1337/xpense/internal/service"
 )
 
-type signUpLoginRequest struct {
+type signUpSignInRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-type loginCSRFTokenResponse struct {
+type signInCSRFTokenResponse struct {
 	CSRFToken string `json:"csrfToken"`
 }
 
@@ -31,15 +31,15 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 
 func (h *AuthHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /auth/sign-up", h.signUp)
-	mux.HandleFunc("POST /auth/login", h.login)
-	mux.HandleFunc("POST /auth/logout", h.logout)
-	mux.HandleFunc("POST /auth/logout-all", h.logoutAll)
+	mux.HandleFunc("POST /auth/sign-in", h.signIn)
+	mux.HandleFunc("POST /auth/sign-out", h.signOut)
+	mux.HandleFunc("POST /auth/sign-out-all", h.signOutAll)
 	mux.HandleFunc("GET /auth/csrf-token", h.csrfToken)
 }
 
 func (h *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
 	// Input validation
-	var req signUpLoginRequest
+	var req signUpSignInRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
@@ -62,9 +62,9 @@ func (h *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("User signed up successfully"))
 }
 
-func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) signIn(w http.ResponseWriter, r *http.Request) {
 	// Input validation
-	var req signUpLoginRequest
+	var req signUpSignInRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
@@ -76,10 +76,10 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Process the request
-	sessionToken, CSRFToken, err := h.authService.Login(r.Context(), req.Username, req.Password)
+	sessionToken, CSRFToken, err := h.authService.SignIn(r.Context(), req.Username, req.Password)
 	if err != nil {
-		slog.Error("Error logging in user: " + err.Error())
-		http.Error(w, "Failed to log in user", http.StatusInternalServerError)
+		slog.Error("Error signing in user: " + err.Error())
+		http.Error(w, "Failed to sign in user", http.StatusInternalServerError)
 		return
 	}
 
@@ -98,12 +98,12 @@ func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 	})
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(loginCSRFTokenResponse{
+	json.NewEncoder(w).Encode(signInCSRFTokenResponse{
 		CSRFToken: CSRFToken,
 	})
 }
 
-func (h *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) signOut(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	sessionToken, err := r.Cookie(env.SessionCookieName)
 	if err != nil {
@@ -112,9 +112,9 @@ func (h *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Process the request
-	if err := h.authService.Logout(r.Context(), sessionToken.Value); err != nil {
-		slog.Error("Error logging out user: " + err.Error())
-		http.Error(w, "Failed to log out user", http.StatusInternalServerError)
+	if err := h.authService.SignOut(r.Context(), sessionToken.Value); err != nil {
+		slog.Error("Error signing out user: " + err.Error())
+		http.Error(w, "Failed to sign out user", http.StatusInternalServerError)
 		return
 	}
 
@@ -132,7 +132,7 @@ func (h *AuthHandler) logout(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("User logged out successfully"))
 }
 
-func (h *AuthHandler) logoutAll(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) signOutAll(w http.ResponseWriter, r *http.Request) {
 	// Process the request
 	ctx := r.Context()
 	userID, err := middleware.GetUserIDFromContext(ctx)
@@ -142,9 +142,9 @@ func (h *AuthHandler) logoutAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.authService.LogoutAllSessions(r.Context(), userID); err != nil {
-		slog.Error("Error logging out user from all sessions: " + err.Error())
-		http.Error(w, "Failed to log out user from all sessions", http.StatusInternalServerError)
+	if err := h.authService.SignOutAllSession(r.Context(), userID); err != nil {
+		slog.Error("Error signing out user from all sessions: " + err.Error())
+		http.Error(w, "Failed to sign out user from all sessions", http.StatusInternalServerError)
 		return
 	}
 
@@ -185,7 +185,7 @@ func (h *AuthHandler) csrfToken(w http.ResponseWriter, r *http.Request) {
 
 	// Respond to the client
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(loginCSRFTokenResponse{
+	json.NewEncoder(w).Encode(signInCSRFTokenResponse{
 		CSRFToken: CSRFToken,
 	})
 }

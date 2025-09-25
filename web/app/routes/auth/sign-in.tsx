@@ -21,7 +21,7 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 
-import { login } from "~/lib/db/auth";
+import { signIn } from "~/lib/db/auth";
 
 const formSchema = z.object({
   username: z.string().trim().min(1, "Username is required"),
@@ -45,7 +45,7 @@ export default function Page() {
   const navigate = useNavigate();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const { error } = await login(values.username, values.password);
+    const { error } = await signIn(values.username, values.password);
     if (error) {
       setError("root", {
         message: error,
@@ -61,9 +61,9 @@ export default function Page() {
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Login to your account</CardTitle>
+              <CardTitle>Sign in to your account</CardTitle>
               <CardDescription>
-                Enter your credentials below to login
+                Enter your credentials below to sign in
               </CardDescription>
             </CardHeader>
             <CardContent>

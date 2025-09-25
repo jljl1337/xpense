@@ -18,8 +18,8 @@ export async function signUp(username: string, password: string) {
   return { error: null };
 }
 
-export async function login(username: string, password: string) {
-  const response = await customFetch("/api/auth/login", "POST", {
+export async function signIn(username: string, password: string) {
+  const response = await customFetch("/api/auth/sign-in", "POST", {
     username,
     password,
   });
@@ -44,9 +44,9 @@ export async function getCsrfToken() {
   return { data: data.csrfToken, error: null };
 }
 
-export async function logout(csrfToken: string) {
+export async function signOut(csrfToken: string) {
   const response = await customFetch(
-    "/api/auth/logout",
+    "/api/auth/sign-out",
     "POST",
     null,
     csrfToken,
@@ -60,9 +60,9 @@ export async function logout(csrfToken: string) {
   return { error: null };
 }
 
-export async function logoutAll(csrfToken: string) {
+export async function signOutAll(csrfToken: string) {
   const response = await customFetch(
-    "/api/auth/logout-all",
+    "/api/auth/sign-out-all",
     "POST",
     null,
     csrfToken,

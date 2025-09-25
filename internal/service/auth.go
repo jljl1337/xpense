@@ -40,13 +40,13 @@ func (a *AuthService) SignUp(ctx context.Context, username, password string) err
 	return err
 }
 
-// Login authenticates a user and creates a new session.
+// SignIn authenticates a user and creates a new session.
 // It returns non-empty session token and CSRF token if the credentials are valid.
 //
 // If the credentials are invalid, it returns empty strings and no error.
 //
 // If an error occurs during the process, it returns the error.
-func (a *AuthService) Login(ctx context.Context, username, password string) (string, string, error) {
+func (a *AuthService) SignIn(ctx context.Context, username, password string) (string, string, error) {
 	users, err := a.queries.GetUserByUsername(ctx, username)
 	if err != nil {
 		return "", "", err
@@ -140,7 +140,7 @@ func (a *AuthService) GetSessionUserIDAndRefreshSession(ctx context.Context, ses
 	return session.UserID, nil
 }
 
-func (a *AuthService) Logout(ctx context.Context, sessionToken string) error {
+func (a *AuthService) SignOut(ctx context.Context, sessionToken string) error {
 	now := time.Now().UnixMilli()
 	rows, err := a.queries.UpdateSessionByToken(ctx, repository.UpdateSessionByTokenParams{
 		Token:     sessionToken,
@@ -158,7 +158,7 @@ func (a *AuthService) Logout(ctx context.Context, sessionToken string) error {
 	return nil
 }
 
-func (a *AuthService) LogoutAllSessions(ctx context.Context, userID string) error {
+func (a *AuthService) SignOutAllSession(ctx context.Context, userID string) error {
 	now := time.Now().UnixMilli()
 	rows, err := a.queries.UpdateSessionByUserID(ctx, repository.UpdateSessionByUserIDParams{
 		UserID:    userID,
