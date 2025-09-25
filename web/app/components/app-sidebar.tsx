@@ -1,6 +1,13 @@
-import { Book, User } from "lucide-react";
+import { Book, Laptop, Moon, Sun, User } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +21,11 @@ import {
   SidebarMenuItem,
 } from "~/components/ui/sidebar";
 
+import { useTheme } from "~/components/theme-provider";
+
 export function AppSidebar() {
+  const { setTheme, theme } = useTheme();
+
   const { pathname } = useLocation();
 
   return (
@@ -34,6 +45,44 @@ export function AppSidebar() {
       <SidebarContent />
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton>
+                  {theme === "light" ? (
+                    <Sun />
+                  ) : theme === "dark" ? (
+                    <Moon />
+                  ) : (
+                    <Laptop />
+                  )}
+                  Theme
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuRadioGroup value={theme}>
+                  <DropdownMenuRadioItem
+                    value="system"
+                    onSelect={() => setTheme("system")}
+                  >
+                    System
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem
+                    value="light"
+                    onSelect={() => setTheme("light")}
+                  >
+                    Light
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem
+                    value="dark"
+                    onSelect={() => setTheme("dark")}
+                  >
+                    Dark
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
           <SidebarMenuItem key="account">
             <SidebarMenuButton asChild isActive={pathname === "/account"}>
               <Link to={"/account"}>
