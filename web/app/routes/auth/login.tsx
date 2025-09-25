@@ -102,7 +102,11 @@ export default function Page() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isSubmitting}
+                  >
                     Submit
                   </Button>
                   {errors.root?.message && !isSubmitting && (
