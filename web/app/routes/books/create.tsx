@@ -32,7 +32,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   return (
     <NameDescriptionPage
       title={"Create new book"}
-      description={"Create a new book."}
+      description={"Create a new book"}
       nameValue={""}
       descriptionValue={""}
       nameFieldLabel={"Book Name"}
