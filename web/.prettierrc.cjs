@@ -7,6 +7,8 @@ module.exports = {
   // This plugin's options
   importOrder: [
     "^react$",
+    "^react-router$",
+    "^[.]/[+]types(.*)$",
     "",
     "<THIRD_PARTY_MODULES>",
     "",
