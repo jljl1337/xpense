@@ -134,7 +134,11 @@ export default function NameDescriptionPage({
                 )}
               </div>
               <div className="flex justify-end">
-                <Button type="submit" disabled={isSubmitting}>
+                <Button
+                  className="cursor-pointer"
+                  type="submit"
+                  disabled={isSubmitting}
+                >
                   {submitButtonLabel}
                 </Button>
               </div>
