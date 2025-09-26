@@ -18,6 +18,7 @@ export default [
     route("account", "routes/account.tsx"),
 
     route("books", "routes/books/index.tsx"),
+    route("books/create", "routes/books/create.tsx"),
   ]),
 
   route("*", "routes/not-found.tsx"),
