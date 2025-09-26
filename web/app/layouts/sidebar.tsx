@@ -16,7 +16,7 @@ export default function Layout() {
         <div className="mx-2 my-2 flex items-center">
           <SidebarTrigger />
         </div>
-        <main>
+        <main className="h-full w-full">
           <Outlet />
         </main>
       </SidebarInset>
