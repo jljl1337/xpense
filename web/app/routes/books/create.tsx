@@ -30,18 +30,21 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <NameDescriptionPage
-      title={"Create new book"}
-      description={"Create a new book"}
-      nameValue={""}
-      descriptionValue={""}
-      nameFieldLabel={"Book Name"}
-      descriptionFieldLabel={"Book Description"}
-      nameFieldPlaceholder={"Trip ABC"}
-      descriptionFieldPlaceholder={"Optional"}
-      submitButtonLabel={"Create"}
-      action={action}
-      redirectTo={"/books"}
-    />
+    <>
+      <title>New Book | Xpense</title>
+      <NameDescriptionPage
+        title={"Create new book"}
+        description={"Create a new book"}
+        nameValue={""}
+        descriptionValue={""}
+        nameFieldLabel={"Book Name"}
+        descriptionFieldLabel={"Book Description"}
+        nameFieldPlaceholder={"Trip ABC"}
+        descriptionFieldPlaceholder={"Optional"}
+        submitButtonLabel={"Create"}
+        action={action}
+        redirectTo={"/books"}
+      />
+    </>
   );
 }
