@@ -26,10 +26,7 @@ import { signUp } from "~/lib/db/auth";
 import { checkUsernameExists } from "~/lib/db/users";
 import { passwordWithConfirmSchema, usernameSchema } from "~/lib/schemas/auth";
 
-const formSchema = z.object({
-  ...usernameSchema.shape,
-  ...passwordWithConfirmSchema.shape,
-});
+const formSchema = z.intersection(usernameSchema, passwordWithConfirmSchema);
 
 export default function Page() {
   const form = useForm<z.infer<typeof formSchema>>({
