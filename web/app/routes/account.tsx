@@ -1,8 +1,8 @@
 import { useState } from "react";
-
-import type { Route } from "./+types/account";
-import { LogOut, Trash2 } from "lucide-react";
 import { redirect, useNavigate } from "react-router";
+import type { Route } from "./+types/account";
+
+import { LogOut, Trash2 } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -27,7 +27,7 @@ import { Separator } from "~/components/ui/separator";
 
 import { getCsrfToken, signOut, signOutAll } from "~/lib/db/auth";
 import { isUnauthorizedError } from "~/lib/db/common";
-import { deleteMe, getMe } from "~/lib/db/user";
+import { deleteMe, getMe } from "~/lib/db/users";
 
 export async function clientLoader() {
   const [user, csrfToken] = await Promise.all([getMe(), getCsrfToken()]);

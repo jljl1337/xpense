@@ -1,6 +1,7 @@
+import { Link, useNavigate } from "react-router";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
@@ -22,7 +23,7 @@ import {
 import { Input } from "~/components/ui/input";
 
 import { signUp } from "~/lib/db/auth";
-import { checkUsernameExists } from "~/lib/db/user";
+import { checkUsernameExists } from "~/lib/db/users";
 import { passwordWithConfirmSchema, usernameSchema } from "~/lib/schemas/auth";
 
 const formSchema = z.object({
