@@ -23,29 +23,12 @@ import { Input } from "~/components/ui/input";
 
 import { signUp } from "~/lib/db/auth";
 import { checkUsernameExists } from "~/lib/db/user";
+import { passwordWithConfirmSchema, usernameSchema } from "~/lib/schemas/auth";
 
-const formSchema = z
-  .object({
-    username: z
-      .string()
-      .trim()
-      .min(3, "Username must be at least 3 characters")
-      .max(20, "Username must be at most 20 characters")
-      .regex(
-        /^[a-z0-9_]+$/,
-        "Username can only contain lowercase letters, numbers, and underscores",
-      ),
-    password: z
-      .string()
-      .trim()
-      .min(8, "Password must be at least 8 characters")
-      .max(32, "Password must be at most 32 characters"),
-    confirmPassword: z.string().trim(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+const formSchema = z.object({
+  ...usernameSchema.shape,
+  ...passwordWithConfirmSchema.shape,
+});
 
 export default function Page() {
   const form = useForm<z.infer<typeof formSchema>>({
