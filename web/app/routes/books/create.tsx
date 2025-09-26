@@ -5,7 +5,7 @@ import type z from "zod";
 
 import NameDescriptionPage from "~/components/pages/name-description-page";
 import { getCsrfToken } from "~/lib/db/auth";
-import { createBook } from "~/lib/db/book";
+import { createBook } from "~/lib/db/books";
 import type { nameDescriptionSchema } from "~/lib/schemas/name-description";
 
 export async function clientLoader() {
