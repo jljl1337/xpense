@@ -21,5 +21,6 @@ export default [
     route("books/create", "routes/books/create.tsx"),
   ]),
 
+  route("error", "routes/error.tsx"),
   route("*", "routes/not-found.tsx"),
 ] satisfies RouteConfig;
