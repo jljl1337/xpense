@@ -2,6 +2,7 @@ package env
 
 var (
 	DbPath                string
+	DbBusyTimeout         string
 	BackupDbPath          string
 	BackupCronSchedule    string
 	LogLevel              int
@@ -23,6 +24,7 @@ func SetConstants() {
 	loadOptionalEnvFile()
 
 	DbPath = MustGetString("DB_PATH", "data/live/db/live.db")
+	DbBusyTimeout = MustGetString("DB_BUSY_TIMEOUT", "30000")
 	BackupDbPath = MustGetString("BACKUP_DB_PATH", "data/backup/db/backup.db")
 	BackupCronSchedule = MustGetString("BACKUP_CRON_SCHEDULE", "0 0 * * *")
 	LogLevel = MustGetInt("LOG_LEVEL", 0)

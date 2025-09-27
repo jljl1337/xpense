@@ -27,7 +27,7 @@ type Server struct {
 
 func NewServer() (*Server, error) {
 	// Connect to the database
-	dbInstance, err := db.NewDB(env.DbPath)
+	dbInstance, err := db.NewDB(env.DbPath, env.DbBusyTimeout)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
