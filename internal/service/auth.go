@@ -7,6 +7,7 @@ import (
 
 	"github.com/jljl1337/xpense/internal/crypto"
 	"github.com/jljl1337/xpense/internal/env"
+	"github.com/jljl1337/xpense/internal/format"
 	"github.com/jljl1337/xpense/internal/generator"
 	"github.com/jljl1337/xpense/internal/repository"
 )
@@ -27,7 +28,7 @@ func (a *AuthService) SignUp(ctx context.Context, username, password string) err
 		return err
 	}
 
-	currentTime := time.Now().UnixMilli()
+	currentTime := generator.NowISO8601()
 
 	_, err = a.queries.CreateUser(ctx, repository.CreateUserParams{
 		ID:           generator.NewULID(),
@@ -69,8 +70,8 @@ func (a *AuthService) SignIn(ctx context.Context, username, password string) (st
 	sessionID := generator.NewULID()
 	sessionToken := generator.NewToken(env.SessionTokenLength, env.SessionTokenCharset)
 	CSRFToken := generator.NewToken(env.CSRFTokenLength, env.CSRFTokenCharset)
-	currentTime := time.Now().UnixMilli()
-	expiresAt := time.Now().Add(24 * time.Hour).UnixMilli()
+	currentTime := generator.NowISO8601()
+	expiresAt := format.TimeToISO8601(time.Now().Add(24 * time.Hour))
 
 	if _, err := a.queries.CreateSession(ctx, repository.CreateSessionParams{
 		ID:        sessionID,
@@ -117,17 +118,17 @@ func (a *AuthService) GetSessionUserIDAndRefreshSession(ctx context.Context, ses
 
 	// Session expired
 	now := time.Now()
-	nowMillis := now.UnixMilli()
-	if session.ExpiresAt < nowMillis {
+	nowISO8601 := format.TimeToISO8601(now)
+	if session.ExpiresAt < nowISO8601 {
 		return "", nil
 	}
 
 	// Refresh the session expiration
-	newExpiresAt := now.Add(24 * time.Hour).UnixMilli()
+	newExpiresAt := format.TimeToISO8601(now.Add(24 * time.Hour))
 	rows, err := a.queries.UpdateSessionByToken(ctx, repository.UpdateSessionByTokenParams{
 		Token:     sessionToken,
 		ExpiresAt: newExpiresAt,
-		UpdatedAt: nowMillis,
+		UpdatedAt: nowISO8601,
 	})
 	if err != nil {
 		return "", err
@@ -141,7 +142,7 @@ func (a *AuthService) GetSessionUserIDAndRefreshSession(ctx context.Context, ses
 }
 
 func (a *AuthService) SignOut(ctx context.Context, sessionToken string) error {
-	now := time.Now().UnixMilli()
+	now := generator.NowISO8601()
 	rows, err := a.queries.UpdateSessionByToken(ctx, repository.UpdateSessionByTokenParams{
 		Token:     sessionToken,
 		ExpiresAt: now,
@@ -159,7 +160,7 @@ func (a *AuthService) SignOut(ctx context.Context, sessionToken string) error {
 }
 
 func (a *AuthService) SignOutAllSession(ctx context.Context, userID string) error {
-	now := time.Now().UnixMilli()
+	now := generator.NowISO8601()
 	rows, err := a.queries.UpdateSessionByUserID(ctx, repository.UpdateSessionByUserIDParams{
 		UserID:    userID,
 		ExpiresAt: now,

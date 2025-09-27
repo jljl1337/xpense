@@ -3,7 +3,7 @@ import { customFetch } from "~/lib/db/fetch";
 type User = {
   id: string;
   username: string;
-  createdAt: number;
+  createdAt: string;
 };
 
 export async function checkUsernameExists(username: string) {

@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/jljl1337/xpense/internal/env"
 	"github.com/jljl1337/xpense/internal/http/middleware"
@@ -15,7 +16,7 @@ type createExpenseRequest struct {
 	BookID          string  `json:"bookID"`
 	CategoryID      string  `json:"categoryID"`
 	PaymentMethodID string  `json:"paymentMethodID"`
-	Date            int64   `json:"date"`
+	Date            string  `json:"date"`
 	Amount          float64 `json:"amount"`
 	Remark          string  `json:"remark"`
 }
@@ -23,7 +24,7 @@ type createExpenseRequest struct {
 type updateExpenseRequest struct {
 	CategoryID      string  `json:"categoryID"`
 	PaymentMethodID string  `json:"paymentMethodID"`
-	Date            int64   `json:"date"`
+	Date            string  `json:"date"`
 	Amount          float64 `json:"amount"`
 	Remark          string  `json:"remark"`
 }
@@ -59,8 +60,8 @@ func (h *ExpenseHandler) createExpense(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Date%86400000 != 0 {
-		http.Error(w, "Date must be a valid timestamp at midnight UTC", http.StatusBadRequest)
+	if _, err := time.Parse("2006-01-02", req.Date); err != nil {
+		http.Error(w, "Date must be a valid YYYY-MM-DD", http.StatusBadRequest)
 		return
 	}
 
@@ -187,8 +188,8 @@ func (h *ExpenseHandler) updateExpense(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Date%86400000 != 0 {
-		http.Error(w, "Date must be a valid timestamp at midnight UTC", http.StatusBadRequest)
+	if _, err := time.Parse("2006-01-02", req.Date); err != nil {
+		http.Error(w, "Date must be a valid YYYY-MM-DD", http.StatusBadRequest)
 		return
 	}
 

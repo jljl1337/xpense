@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"time"
 
 	"github.com/jljl1337/xpense/internal/generator"
 	"github.com/jljl1337/xpense/internal/repository"
@@ -21,7 +20,7 @@ func NewBookService(queries *repository.Queries) *BookService {
 }
 
 func (s *BookService) CreateBook(ctx context.Context, userID, name, description string) error {
-	currentTime := time.Now().UnixMilli()
+	currentTime := generator.NowISO8601()
 
 	_, err := s.queries.CreateBook(ctx, repository.CreateBookParams{
 		ID:          generator.NewULID(),
@@ -111,13 +110,11 @@ func (s *BookService) UpdateBookByID(ctx context.Context, userID, bookID, name, 
 	}
 
 	// Proceed to update the book
-	currentTime := time.Now().UnixMilli()
-
 	rows, err := s.queries.UpdateBookByID(ctx, repository.UpdateBookByIDParams{
 		ID:          bookID,
 		Name:        name,
 		Description: description,
-		UpdatedAt:   currentTime,
+		UpdatedAt:   generator.NowISO8601(),
 	})
 	if err != nil {
 		return false, err

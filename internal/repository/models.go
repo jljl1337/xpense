@@ -9,8 +9,8 @@ type Book struct {
 	UserID      string `json:"userID"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	CreatedAt   int64  `json:"createdAt"`
-	UpdatedAt   int64  `json:"updatedAt"`
+	CreatedAt   string `json:"createdAt"`
+	UpdatedAt   string `json:"updatedAt"`
 }
 
 type Category struct {
@@ -18,8 +18,8 @@ type Category struct {
 	BookID      string `json:"bookID"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	CreatedAt   int64  `json:"createdAt"`
-	UpdatedAt   int64  `json:"updatedAt"`
+	CreatedAt   string `json:"createdAt"`
+	UpdatedAt   string `json:"updatedAt"`
 }
 
 type Expense struct {
@@ -27,11 +27,11 @@ type Expense struct {
 	BookID          string  `json:"bookID"`
 	CategoryID      string  `json:"categoryID"`
 	PaymentMethodID string  `json:"paymentMethodID"`
-	Date            int64   `json:"date"`
+	Date            string  `json:"date"`
 	Amount          float64 `json:"amount"`
 	Remark          string  `json:"remark"`
-	CreatedAt       int64   `json:"createdAt"`
-	UpdatedAt       int64   `json:"updatedAt"`
+	CreatedAt       string  `json:"createdAt"`
+	UpdatedAt       string  `json:"updatedAt"`
 }
 
 type PaymentMethod struct {
@@ -39,8 +39,8 @@ type PaymentMethod struct {
 	BookID      string `json:"bookID"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	CreatedAt   int64  `json:"createdAt"`
-	UpdatedAt   int64  `json:"updatedAt"`
+	CreatedAt   string `json:"createdAt"`
+	UpdatedAt   string `json:"updatedAt"`
 }
 
 type Session struct {
@@ -48,15 +48,15 @@ type Session struct {
 	UserID    string `json:"userID"`
 	Token     string `json:"token"`
 	CsrfToken string `json:"csrfToken"`
-	ExpiresAt int64  `json:"expiresAt"`
-	CreatedAt int64  `json:"createdAt"`
-	UpdatedAt int64  `json:"updatedAt"`
+	ExpiresAt string `json:"expiresAt"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 type User struct {
 	ID           string `json:"id"`
 	Username     string `json:"username"`
 	PasswordHash string `json:"passwordHash"`
-	CreatedAt    int64  `json:"createdAt"`
-	UpdatedAt    int64  `json:"updatedAt"`
+	CreatedAt    string `json:"createdAt"`
+	UpdatedAt    string `json:"updatedAt"`
 }

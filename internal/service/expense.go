@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/jljl1337/xpense/internal/generator"
 	"github.com/jljl1337/xpense/internal/repository"
@@ -25,7 +24,7 @@ func NewExpenseService(queries *repository.Queries) *ExpenseService {
 // It returns true if the expense was created, false if the user has no access
 // to the book, category, or payment method. It also returns false if the
 // category or payment method does not belong to the book.
-func (s *ExpenseService) CreateExpense(ctx context.Context, userID, bookID, categoryID, paymentMethodID string, date int64, amount float64, remark string) (bool, error) {
+func (s *ExpenseService) CreateExpense(ctx context.Context, userID, bookID, categoryID, paymentMethodID, date string, amount float64, remark string) (bool, error) {
 	// Check if the user has access to the book, category, and payment method
 	canAccess, err := s.checkBookCategoryPaymentMethod(ctx, userID, bookID, categoryID, paymentMethodID)
 	if err != nil {
@@ -37,7 +36,7 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, userID, bookID, cate
 	}
 
 	// Create the expense
-	currentTime := time.Now().UnixMilli()
+	currentTime := generator.NowISO8601()
 
 	_, err = s.queries.CreateExpense(ctx, repository.CreateExpenseParams{
 		ID:              generator.NewULID(),
@@ -131,7 +130,7 @@ func (s *ExpenseService) GetExpenseByID(ctx context.Context, userID, expenseID s
 // It returns true if the expense was updated, false if the expense does not
 // exist or the user has no access to the book, category, or payment method, or
 // the category or payment method does not belong to the book.
-func (s *ExpenseService) UpdateExpense(ctx context.Context, userID, expenseID, categoryID, paymentMethodID string, date int64, amount float64, remark string) (bool, error) {
+func (s *ExpenseService) UpdateExpense(ctx context.Context, userID, expenseID, categoryID, paymentMethodID, date string, amount float64, remark string) (bool, error) {
 	// Get the expense to find the book ID
 	expenses, err := s.queries.GetExpenseByID(ctx, expenseID)
 	if err != nil {
@@ -159,8 +158,6 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, userID, expenseID, c
 	}
 
 	// Update the expense
-	currentTime := time.Now().UnixMilli()
-
 	rows, err := s.queries.UpdateExpenseByID(ctx, repository.UpdateExpenseByIDParams{
 		ID:              expenseID,
 		CategoryID:      categoryID,
@@ -168,7 +165,7 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, userID, expenseID, c
 		Date:            date,
 		Amount:          amount,
 		Remark:          remark,
-		UpdatedAt:       currentTime,
+		UpdatedAt:       generator.NowISO8601(),
 	})
 	if err != nil {
 		return false, err

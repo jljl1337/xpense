@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/jljl1337/xpense/internal/generator"
 	"github.com/jljl1337/xpense/internal/repository"
@@ -36,7 +35,7 @@ func (s *CategoryService) CreateCategory(ctx context.Context, userID, bookID, na
 		return false, nil
 	}
 
-	currentTime := time.Now().UnixMilli()
+	currentTime := generator.NowISO8601()
 
 	_, err = s.queries.CreateCategory(ctx, repository.CreateCategoryParams{
 		ID:          generator.NewULID(),
@@ -135,13 +134,11 @@ func (s *CategoryService) UpdateCategoryByID(ctx context.Context, userID, catego
 		return false, nil
 	}
 
-	currentTime := time.Now().UnixMilli()
-
 	rows, err := s.queries.UpdateCategoryByID(ctx, repository.UpdateCategoryByIDParams{
 		ID:          categoryID,
 		Name:        name,
 		Description: description,
-		UpdatedAt:   currentTime,
+		UpdatedAt:   generator.NowISO8601(),
 	})
 	if err != nil {
 		return false, err

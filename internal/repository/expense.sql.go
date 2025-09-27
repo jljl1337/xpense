@@ -98,11 +98,11 @@ type CreateExpenseParams struct {
 	BookID          string  `json:"bookID"`
 	CategoryID      string  `json:"categoryID"`
 	PaymentMethodID string  `json:"paymentMethodID"`
-	Date            int64   `json:"date"`
+	Date            string  `json:"date"`
 	Amount          float64 `json:"amount"`
 	Remark          string  `json:"remark"`
-	CreatedAt       int64   `json:"createdAt"`
-	UpdatedAt       int64   `json:"updatedAt"`
+	CreatedAt       string  `json:"createdAt"`
+	UpdatedAt       string  `json:"updatedAt"`
 }
 
 func (q *Queries) CreateExpense(ctx context.Context, arg CreateExpenseParams) (int64, error) {
@@ -252,10 +252,10 @@ WHERE
 type UpdateExpenseByIDParams struct {
 	CategoryID      string  `json:"categoryID"`
 	PaymentMethodID string  `json:"paymentMethodID"`
-	Date            int64   `json:"date"`
+	Date            string  `json:"date"`
 	Amount          float64 `json:"amount"`
 	Remark          string  `json:"remark"`
-	UpdatedAt       int64   `json:"updatedAt"`
+	UpdatedAt       string  `json:"updatedAt"`
 	ID              string  `json:"id"`
 }
 

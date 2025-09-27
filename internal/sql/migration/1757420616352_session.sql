@@ -3,9 +3,9 @@ CREATE TABLE session (
     user_id TEXT NOT NULL,
     token TEXT NOT NULL,
     csrf_token TEXT NOT NULL,
-    expires_at INTEGER NOT NULL,
-    created_at INTEGER NOT NULL,
-    updated_at INTEGER NOT NULL,
+    expires_at TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
 
     PRIMARY KEY (id),
     UNIQUE (token),

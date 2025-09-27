@@ -31,8 +31,8 @@ type CreateUserParams struct {
 	ID           string `json:"id"`
 	Username     string `json:"username"`
 	PasswordHash string `json:"passwordHash"`
-	CreatedAt    int64  `json:"createdAt"`
-	UpdatedAt    int64  `json:"updatedAt"`
+	CreatedAt    string `json:"createdAt"`
+	UpdatedAt    string `json:"updatedAt"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int64, error) {
@@ -154,7 +154,7 @@ WHERE
 type UpdateUserParams struct {
 	Username     string `json:"username"`
 	PasswordHash string `json:"passwordHash"`
-	UpdatedAt    int64  `json:"updatedAt"`
+	UpdatedAt    string `json:"updatedAt"`
 	ID           string `json:"id"`
 }
 

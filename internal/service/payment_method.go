@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/jljl1337/xpense/internal/generator"
 	"github.com/jljl1337/xpense/internal/repository"
@@ -36,7 +35,7 @@ func (s *PaymentMethodService) CreatePaymentMethod(ctx context.Context, userID, 
 		return false, nil
 	}
 
-	currentTime := time.Now().UnixMilli()
+	currentTime := generator.NowISO8601()
 
 	_, err = s.queries.CreatePaymentMethod(ctx, repository.CreatePaymentMethodParams{
 		ID:          generator.NewULID(),
@@ -135,13 +134,11 @@ func (s *PaymentMethodService) UpdatePaymentMethodByID(ctx context.Context, user
 		return false, nil
 	}
 
-	currentTime := time.Now().UnixMilli()
-
 	rows, err := s.queries.UpdatePaymentMethodByID(ctx, repository.UpdatePaymentMethodByIDParams{
 		ID:          paymentMethodID,
 		Name:        name,
 		Description: description,
-		UpdatedAt:   currentTime,
+		UpdatedAt:   generator.NowISO8601(),
 	})
 	if err != nil {
 		return false, err

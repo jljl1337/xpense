@@ -36,9 +36,9 @@ type CreateSessionParams struct {
 	UserID    string `json:"userID"`
 	Token     string `json:"token"`
 	CsrfToken string `json:"csrfToken"`
-	ExpiresAt int64  `json:"expiresAt"`
-	CreatedAt int64  `json:"createdAt"`
-	UpdatedAt int64  `json:"updatedAt"`
+	ExpiresAt string `json:"expiresAt"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (int64, error) {
@@ -64,7 +64,7 @@ WHERE
     expires_at < ?1
 `
 
-func (q *Queries) DeleteSessionByExpiresAt(ctx context.Context, expiresAt int64) (int64, error) {
+func (q *Queries) DeleteSessionByExpiresAt(ctx context.Context, expiresAt string) (int64, error) {
 	result, err := q.db.ExecContext(ctx, deleteSessionByExpiresAt, expiresAt)
 	if err != nil {
 		return 0, err
@@ -123,8 +123,8 @@ WHERE
 `
 
 type UpdateSessionByTokenParams struct {
-	ExpiresAt int64  `json:"expiresAt"`
-	UpdatedAt int64  `json:"updatedAt"`
+	ExpiresAt string `json:"expiresAt"`
+	UpdatedAt string `json:"updatedAt"`
 	Token     string `json:"token"`
 }
 
@@ -147,8 +147,8 @@ WHERE
 `
 
 type UpdateSessionByUserIDParams struct {
-	ExpiresAt int64  `json:"expiresAt"`
-	UpdatedAt int64  `json:"updatedAt"`
+	ExpiresAt string `json:"expiresAt"`
+	UpdatedAt string `json:"updatedAt"`
 	UserID    string `json:"userID"`
 }
 

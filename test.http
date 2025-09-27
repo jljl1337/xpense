@@ -1,11 +1,11 @@
-@username = user3
+@username = user1
 @password = password123
-@sessionToken = 7mfP0dr1eBBjwbgSCK0oAA635ht6ei2P
-@csrfToken = AijqNVDl4HaUuUJYN9vTQea9dwzHQrpe
-@bookID = 338uD1dqj1DvZ6b7zezPF6dY3pR
-@categoryID = 338uJU9sQ8AV1EZC2wSfapErB6o
-@paymentMethodID = 338uMcjcvfit2h1WTrzLRAhxoVl
-@expenseID = 338uPWGBEsaS5TMGzEfdsqbFDTU
+@sessionToken = RAD1cMdzomOjym7cxR5rMCHTWeT6z69G
+@csrfToken = 1AWALPhL4CCsobn6xqfMhXi6ygpemRiY
+@bookID = 01K66SHMERJ9DNJ3PTPT8KWHPV
+@categoryID = 01K66SJ3P8S2DMZ4XWVDH98MP9
+@paymentMethodID = 01K66SJFKG2PHKHRQP101FKYE4
+@expenseID = 01K66SJYBE1GP5X82DGRRHHZZX
 
 ############################## Health
 
@@ -197,7 +197,7 @@ Content-Type: application/json
   "bookID": "{{bookID}}",
   "categoryID": "{{categoryID}}",
   "paymentMethodID": "{{paymentMethodID}}",
-  "date": 1095379200000,
+  "date": "2023-09-23",
   "amount": 50.75,
   "remark": "Grocery shopping"
 }
@@ -222,7 +222,7 @@ Content-Type: application/json
   "bookID": "{{bookID}}",
   "categoryID": "{{categoryID}}",
   "paymentMethodID": "{{paymentMethodID}}",
-  "date": 1095379200000,
+  "date": "2023-09-25",
   "amount": 75.00,
   "remark": "Updated grocery shopping"
 }

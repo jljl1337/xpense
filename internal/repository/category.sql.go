@@ -60,8 +60,8 @@ type CreateCategoryParams struct {
 	BookID      string `json:"bookID"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	CreatedAt   int64  `json:"createdAt"`
-	UpdatedAt   int64  `json:"updatedAt"`
+	CreatedAt   string `json:"createdAt"`
+	UpdatedAt   string `json:"updatedAt"`
 }
 
 func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) (int64, error) {
@@ -188,7 +188,7 @@ WHERE
 type UpdateCategoryByIDParams struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	UpdatedAt   int64  `json:"updatedAt"`
+	UpdatedAt   string `json:"updatedAt"`
 	ID          string `json:"id"`
 }
 

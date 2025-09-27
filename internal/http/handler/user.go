@@ -17,7 +17,7 @@ type usernameExistResponse struct {
 type getCurrentUserResponse struct {
 	ID        string `json:"id"`
 	Username  string `json:"username"`
-	CreatedAt int64  `json:"createdAt"`
+	CreatedAt string `json:"createdAt"`
 }
 
 type UserHandler struct {
