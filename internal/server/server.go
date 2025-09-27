@@ -34,6 +34,7 @@ func NewServer() (*Server, error) {
 
 	// Migrate the database
 	if err := db.Migrate(dbInstance); err != nil {
+		dbInstance.Close()
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}
 
