@@ -143,7 +143,8 @@ SET
     expires_at = ?1,
     updated_at = ?2
 WHERE
-    user_id = ?3
+    user_id = ?3 AND
+    expires_at > ?2
 `
 
 type UpdateSessionByUserIDParams struct {

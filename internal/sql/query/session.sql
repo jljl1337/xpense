@@ -43,7 +43,8 @@ SET
     expires_at = @expires_at,
     updated_at = @updated_at
 WHERE
-    user_id = @user_id;
+    user_id = @user_id AND
+    expires_at > @updated_at;
 
 -- name: DeleteSessionByExpiresAt :execrows
 DELETE FROM
