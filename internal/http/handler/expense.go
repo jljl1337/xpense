@@ -104,7 +104,7 @@ func (h *ExpenseHandler) getExpensesByBookID(w http.ResponseWriter, r *http.Requ
 		page = 1
 	}
 
-	pageSize, err := strconv.ParseInt(r.URL.Query().Get("page_size"), 10, 64)
+	pageSize, err := strconv.ParseInt(r.URL.Query().Get("page-size"), 10, 64)
 	if err != nil || pageSize < 1 || pageSize > env.PageSizeMax {
 		pageSize = env.PageSizeDefault
 	}
