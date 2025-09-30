@@ -16,6 +16,10 @@ type createUpdateBookRequest struct {
 	Description string `json:"description"`
 }
 
+type getBooksCountResponse struct {
+	Count int64 `json:"count"`
+}
+
 type BookHandler struct {
 	bookService *service.BookService
 }
@@ -28,6 +32,7 @@ func NewBookHandler(bookService *service.BookService) *BookHandler {
 
 func (h *BookHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /books", h.createBook)
+	mux.HandleFunc("GET /books/count", h.getBooksCount)
 	mux.HandleFunc("GET /books", h.getBooks)
 	mux.HandleFunc("GET /books/{id}", h.getBook)
 	mux.HandleFunc("PUT /books/{id}", h.updateBook)
@@ -68,6 +73,28 @@ func (h *BookHandler) createBook(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Book created successfully"))
 }
 
+func (h *BookHandler) getBooksCount(w http.ResponseWriter, r *http.Request) {
+	// Process the request
+	ctx := r.Context()
+	userID, err := middleware.GetUserIDFromContext(ctx)
+	if err != nil {
+		slog.Error("Error getting user ID from context")
+		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		return
+	}
+
+	count, err := h.bookService.GetBooksCountByUserID(ctx, userID)
+	if err != nil {
+		slog.Error("Error getting books count: " + err.Error())
+		http.Error(w, "Failed to get books count", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond to the client
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(getBooksCountResponse{Count: count})
+}
+
 func (h *BookHandler) getBooks(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	queryValues := r.URL.Query()
@@ -77,7 +104,7 @@ func (h *BookHandler) getBooks(w http.ResponseWriter, r *http.Request) {
 		page = 1
 	}
 
-	pageSize, err := strconv.ParseInt(queryValues.Get("page_size"), 10, 64)
+	pageSize, err := strconv.ParseInt(queryValues.Get("page-size"), 10, 64)
 	if err != nil || pageSize < 1 || pageSize > env.PageSizeMax {
 		pageSize = env.PageSizeDefault
 	}

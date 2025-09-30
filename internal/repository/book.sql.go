@@ -180,6 +180,22 @@ func (q *Queries) GetBooksByUserID(ctx context.Context, arg GetBooksByUserIDPara
 	return items, nil
 }
 
+const getBooksCountByUserID = `-- name: GetBooksCountByUserID :one
+SELECT
+    COUNT(*) AS count
+FROM
+    book
+WHERE
+    user_id = ?1
+`
+
+func (q *Queries) GetBooksCountByUserID(ctx context.Context, userID string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getBooksCountByUserID, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const updateBookByID = `-- name: UpdateBookByID :execrows
 UPDATE
     book

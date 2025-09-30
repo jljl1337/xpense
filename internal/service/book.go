@@ -37,6 +37,15 @@ func (s *BookService) CreateBook(ctx context.Context, userID, name, description 
 	return nil
 }
 
+func (s *BookService) GetBooksCountByUserID(ctx context.Context, userID string) (int64, error) {
+	countResult, err := s.queries.GetBooksCountByUserID(ctx, userID)
+	if err != nil {
+		return 0, err
+	}
+
+	return countResult, nil
+}
+
 // GetBooksByUserID retrieves a paginated list of books for a specific user.
 //
 // It returns an empty slice if no books are found.

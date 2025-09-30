@@ -17,6 +17,14 @@ INSERT INTO book (
 RETURNING
     *;
 
+-- name: GetBooksCountByUserID :one
+SELECT
+    COUNT(*) AS count
+FROM
+    book
+WHERE
+    user_id = @user_id;
+
 -- name: GetBooksByUserID :many
 SELECT
     *
