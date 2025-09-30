@@ -100,7 +100,7 @@ export default function Page() {
                           <FormLabel>Username</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="username_3_to_20_char"
+                              placeholder="username_3_to_30_char"
                               {...field}
                             />
                           </FormControl>
@@ -117,7 +117,7 @@ export default function Page() {
                           <FormControl>
                             <Input
                               type="password"
-                              placeholder="P@assw0rd8to32char"
+                              placeholder="P@assw0rd8to64char"
                               {...field}
                             />
                           </FormControl>
@@ -134,7 +134,7 @@ export default function Page() {
                           <FormControl>
                             <Input
                               type="password"
-                              placeholder="P@assw0rd8to32char"
+                              placeholder="P@assw0rd8to64char"
                               {...field}
                             />
                           </FormControl>
