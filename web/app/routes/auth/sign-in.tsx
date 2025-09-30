@@ -53,7 +53,7 @@ export default function Page() {
       });
       return;
     }
-    navigate("/account");
+    navigate("/books");
   }
 
   return (
