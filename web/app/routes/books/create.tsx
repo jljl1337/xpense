@@ -14,12 +14,16 @@ export async function clientLoader() {
     return redirect("/error");
   }
 
-  return csrfToken.data;
+  return { csrfToken: csrfToken.data };
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   async function action(data: z.infer<typeof nameDescriptionSchema>) {
-    const response = await createBook(data.name, data.description, loaderData);
+    const response = await createBook(
+      data.name,
+      data.description,
+      loaderData.csrfToken,
+    );
 
     if (response.error != null) {
       return { error: response.error };
@@ -33,7 +37,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       <title>New Book | Xpense</title>
       <NameDescriptionPage
         title={"Create new book"}
-        description={"Create a new book"}
+        description={"Enter the name and description for your new book"}
         nameValue={""}
         descriptionValue={""}
         nameFieldLabel={"Book Name"}
