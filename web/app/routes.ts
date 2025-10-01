@@ -19,6 +19,7 @@ export default [
 
     route("books", "routes/books/index.tsx"),
     route("books/create", "routes/books/create.tsx"),
+    route("books/:bookID/edit", "routes/books/edit.tsx"),
   ]),
 
   route("error", "routes/error.tsx"),

@@ -62,3 +62,39 @@ export async function getBooks(page: number, pageSize: number) {
   const data: Book[] = await response.json();
   return { data, error: null };
 }
+
+export async function getBook(bookID: string) {
+  const response = await customFetch(`/api/books/${bookID}`, "GET");
+
+  if (!response.ok) {
+    const error = await response.text();
+    return { data: null, error };
+  }
+
+  const data: Book = await response.json();
+  return { data, error: null };
+}
+
+export async function updateBook(
+  bookID: string,
+  name: string,
+  description: string,
+  csrfToken: string,
+) {
+  const response = await customFetch(
+    `/api/books/${bookID}`,
+    "PUT",
+    {
+      name,
+      description,
+    },
+    csrfToken,
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    return { error };
+  }
+
+  return { error: null };
+}
