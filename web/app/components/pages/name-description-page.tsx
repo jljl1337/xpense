@@ -89,26 +89,24 @@ export default function NameDescriptionPage({
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="min-h-30">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{nameFieldLabel}</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder={nameFieldPlaceholder}
-                          disabled={isSubmitting}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{nameFieldLabel}</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={nameFieldPlaceholder}
+                        disabled={isSubmitting}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="description"
@@ -126,22 +124,18 @@ export default function NameDescriptionPage({
                   </FormItem>
                 )}
               />
-              <div className="h-12 flex items-center justify-center">
-                {errors.root?.message && !isSubmitting && (
-                  <div className="text-red-500 text-sm text-center">
-                    {errors.root?.message}
-                  </div>
-                )}
-              </div>
-              <div className="flex justify-end">
-                <Button
-                  className="cursor-pointer"
-                  type="submit"
-                  disabled={isSubmitting}
-                >
-                  {submitButtonLabel}
-                </Button>
-              </div>
+              <Button
+                className="w-full cursor-pointer"
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {submitButtonLabel}
+              </Button>
+              {errors.root?.message && !isSubmitting && (
+                <div className="text-red-500 text-sm text-center">
+                  {errors.root?.message}
+                </div>
+              )}
             </form>
           </Form>
         </CardContent>
