@@ -21,7 +21,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   async function action(data: z.infer<typeof nameDescriptionSchema>) {
     const response = await createBook(data.name, data.description, loaderData);
 
-    console.log("Created book with ID:");
     if (response.error != null) {
       return { error: response.error };
     }
