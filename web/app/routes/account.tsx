@@ -140,6 +140,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               <CardDescription>Manage your account settings</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              <Separator />
               {/* Sign Out */}
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
@@ -239,6 +240,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              <Separator />
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <Label className="text-base">Delete Account</Label>
