@@ -1,5 +1,6 @@
-import { Book, Laptop, Moon, Sun, User } from "lucide-react";
 import { Link, useLocation } from "react-router";
+
+import { Book, Laptop, Moon, Sun, User } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -48,7 +49,7 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton>
+                <SidebarMenuButton className="cursor-pointer">
                   {theme === "light" ? (
                     <Sun />
                   ) : theme === "dark" ? (
@@ -62,18 +63,21 @@ export function AppSidebar() {
               <DropdownMenuContent>
                 <DropdownMenuRadioGroup value={theme}>
                   <DropdownMenuRadioItem
+                    className="cursor-pointer"
                     value="system"
                     onSelect={() => setTheme("system")}
                   >
                     System
                   </DropdownMenuRadioItem>
                   <DropdownMenuRadioItem
+                    className="cursor-pointer"
                     value="light"
                     onSelect={() => setTheme("light")}
                   >
                     Light
                   </DropdownMenuRadioItem>
                   <DropdownMenuRadioItem
+                    className="cursor-pointer"
                     value="dark"
                     onSelect={() => setTheme("dark")}
                   >

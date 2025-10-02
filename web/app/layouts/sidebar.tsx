@@ -14,7 +14,7 @@ export default function Layout() {
       <AppSidebar />
       <SidebarInset>
         <div className="mx-2 my-2 flex items-center">
-          <SidebarTrigger />
+          <SidebarTrigger className="cursor-pointer" />
         </div>
         <main className="h-full w-full">
           <Outlet />
