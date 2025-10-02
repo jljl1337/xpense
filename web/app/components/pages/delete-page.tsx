@@ -14,14 +14,12 @@ interface DeletePageProps {
   title: string;
   description: string;
   action: () => Promise<{ error: string | null }>;
-  redirectTo: string;
 }
 
 export default function DeletePage({
   title,
   description,
   action,
-  redirectTo,
 }: DeletePageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +37,7 @@ export default function DeletePage({
       return;
     }
 
-    navigate(redirectTo);
+    navigate(-1);
   }
 
   return (
@@ -51,14 +49,23 @@ export default function DeletePage({
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-4">
-            <Button
-              variant={"destructive"}
-              className="w-full cursor-pointer"
-              onClick={onDelete}
-              disabled={isLoading}
-            >
-              {isLoading ? "Deleting..." : "Delete"}
-            </Button>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant={"outline"}
+                className="cursor-pointer"
+                onClick={() => navigate(-1)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant={"destructive"}
+                className="cursor-pointer"
+                onClick={onDelete}
+                disabled={isLoading}
+              >
+                Delete
+              </Button>
+            </div>
             {error && !isLoading && (
               <div className="text-destructive text-sm text-center">
                 {error}

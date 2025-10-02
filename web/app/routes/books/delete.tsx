@@ -39,7 +39,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         title="Delete Book"
         description={`Are you sure you want to delete the following book: ${loaderData.book.name}?`}
         action={action}
-        redirectTo="/books"
       />
     </>
   );
