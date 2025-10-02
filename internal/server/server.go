@@ -86,26 +86,31 @@ func NewServer() (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to create scheduler: %w", err)
 	}
-	_, err = scheduler.NewJob(
-		gocron.CronJob(
-			env.BackupCronSchedule,
-			false,
-		),
-		gocron.NewTask(
-			func() {
-				slog.Info("Starting database backup")
-				start := time.Now()
-				if err := db.BackupToFile(dbInstance, env.BackupDbPath); err != nil {
-					slog.Error("Failed to backup database: " + err.Error())
-					return
-				}
-				slog.Info("Database backup completed in " + time.Since(start).String())
-			},
-		),
-		gocron.WithSingletonMode(gocron.LimitModeReschedule),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create cron job: %w", err)
+
+	if env.BackupCronSchedule != "" && env.BackupDbPath != "" {
+		_, err = scheduler.NewJob(
+			gocron.CronJob(
+				env.BackupCronSchedule,
+				false,
+			),
+			gocron.NewTask(
+				func() {
+					slog.Info("Starting database backup")
+					start := time.Now()
+					if err := db.BackupToFile(dbInstance, env.BackupDbPath); err != nil {
+						slog.Error("Failed to backup database: " + err.Error())
+						return
+					}
+					slog.Info("Database backup completed in " + time.Since(start).String())
+				},
+			),
+			gocron.WithSingletonMode(gocron.LimitModeReschedule),
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create cron job: %w", err)
+		}
+	} else {
+		slog.Warn("Database backup cron job not scheduled")
 	}
 
 	return &Server{
