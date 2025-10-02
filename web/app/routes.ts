@@ -34,6 +34,18 @@ export default [
     ),
 
     route("books/:bookID/payment-methods", "routes/payment-methods/index.tsx"),
+    route(
+      "books/:bookID/payment-methods/create",
+      "routes/payment-methods/create.tsx",
+    ),
+    route(
+      "books/:bookID/payment-methods/:paymentMethodID/edit",
+      "routes/payment-methods/edit.tsx",
+    ),
+    route(
+      "books/:bookID/payment-methods/:paymentMethodID/delete",
+      "routes/payment-methods/delete.tsx",
+    ),
 
     route("books/:bookID/expenses", "routes/expenses/index.tsx"),
   ]),
