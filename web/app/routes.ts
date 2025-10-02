@@ -21,6 +21,21 @@ export default [
     route("books/create", "routes/books/create.tsx"),
     route("books/:bookID/edit", "routes/books/edit.tsx"),
     route("books/:bookID/delete", "routes/books/delete.tsx"),
+
+    route("books/:bookID/categories", "routes/categories/index.tsx"),
+    route("books/:bookID/categories/create", "routes/categories/create.tsx"),
+    route(
+      "books/:bookID/categories/:categoryID/edit",
+      "routes/categories/edit.tsx",
+    ),
+    route(
+      "books/:bookID/categories/:categoryID/delete",
+      "routes/categories/delete.tsx",
+    ),
+
+    route("books/:bookID/payment-methods", "routes/payment-methods/index.tsx"),
+
+    route("books/:bookID/expenses", "routes/expenses/index.tsx"),
   ]),
 
   route("error", "routes/error.tsx"),
