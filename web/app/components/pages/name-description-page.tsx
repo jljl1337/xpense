@@ -132,7 +132,7 @@ export default function NameDescriptionPage({
                 {submitButtonLabel}
               </Button>
               {errors.root?.message && !isSubmitting && (
-                <div className="text-red-500 text-sm text-center">
+                <div className="text-destructive text-sm text-center">
                   {errors.root?.message}
                 </div>
               )}

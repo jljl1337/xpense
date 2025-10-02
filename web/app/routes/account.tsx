@@ -129,7 +129,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               </p>
             </div>
           ) : (
-            <p className="text-red-500">
+            <p className="text-destructive">
               Error: {loaderData?.error || "Failed to load user data."}
             </p>
           )}
@@ -178,7 +178,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                         Yes
                       </Button>
                       {error && !isLoading && (
-                        <p className="text-red-500 text-sm mt-2">{error}</p>
+                        <p className="text-destructive text-sm mt-2">{error}</p>
                       )}
                     </DialogFooter>
                   </DialogContent>
@@ -223,7 +223,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                         Yes
                       </Button>
                       {error && !isLoading && (
-                        <p className="text-red-500 text-sm mt-2">{error}</p>
+                        <p className="text-destructive text-sm mt-2">{error}</p>
                       )}
                     </DialogFooter>
                   </DialogContent>
@@ -279,7 +279,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                         Yes
                       </Button>
                       {error && !isLoading && (
-                        <p className="text-red-500 text-sm mt-2">{error}</p>
+                        <p className="text-destructive text-sm mt-2">{error}</p>
                       )}
                     </DialogFooter>
                   </DialogContent>
