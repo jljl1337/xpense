@@ -55,7 +55,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         descriptionFieldPlaceholder={"Optional"}
         submitButtonLabel={"Update"}
         action={action}
-        redirectTo={"/books"}
       />
     </>
   );

@@ -37,7 +37,6 @@ interface NameDescriptionPageProps {
   action: (
     data: z.infer<typeof nameDescriptionSchema>,
   ) => Promise<{ error: string | null }>;
-  redirectTo: string;
 }
 
 export default function NameDescriptionPage({
@@ -51,7 +50,6 @@ export default function NameDescriptionPage({
   descriptionFieldPlaceholder,
   submitButtonLabel,
   action,
-  redirectTo,
 }: NameDescriptionPageProps) {
   const form = useForm<z.infer<typeof nameDescriptionSchema>>({
     resolver: zodResolver(nameDescriptionSchema),
@@ -77,7 +75,7 @@ export default function NameDescriptionPage({
       });
     }
 
-    navigate(redirectTo);
+    navigate(-1);
   }
 
   return (
