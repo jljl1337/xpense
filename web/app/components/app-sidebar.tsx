@@ -73,7 +73,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key="expense">
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === `/books/${bookID}/expenses`}
+                    isActive={pathname.startsWith(`/books/${bookID}/expenses`)}
                   >
                     <Link to={`/books/${bookID}/expenses`}>
                       <DollarSign />
@@ -84,7 +84,9 @@ export function AppSidebar() {
                 <SidebarMenuItem key="category">
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === `/books/${bookID}/categories`}
+                    isActive={pathname.startsWith(
+                      `/books/${bookID}/categories`,
+                    )}
                   >
                     <Link to={`/books/${bookID}/categories`}>
                       <List />
@@ -95,7 +97,9 @@ export function AppSidebar() {
                 <SidebarMenuItem key="payment-method">
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === `/books/${bookID}/payment-methods`}
+                    isActive={pathname.startsWith(
+                      `/books/${bookID}/payment-methods`,
+                    )}
                   >
                     <Link to={`/books/${bookID}/payment-methods`}>
                       <Wallet />
