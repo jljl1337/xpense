@@ -49,7 +49,7 @@ const columns: ColumnDef<Book>[] = [
     header: "Name",
     cell: ({ row }) => {
       return (
-        <Link to={`/books/${row.original.id}`} className="underline">
+        <Link to={`/books/${row.original.id}/expenses`} className="underline">
           {row.original.name}
         </Link>
       );
