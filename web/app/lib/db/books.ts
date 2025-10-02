@@ -98,3 +98,19 @@ export async function updateBook(
 
   return { error: null };
 }
+
+export async function deleteBook(bookID: string, csrfToken: string) {
+  const response = await customFetch(
+    `/api/books/${bookID}`,
+    "DELETE",
+    null,
+    csrfToken,
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    return { error };
+  }
+
+  return { error: null };
+}
