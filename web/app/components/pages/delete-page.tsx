@@ -14,12 +14,14 @@ interface DeletePageProps {
   title: string;
   description: string;
   action: () => Promise<{ error: string | null }>;
+  redirectTo: string;
 }
 
 export default function DeletePage({
   title,
   description,
   action,
+  redirectTo,
 }: DeletePageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export default function DeletePage({
       return;
     }
 
-    navigate(-1);
+    navigate(redirectTo);
   }
 
   return (
