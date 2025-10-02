@@ -1,6 +1,17 @@
 import { Link, useLocation } from "react-router";
 
-import { Book, Laptop, Moon, Sun, User } from "lucide-react";
+import {
+  Book,
+  DollarSign,
+  Edit,
+  Laptop,
+  List,
+  Moon,
+  Sun,
+  Trash,
+  User,
+  Wallet,
+} from "lucide-react";
 
 import {
   DropdownMenu,
@@ -16,7 +27,6 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -29,21 +39,112 @@ export function AppSidebar() {
 
   const { pathname } = useLocation();
 
+  const bookIDRegex = /(?<=\/books\/)[0-9A-HJKMNP-TV-Z]{26}/;
+  const bookIDMatch = pathname.match(bookIDRegex);
+
+  const bookID = bookIDMatch != null ? bookIDMatch[0] : null;
+
   return (
     <Sidebar variant="inset">
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem key="books">
-            <SidebarMenuButton asChild isActive={pathname === "/books"}>
-              <Link to={"/books"}>
-                <Book />
-                Books
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <SidebarContent />
+      {bookID == null ? (
+        <>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Contents</SidebarGroupLabel>
+              <SidebarMenu>
+                <SidebarMenuItem key="books">
+                  <SidebarMenuButton asChild isActive={pathname === "/books"}>
+                    <Link to={"/books"}>
+                      <Book />
+                      Books
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </>
+      ) : (
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Contents</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem key="expense">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === `/books/${bookID}/expenses`}
+                  >
+                    <Link to={`/books/${bookID}/expenses`}>
+                      <DollarSign />
+                      Expenses
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem key="category">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === `/books/${bookID}/categories`}
+                  >
+                    <Link to={`/books/${bookID}/categories`}>
+                      <List />
+                      Categories
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem key="payment-method">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === `/books/${bookID}/payment-methods`}
+                  >
+                    <Link to={`/books/${bookID}/payment-methods`}>
+                      <Wallet />
+                      Payment Methods
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          <SidebarGroup>
+            <SidebarGroupLabel>Books</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem key="edit">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === `/books/${bookID}/edit`}
+                  >
+                    <Link to={`/books/${bookID}/edit`}>
+                      <Edit />
+                      Edit
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem key="delete">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === `/books/${bookID}/delete`}
+                  >
+                    <Link to={`/books/${bookID}/delete`}>
+                      <Trash />
+                      Delete
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem key="books">
+                  <SidebarMenuButton asChild>
+                    <Link to="/books">
+                      <Book />
+                      All Books
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      )}
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
