@@ -48,6 +48,12 @@ export default [
     ),
 
     route("books/:bookID/expenses", "routes/expenses/index.tsx"),
+    route("books/:bookID/expenses/create", "routes/expenses/create.tsx"),
+    route("books/:bookID/expenses/:expenseID/edit", "routes/expenses/edit.tsx"),
+    route(
+      "books/:bookID/expenses/:expenseID/delete",
+      "routes/expenses/delete.tsx",
+    ),
   ]),
 
   route("error", "routes/error.tsx"),
