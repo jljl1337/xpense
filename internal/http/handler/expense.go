@@ -41,6 +41,7 @@ func NewExpenseHandler(expenseService *service.ExpenseService) *ExpenseHandler {
 
 func (h *ExpenseHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /expenses", h.createExpense)
+	mux.HandleFunc("GET /expenses/count", h.getExpensesCountByBookID)
 	mux.HandleFunc("GET /expenses", h.getExpensesByBookID)
 	mux.HandleFunc("GET /expenses/{id}", h.getExpenseByID)
 	mux.HandleFunc("PUT /expenses/{id}", h.updateExpense)
@@ -89,6 +90,35 @@ func (h *ExpenseHandler) createExpense(w http.ResponseWriter, r *http.Request) {
 	// Respond to the client
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Expense created successfully"))
+}
+
+func (h *ExpenseHandler) getExpensesCountByBookID(w http.ResponseWriter, r *http.Request) {
+	// Input validation
+	bookID := r.URL.Query().Get("book-id")
+	if bookID == "" {
+		http.Error(w, "Book ID is required", http.StatusBadRequest)
+		return
+	}
+
+	// Process the request
+	ctx := r.Context()
+	userID, err := middleware.GetUserIDFromContext(ctx)
+	if err != nil {
+		slog.Error("Error getting user ID from context")
+		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		return
+	}
+
+	count, err := h.expenseService.GetExpensesCountByBookID(r.Context(), userID, bookID)
+	if err != nil {
+		slog.Error("Error getting expenses count: " + err.Error())
+		http.Error(w, "Failed to get expenses count", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond to the client
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]int64{"count": count})
 }
 
 func (h *ExpenseHandler) getExpensesByBookID(w http.ResponseWriter, r *http.Request) {

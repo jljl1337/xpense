@@ -180,6 +180,22 @@ func (q *Queries) GetExpenseByID(ctx context.Context, id string) ([]Expense, err
 	return items, nil
 }
 
+const getExpenseCountByBookID = `-- name: GetExpenseCountByBookID :one
+SELECT
+    COUNT(*) AS count
+FROM
+    expense
+WHERE
+    book_id = ?1
+`
+
+func (q *Queries) GetExpenseCountByBookID(ctx context.Context, bookID string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getExpenseCountByBookID, bookID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getExpensesByBookID = `-- name: GetExpensesByBookID :many
 SELECT
     id, book_id, category_id, payment_method_id, date, amount, remark, created_at, updated_at

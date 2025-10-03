@@ -23,6 +23,14 @@ INSERT INTO expense (
 RETURNING
     *;
 
+-- name: GetExpenseCountByBookID :one
+SELECT
+    COUNT(*) AS count
+FROM
+    expense
+WHERE
+    book_id = @book_id;
+
 -- name: GetExpensesByBookID :many
 SELECT
     *

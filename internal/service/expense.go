@@ -56,6 +56,28 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, userID, bookID, cate
 	return true, nil
 }
 
+func (s *ExpenseService) GetExpensesCountByBookID(ctx context.Context, userID, bookID string) (int64, error) {
+	// Check if the user has access to the book
+	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+		BookID: bookID,
+		UserID: userID,
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	if !canAccess {
+		return 0, nil
+	}
+
+	countResult, err := s.queries.GetExpenseCountByBookID(ctx, bookID)
+	if err != nil {
+		return 0, err
+	}
+
+	return countResult, nil
+}
+
 // GetExpensesByBookID retrieves all expenses for a specific book with pagination.
 //
 // It returns an empty slice if no expenses are found in the book.
