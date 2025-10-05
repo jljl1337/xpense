@@ -47,9 +47,25 @@ export async function createExpense(
   return { error: null };
 }
 
-export async function getExpensesCountByBookID(bookID: string) {
+export async function getExpensesCountByBookID(
+  bookID: string,
+  categoryID?: string,
+  paymentMethodID?: string,
+  remark?: string,
+) {
+  const searchParams = new URLSearchParams({ "book-id": bookID });
+  if (categoryID) {
+    searchParams.append("category-id", categoryID);
+  }
+  if (paymentMethodID) {
+    searchParams.append("payment-method-id", paymentMethodID);
+  }
+  if (remark) {
+    searchParams.append("remark", remark);
+  }
+
   const response = await customFetch(
-    `/api/expenses/count?book-id=${bookID}`,
+    `/api/expenses/count?${searchParams.toString()}`,
     "GET",
   );
 
@@ -66,9 +82,27 @@ export async function getExpensesByBookID(
   bookID: string,
   page: number,
   pageSize: number,
+  categoryID?: string,
+  paymentMethodID?: string,
+  remark?: string,
 ) {
+  const searchParams = new URLSearchParams({
+    "book-id": bookID,
+    page: page.toString(),
+    "page-size": pageSize.toString(),
+  });
+  if (categoryID) {
+    searchParams.append("category-id", categoryID);
+  }
+  if (paymentMethodID) {
+    searchParams.append("payment-method-id", paymentMethodID);
+  }
+  if (remark) {
+    searchParams.append("remark", remark);
+  }
+
   const response = await customFetch(
-    `/api/expenses?book-id=${bookID}&page=${page}&page-size=${pageSize}`,
+    `/api/expenses?${searchParams.toString()}`,
     "GET",
   );
 

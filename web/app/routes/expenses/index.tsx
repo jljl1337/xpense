@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { Button } from "~/components/ui/button";
 
+import ExpenseFilterForm from "~/components/expense-filter-form";
 import Pagination from "~/components/pagination";
 import { DataTable } from "~/components/tables/data-table";
 import TableRowDropdown from "~/components/tables/dropdown";
@@ -27,12 +28,28 @@ export async function clientLoader({
     page = 1;
   }
 
+  const categoryID = searchParams.get("category-id") ?? undefined;
+  const paymentMethodID = searchParams.get("payment-method-id") ?? undefined;
+  const remark = searchParams.get("remark") ?? undefined;
+
   const [count, categoryList, paymentMethodList, expenseList] =
     await Promise.all([
-      getExpensesCountByBookID(params.bookID),
+      getExpensesCountByBookID(
+        params.bookID,
+        categoryID,
+        paymentMethodID,
+        remark,
+      ),
       getCategories(params.bookID),
       getPaymentMethods(params.bookID),
-      getExpensesByBookID(params.bookID, page, 20),
+      getExpensesByBookID(
+        params.bookID,
+        page,
+        20,
+        categoryID,
+        paymentMethodID,
+        remark,
+      ),
     ]);
 
   if (count.error != null) {
@@ -66,6 +83,9 @@ export async function clientLoader({
     expenses: expenseList.data,
     categoryList: categoryList.data,
     paymentMethodList: paymentMethodList.data,
+    categoryID,
+    paymentMethodID,
+    remark,
   };
 }
 
@@ -169,9 +189,19 @@ export default function Page({ params, loaderData }: Route.ComponentProps) {
       <div className="h-full flex items-center justify-center">
         <div className="h-full max-w-[90rem] flex-1 flex flex-col p-8 gap-4">
           <h1 className="text-4xl">Expenses</h1>
-          <Button className="w-24" asChild>
-            <Link to={`/books/${params.bookID}/expenses/create`}>Create</Link>
-          </Button>
+          <div className="flex justify-between items-center">
+            <Button className="w-24" asChild>
+              <Link to={`/books/${params.bookID}/expenses/create`}>Create</Link>
+            </Button>
+            <ExpenseFilterForm
+              bookId={params.bookID}
+              categories={categoryList}
+              paymentMethods={paymentMethodList}
+              categoryId={loaderData.categoryID}
+              paymentMethodId={loaderData.paymentMethodID}
+              remark={loaderData.remark}
+            />
+          </div>
           <DataTable columns={columns} data={loaderData.expenses} />
           <div className="self-end">
             {loaderData.count > 0 && (
