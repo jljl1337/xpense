@@ -186,11 +186,26 @@ SELECT
 FROM
     expense
 WHERE
-    book_id = ?1
+    book_id = ?1 AND
+    (category_id = ?2 OR ?2 = '') AND
+    (payment_method_id = ?3 OR ?3 = '') AND
+    (INSTR(remark, ?4) > 0 OR ?4 = '')
 `
 
-func (q *Queries) GetExpenseCountByBookID(ctx context.Context, bookID string) (int64, error) {
-	row := q.db.QueryRowContext(ctx, getExpenseCountByBookID, bookID)
+type GetExpenseCountByBookIDParams struct {
+	BookID          string `json:"bookID"`
+	CategoryID      string `json:"categoryID"`
+	PaymentMethodID string `json:"paymentMethodID"`
+	Remark          string `json:"remark"`
+}
+
+func (q *Queries) GetExpenseCountByBookID(ctx context.Context, arg GetExpenseCountByBookIDParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getExpenseCountByBookID,
+		arg.BookID,
+		arg.CategoryID,
+		arg.PaymentMethodID,
+		arg.Remark,
+	)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -202,24 +217,37 @@ SELECT
 FROM
     expense
 WHERE
-    book_id = ?1
+    book_id = ?1 AND
+    (category_id = ?2 OR ?2 = '') AND
+    (payment_method_id = ?3 OR ?3 = '') AND
+    (INSTR(remark, ?4) > 0 OR ?4 = '')
 ORDER BY
     date DESC,
     updated_at DESC
 LIMIT
-    ?3
+    ?6
 OFFSET
-    ?2
+    ?5
 `
 
 type GetExpensesByBookIDParams struct {
-	BookID string `json:"bookID"`
-	Offset int64  `json:"offset"`
-	Limit  int64  `json:"limit"`
+	BookID          string `json:"bookID"`
+	CategoryID      string `json:"categoryID"`
+	PaymentMethodID string `json:"paymentMethodID"`
+	Remark          string `json:"remark"`
+	Offset          int64  `json:"offset"`
+	Limit           int64  `json:"limit"`
 }
 
 func (q *Queries) GetExpensesByBookID(ctx context.Context, arg GetExpensesByBookIDParams) ([]Expense, error) {
-	rows, err := q.db.QueryContext(ctx, getExpensesByBookID, arg.BookID, arg.Offset, arg.Limit)
+	rows, err := q.db.QueryContext(ctx, getExpensesByBookID,
+		arg.BookID,
+		arg.CategoryID,
+		arg.PaymentMethodID,
+		arg.Remark,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}

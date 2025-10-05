@@ -99,6 +99,9 @@ func (h *ExpenseHandler) getExpensesCountByBookID(w http.ResponseWriter, r *http
 		http.Error(w, "Book ID is required", http.StatusBadRequest)
 		return
 	}
+	categoryID := r.URL.Query().Get("category-id")
+	paymentMethodID := r.URL.Query().Get("payment-method-id")
+	remark := r.URL.Query().Get("remark")
 
 	// Process the request
 	ctx := r.Context()
@@ -109,7 +112,7 @@ func (h *ExpenseHandler) getExpensesCountByBookID(w http.ResponseWriter, r *http
 		return
 	}
 
-	count, err := h.expenseService.GetExpensesCountByBookID(r.Context(), userID, bookID)
+	count, err := h.expenseService.GetExpensesCountByBookID(r.Context(), userID, bookID, categoryID, paymentMethodID, remark)
 	if err != nil {
 		slog.Error("Error getting expenses count: " + err.Error())
 		http.Error(w, "Failed to get expenses count", http.StatusInternalServerError)
@@ -128,6 +131,9 @@ func (h *ExpenseHandler) getExpensesByBookID(w http.ResponseWriter, r *http.Requ
 		http.Error(w, "Book ID is required", http.StatusBadRequest)
 		return
 	}
+	categoryID := r.URL.Query().Get("category-id")
+	paymentMethodID := r.URL.Query().Get("payment-method-id")
+	remark := r.URL.Query().Get("remark")
 
 	page, err := strconv.ParseInt(r.URL.Query().Get("page"), 10, 64)
 	if err != nil || page < 1 {
@@ -148,7 +154,7 @@ func (h *ExpenseHandler) getExpensesByBookID(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	expenses, err := h.expenseService.GetExpensesByBookID(r.Context(), userID, bookID, page, pageSize)
+	expenses, err := h.expenseService.GetExpensesByBookID(r.Context(), userID, bookID, categoryID, paymentMethodID, remark, page, pageSize)
 	if err != nil {
 		slog.Error("Error getting expenses: " + err.Error())
 		http.Error(w, "Failed to get expenses", http.StatusInternalServerError)

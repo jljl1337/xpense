@@ -29,7 +29,10 @@ SELECT
 FROM
     expense
 WHERE
-    book_id = @book_id;
+    book_id = @book_id AND
+    (category_id = @category_id OR @category_id = '') AND
+    (payment_method_id = @payment_method_id OR @payment_method_id = '') AND
+    (INSTR(remark, @remark) > 0 OR @remark = '');
 
 -- name: GetExpensesByBookID :many
 SELECT
@@ -37,7 +40,10 @@ SELECT
 FROM
     expense
 WHERE
-    book_id = @book_id
+    book_id = @book_id AND
+    (category_id = @category_id OR @category_id = '') AND
+    (payment_method_id = @payment_method_id OR @payment_method_id = '') AND
+    (INSTR(remark, @remark) > 0 OR @remark = '')
 ORDER BY
     date DESC,
     updated_at DESC

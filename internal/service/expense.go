@@ -56,7 +56,7 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, userID, bookID, cate
 	return true, nil
 }
 
-func (s *ExpenseService) GetExpensesCountByBookID(ctx context.Context, userID, bookID string) (int64, error) {
+func (s *ExpenseService) GetExpensesCountByBookID(ctx context.Context, userID, bookID, categoryID, paymentMethodID, remark string) (int64, error) {
 	// Check if the user has access to the book
 	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
@@ -70,7 +70,12 @@ func (s *ExpenseService) GetExpensesCountByBookID(ctx context.Context, userID, b
 		return 0, nil
 	}
 
-	countResult, err := s.queries.GetExpenseCountByBookID(ctx, bookID)
+	countResult, err := s.queries.GetExpenseCountByBookID(ctx, repository.GetExpenseCountByBookIDParams{
+		BookID:          bookID,
+		CategoryID:      categoryID,
+		PaymentMethodID: paymentMethodID,
+		Remark:          remark,
+	})
 	if err != nil {
 		return 0, err
 	}
@@ -83,7 +88,7 @@ func (s *ExpenseService) GetExpensesCountByBookID(ctx context.Context, userID, b
 // It returns an empty slice if no expenses are found in the book.
 //
 // It returns nil if the user has no access to the book or the book does not exist.
-func (s *ExpenseService) GetExpensesByBookID(ctx context.Context, userID, bookID string, page int64, pageSize int64) ([]repository.Expense, error) {
+func (s *ExpenseService) GetExpensesByBookID(ctx context.Context, userID, bookID, categoryID, paymentMethodID, remark string, page int64, pageSize int64) ([]repository.Expense, error) {
 	// Check if the user has access to the book
 	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
@@ -100,9 +105,12 @@ func (s *ExpenseService) GetExpensesByBookID(ctx context.Context, userID, bookID
 	offset := (page - 1) * pageSize
 	limit := pageSize
 	expenses, err := s.queries.GetExpensesByBookID(ctx, repository.GetExpensesByBookIDParams{
-		BookID: bookID,
-		Offset: offset,
-		Limit:  limit,
+		BookID:          bookID,
+		CategoryID:      categoryID,
+		PaymentMethodID: paymentMethodID,
+		Remark:          remark,
+		Offset:          offset,
+		Limit:           limit,
 	})
 	if err != nil {
 		return nil, err
