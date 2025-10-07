@@ -1,5 +1,7 @@
 package env
 
+import "net/http"
+
 var (
 	DbPath                string
 	DbBusyTimeout         string
@@ -18,6 +20,8 @@ var (
 	CSRFTokenCharset      string
 	PageSizeMax           int64
 	PageSizeDefault       int64
+
+	SessionCookieSameSiteMode http.SameSite
 )
 
 func SetConstants() {
@@ -40,4 +44,14 @@ func SetConstants() {
 	CSRFTokenCharset = MustGetString("CSRF_TOKEN_CHARSET", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	PageSizeMax = MustGetInt64("PAGE_SIZE_MAX", 100)
 	PageSizeDefault = MustGetInt64("PAGE_SIZE_DEFAULT", 10)
+
+	sessionCookieSameSite := MustGetString("SESSION_COOKIE_SAME_SITE_MODE", "lax")
+	switch sessionCookieSameSite {
+	case "lax":
+		SessionCookieSameSiteMode = http.SameSiteLaxMode
+	case "strict":
+		SessionCookieSameSiteMode = http.SameSiteStrictMode
+	default:
+		SessionCookieSameSiteMode = http.SameSiteNoneMode
+	}
 }

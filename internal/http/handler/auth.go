@@ -89,13 +89,7 @@ func (h *AuthHandler) signIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Respond to the client
-	http.SetCookie(w, &http.Cookie{
-		Name:     env.SessionCookieName,
-		Value:    sessionToken,
-		HttpOnly: env.SessionCookieHttpOnly,
-		Secure:   env.SessionCookieSecure,
-		Path:     "/",
-	})
+	http.SetCookie(w, NewActiveSessionCookie(sessionToken))
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(signInCSRFTokenResponse{
@@ -119,14 +113,7 @@ func (h *AuthHandler) signOut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Respond to the client
-	http.SetCookie(w, &http.Cookie{
-		Name:     env.SessionCookieName,
-		Value:    "",
-		HttpOnly: env.SessionCookieHttpOnly,
-		Secure:   env.SessionCookieSecure,
-		Path:     "/",
-		MaxAge:   -1,
-	})
+	http.SetCookie(w, NewExpiredSessionCookie())
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("User logged out successfully"))
@@ -149,14 +136,7 @@ func (h *AuthHandler) signOutAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Respond to the client
-	http.SetCookie(w, &http.Cookie{
-		Name:     env.SessionCookieName,
-		Value:    "",
-		HttpOnly: env.SessionCookieHttpOnly,
-		Secure:   env.SessionCookieSecure,
-		Path:     "/",
-		MaxAge:   -1,
-	})
+	http.SetCookie(w, NewExpiredSessionCookie())
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("User logged out from all sessions successfully"))
