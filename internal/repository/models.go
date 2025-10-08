@@ -4,6 +4,10 @@
 
 package repository
 
+import (
+	"database/sql"
+)
+
 type Book struct {
 	ID          string `json:"id"`
 	UserID      string `json:"userID"`
@@ -44,13 +48,13 @@ type PaymentMethod struct {
 }
 
 type Session struct {
-	ID        string `json:"id"`
-	UserID    string `json:"userID"`
-	Token     string `json:"token"`
-	CsrfToken string `json:"csrfToken"`
-	ExpiresAt string `json:"expiresAt"`
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
+	ID        string         `json:"id"`
+	UserID    sql.NullString `json:"userID"`
+	Token     string         `json:"token"`
+	CsrfToken string         `json:"csrfToken"`
+	ExpiresAt string         `json:"expiresAt"`
+	CreatedAt string         `json:"createdAt"`
+	UpdatedAt string         `json:"updatedAt"`
 }
 
 type User struct {

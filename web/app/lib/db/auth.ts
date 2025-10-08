@@ -18,11 +18,32 @@ export async function signUp(username: string, password: string) {
   return { error: null };
 }
 
-export async function signIn(username: string, password: string) {
-  const response = await customFetch("/api/auth/sign-in", "POST", {
-    username,
-    password,
-  });
+export async function getPreSession() {
+  const response = await customFetch("/api/auth/pre-session", "POST");
+
+  if (!response.ok) {
+    const error = await response.text();
+    return { data: null, error };
+  }
+
+  const data: CsrfToken = await response.json();
+  return { data: data.csrfToken, error: null };
+}
+
+export async function signIn(
+  username: string,
+  password: string,
+  csrfToken: string,
+) {
+  const response = await customFetch(
+    "/api/auth/sign-in",
+    "POST",
+    {
+      username,
+      password,
+    },
+    csrfToken,
+  );
 
   if (!response.ok) {
     const error = await response.text();

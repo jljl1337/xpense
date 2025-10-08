@@ -1,6 +1,6 @@
 CREATE TABLE session (
     id TEXT NOT NULL,
-    user_id TEXT NOT NULL,
+    user_id TEXT,
     token TEXT NOT NULL,
     csrf_token TEXT NOT NULL,
     expires_at TEXT NOT NULL,

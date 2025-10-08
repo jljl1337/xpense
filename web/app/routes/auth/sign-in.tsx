@@ -1,4 +1,5 @@
-import { Link, useNavigate } from "react-router";
+import { Link, redirect, useNavigate } from "react-router";
+import type { Route } from "./+types/sign-in";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -22,14 +23,26 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 
-import { signIn } from "~/lib/db/auth";
+import { getPreSession, signIn } from "~/lib/db/auth";
 
 const formSchema = z.object({
   username: z.string().trim().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
 });
 
-export default function Page() {
+export async function clientLoader() {
+  const preSessionCSRFToken = await getPreSession();
+  if (preSessionCSRFToken.error != null) {
+    return redirect("/error");
+  }
+
+  return {
+    data: { preSessionCSRFToken: preSessionCSRFToken.data },
+    error: null,
+  };
+}
+
+export default function Page({ loaderData }: Route.ComponentProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,7 +59,11 @@ export default function Page() {
   const navigate = useNavigate();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const { error } = await signIn(values.username, values.password);
+    const { error } = await signIn(
+      values.username,
+      values.password,
+      loaderData.data.preSessionCSRFToken,
+    );
     if (error) {
       setError("root", {
         message: error,
