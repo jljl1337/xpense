@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"time"
 
@@ -41,13 +42,74 @@ func (a *AuthService) SignUp(ctx context.Context, username, password string) err
 	return err
 }
 
+// GetPreSession creates a pre-session with no associated user.
+// It returns a non-empty session token and CSRF token.
+//
+// If an error occurs during the process, it returns the error.
+func (a *AuthService) GetPreSession(ctx context.Context) (string, string, error) {
+	sessionID := generator.NewULID()
+	sessionToken := generator.NewToken(env.SessionTokenLength, env.SessionTokenCharset)
+	CSRFToken := generator.NewToken(env.CSRFTokenLength, env.CSRFTokenCharset)
+	currentTime := generator.NowISO8601()
+	expiresAt := format.TimeToISO8601(time.Now().Add(10 * time.Minute))
+
+	if _, err := a.queries.CreateSession(ctx, repository.CreateSessionParams{
+		ID:        sessionID,
+		UserID:    sql.NullString{Valid: false},
+		Token:     sessionToken,
+		CsrfToken: CSRFToken,
+		ExpiresAt: expiresAt,
+		CreatedAt: currentTime,
+		UpdatedAt: currentTime,
+	}); err != nil {
+		return "", "", err
+	}
+
+	return sessionToken, CSRFToken, nil
+}
+
 // SignIn authenticates a user and creates a new session.
 // It returns non-empty session token and CSRF token if the credentials are valid.
 //
 // If the credentials are invalid, it returns empty strings and no error.
 //
 // If an error occurs during the process, it returns the error.
-func (a *AuthService) SignIn(ctx context.Context, username, password string) (string, string, error) {
+func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSRFToken, username, password string) (string, string, error) {
+	// Validate pre-session
+	sessions, err := a.queries.GetSessionByToken(ctx, preSessionToken)
+
+	if err != nil {
+		return "", "", err
+	}
+
+	if len(sessions) > 1 {
+		return "", "", errors.New("multiple sessions found with the same token")
+	}
+
+	if len(sessions) < 1 {
+		return "", "", nil
+	}
+
+	session := sessions[0]
+
+	// Check if the session is already associated with a user
+	if session.UserID.Valid {
+		return "", "", nil
+	}
+
+	// CSRF token does not match
+	if preSessionCSRFToken != "" && session.CsrfToken != preSessionCSRFToken {
+		return "", "", nil
+	}
+
+	// Session expired
+	now := time.Now()
+	nowISO8601 := format.TimeToISO8601(now)
+	if session.ExpiresAt < nowISO8601 {
+		return "", "", nil
+	}
+
+	// Validate credentials
 	users, err := a.queries.GetUserByUsername(ctx, username)
 	if err != nil {
 		return "", "", err
@@ -73,16 +135,36 @@ func (a *AuthService) SignIn(ctx context.Context, username, password string) (st
 	currentTime := generator.NowISO8601()
 	expiresAt := format.TimeToISO8601(time.Now().Add(24 * time.Hour))
 
-	if _, err := a.queries.CreateSession(ctx, repository.CreateSessionParams{
+	// Deactivate the pre-session
+	rows, err := a.queries.UpdateSessionByToken(ctx, repository.UpdateSessionByTokenParams{
+		Token:     preSessionToken,
+		ExpiresAt: nowISO8601,
+		UpdatedAt: nowISO8601,
+	})
+	if err != nil {
+		return "", "", err
+	} else if rows < 1 {
+		return "", "", errors.New("no pre-session updated")
+	} else if rows > 1 {
+		return "", "", errors.New("multiple pre-sessions updated with the same token")
+	}
+
+	// Create a new session associated with the user
+	rows, err = a.queries.CreateSession(ctx, repository.CreateSessionParams{
 		ID:        sessionID,
-		UserID:    user.ID,
+		UserID:    sql.NullString{String: user.ID, Valid: true},
 		Token:     sessionToken,
 		CsrfToken: CSRFToken,
 		ExpiresAt: expiresAt,
 		CreatedAt: currentTime,
 		UpdatedAt: currentTime,
-	}); err != nil {
+	})
+	if err != nil {
 		return "", "", err
+	} else if rows < 1 {
+		return "", "", errors.New("no session created")
+	} else if rows > 1 {
+		return "", "", errors.New("multiple sessions created with the same ID")
 	}
 
 	return sessionToken, CSRFToken, nil
@@ -111,6 +193,11 @@ func (a *AuthService) GetSessionUserIDAndRefreshSession(ctx context.Context, ses
 
 	session := sessions[0]
 
+	// Check if the session is associated with a user
+	if !session.UserID.Valid {
+		return "", nil
+	}
+
 	// CSRF token does not match
 	if CSRFToken != "" && session.CsrfToken != CSRFToken {
 		return "", nil
@@ -138,7 +225,7 @@ func (a *AuthService) GetSessionUserIDAndRefreshSession(ctx context.Context, ses
 		return "", errors.New("no session updated")
 	}
 
-	return session.UserID, nil
+	return session.UserID.String, nil
 }
 
 func (a *AuthService) SignOut(ctx context.Context, sessionToken string) error {
@@ -162,7 +249,7 @@ func (a *AuthService) SignOut(ctx context.Context, sessionToken string) error {
 func (a *AuthService) SignOutAllSession(ctx context.Context, userID string) error {
 	now := generator.NowISO8601()
 	rows, err := a.queries.UpdateSessionByUserID(ctx, repository.UpdateSessionByUserIDParams{
-		UserID:    userID,
+		UserID:    sql.NullString{String: userID, Valid: true},
 		ExpiresAt: now,
 		UpdatedAt: now,
 	})

@@ -15,7 +15,7 @@ type signUpSignInRequest struct {
 	Password string `json:"password"`
 }
 
-type signInCSRFTokenResponse struct {
+type signInPreSessionCSRFTokenResponse struct {
 	CSRFToken string `json:"csrfToken"`
 }
 
@@ -31,6 +31,7 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 
 func (h *AuthHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /auth/sign-up", h.signUp)
+	mux.HandleFunc("POST /auth/pre-session", h.preSession)
 	mux.HandleFunc("POST /auth/sign-in", h.signIn)
 	mux.HandleFunc("POST /auth/sign-out", h.signOut)
 	mux.HandleFunc("POST /auth/sign-out-all", h.signOutAll)
@@ -62,8 +63,38 @@ func (h *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("User signed up successfully"))
 }
 
+func (h *AuthHandler) preSession(w http.ResponseWriter, r *http.Request) {
+	// Process the request
+	sessionToken, CSRFToken, err := h.authService.GetPreSession(r.Context())
+	if err != nil {
+		slog.Error("Error getting pre-session: " + err.Error())
+		http.Error(w, "Failed to get pre-session", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond to the client
+	http.SetCookie(w, NewActiveSessionCookie(sessionToken))
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(signInPreSessionCSRFTokenResponse{
+		CSRFToken: CSRFToken,
+	})
+}
+
 func (h *AuthHandler) signIn(w http.ResponseWriter, r *http.Request) {
 	// Input validation
+	preSessionToken, err := r.Cookie(env.SessionCookieName)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	preSessionCSRFToken := r.Header.Get("X-CSRF-Token")
+	if preSessionCSRFToken == "" {
+		http.Error(w, "CSRF token is required", http.StatusUnauthorized)
+		return
+	}
+
 	var req signUpSignInRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
@@ -76,7 +107,7 @@ func (h *AuthHandler) signIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Process the request
-	sessionToken, CSRFToken, err := h.authService.SignIn(r.Context(), req.Username, req.Password)
+	sessionToken, CSRFToken, err := h.authService.SignIn(r.Context(), preSessionToken.Value, preSessionCSRFToken, req.Username, req.Password)
 	if err != nil {
 		slog.Error("Error signing in user: " + err.Error())
 		http.Error(w, "Failed to sign in user", http.StatusInternalServerError)
@@ -92,7 +123,7 @@ func (h *AuthHandler) signIn(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, NewActiveSessionCookie(sessionToken))
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(signInCSRFTokenResponse{
+	json.NewEncoder(w).Encode(signInPreSessionCSRFTokenResponse{
 		CSRFToken: CSRFToken,
 	})
 }
@@ -165,7 +196,7 @@ func (h *AuthHandler) csrfToken(w http.ResponseWriter, r *http.Request) {
 
 	// Respond to the client
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(signInCSRFTokenResponse{
+	json.NewEncoder(w).Encode(signInPreSessionCSRFTokenResponse{
 		CSRFToken: CSRFToken,
 	})
 }

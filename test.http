@@ -1,7 +1,7 @@
-@username = user1
-@password = password123
-@sessionToken = RAD1cMdzomOjym7cxR5rMCHTWeT6z69G
-@csrfToken = 1AWALPhL4CCsobn6xqfMhXi6ygpemRiY
+@username = 12341234
+@password = 12341234
+@sessionToken = N4o748u9H4WvobZ0rV7rcNjSOuBD2eC4
+@csrfToken = iXjtqtkCzXieSb9gGDtShfNTtWsPHAjv
 @bookID = 01K66SHMERJ9DNJ3PTPT8KWHPV
 @categoryID = 01K66SJ3P8S2DMZ4XWVDH98MP9
 @paymentMethodID = 01K66SJFKG2PHKHRQP101FKYE4
@@ -23,7 +23,13 @@ Content-Type: application/json
 
 ###
 
+POST http://localhost:8080/api/auth/pre-session
+
+###
+
 POST http://localhost:8080/api/auth/sign-in
+Cookie: xpense_session_token={{sessionToken}}
+X-CSRF-Token: {{csrfToken}}
 Content-Type: application/json
 
 {
@@ -78,7 +84,7 @@ Content-Type: application/json
 ###
 
 GET http://localhost:8080/api/books
-# GET http://localhost:8080/api/books?page=2&page_size=20
+# GET http://localhost:8080/api/books?page=2&page-size=20
 Cookie: xpense_session_token={{sessionToken}}
 
 ###

@@ -7,6 +7,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createSession = `-- name: CreateSession :execrows
@@ -32,13 +33,13 @@ RETURNING
 `
 
 type CreateSessionParams struct {
-	ID        string `json:"id"`
-	UserID    string `json:"userID"`
-	Token     string `json:"token"`
-	CsrfToken string `json:"csrfToken"`
-	ExpiresAt string `json:"expiresAt"`
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
+	ID        string         `json:"id"`
+	UserID    sql.NullString `json:"userID"`
+	Token     string         `json:"token"`
+	CsrfToken string         `json:"csrfToken"`
+	ExpiresAt string         `json:"expiresAt"`
+	CreatedAt string         `json:"createdAt"`
+	UpdatedAt string         `json:"updatedAt"`
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (int64, error) {
@@ -148,9 +149,9 @@ WHERE
 `
 
 type UpdateSessionByUserIDParams struct {
-	ExpiresAt string `json:"expiresAt"`
-	UpdatedAt string `json:"updatedAt"`
-	UserID    string `json:"userID"`
+	ExpiresAt string         `json:"expiresAt"`
+	UpdatedAt string         `json:"updatedAt"`
+	UserID    sql.NullString `json:"userID"`
 }
 
 func (q *Queries) UpdateSessionByUserID(ctx context.Context, arg UpdateSessionByUserIDParams) (int64, error) {
