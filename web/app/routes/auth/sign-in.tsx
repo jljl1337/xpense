@@ -24,6 +24,7 @@ import {
 import { Input } from "~/components/ui/input";
 
 import { getPreSession, signIn } from "~/lib/db/auth";
+import { getMe } from "~/lib/db/users";
 
 const formSchema = z.object({
   username: z.string().trim().min(1, "Username is required"),
@@ -31,6 +32,12 @@ const formSchema = z.object({
 });
 
 export async function clientLoader() {
+  const me = await getMe();
+
+  if (me.data != null) {
+    return redirect("/books");
+  }
+
   const preSessionCSRFToken = await getPreSession();
   if (preSessionCSRFToken.error != null) {
     return redirect("/error");

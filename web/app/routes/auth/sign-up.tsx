@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router";
+import { Link, redirect, useNavigate } from "react-router";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -23,10 +23,18 @@ import {
 import { Input } from "~/components/ui/input";
 
 import { signUp } from "~/lib/db/auth";
-import { checkUsernameExists } from "~/lib/db/users";
+import { checkUsernameExists, getMe } from "~/lib/db/users";
 import { passwordWithConfirmSchema, usernameSchema } from "~/lib/schemas/auth";
 
 const formSchema = z.intersection(usernameSchema, passwordWithConfirmSchema);
+
+export async function clientLoader() {
+  const me = await getMe();
+
+  if (me.data != null) {
+    return redirect("/books");
+  }
+}
 
 export default function Page() {
   const form = useForm<z.infer<typeof formSchema>>({
