@@ -1,12 +1,12 @@
 import { redirect } from "react-router";
 
-import { getCsrfToken } from "~/lib/db/auth";
 import { isUnauthorizedError } from "~/lib/db/common";
+import { getMe } from "~/lib/db/users";
 
 export async function clientLoader() {
-  const csrfToken = await getCsrfToken();
+  const me = await getMe();
 
-  if (csrfToken.error != null && isUnauthorizedError(csrfToken.error)) {
+  if (me.error != null && isUnauthorizedError(me.error)) {
     return redirect("/auth/sign-in");
   }
   return redirect("/books");
