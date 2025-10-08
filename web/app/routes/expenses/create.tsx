@@ -30,6 +30,14 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     return redirect("/error");
   }
 
+  if (categoryList.data.length === 0) {
+    return redirect(`/books/${params.bookID}/categories/create`);
+  }
+
+  if (paymentMethodList.data.length === 0) {
+    return redirect(`/books/${params.bookID}/payment-methods/create`);
+  }
+
   return {
     csrfToken: csrfToken.data,
     categoryList: categoryList.data,
