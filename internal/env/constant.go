@@ -8,6 +8,7 @@ var (
 	BackupDbPath          string
 	BackupCronSchedule    string
 	LogLevel              int
+	LogHealthCheck        bool
 	Port                  string
 	CORSOrigins           string
 	PasswordBcryptCost    int
@@ -32,6 +33,7 @@ func SetConstants() {
 	BackupDbPath = MustGetString("BACKUP_DB_PATH", "data/backup/db/backup.db")
 	BackupCronSchedule = MustGetString("BACKUP_CRON_SCHEDULE", "0 0 * * *")
 	LogLevel = MustGetInt("LOG_LEVEL", 0)
+	LogHealthCheck = MustGetBool("LOG_HEALTH_CHECK", false)
 	Port = MustGetString("PORT", "8080")
 	CORSOrigins = MustGetString("CORS_ORIGINS", "*")
 	PasswordBcryptCost = MustGetInt("PASSWORD_BCRYPT_COST", 12)

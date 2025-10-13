@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/jljl1337/xpense/internal/env"
 )
 
 // responseWriter wraps http.ResponseWriter to capture status code
@@ -22,6 +24,11 @@ func (rw *responseWriter) WriteHeader(code int) {
 func (m *MiddlewareProvider) Logging() Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/health" && !env.LogHealthCheck {
+				next.ServeHTTP(w, r)
+				return
+			}
+
 			start := time.Now()
 
 			// Create a response writer wrapper to capture status code
