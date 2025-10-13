@@ -11,10 +11,10 @@ import (
 func main() {
 	env.SetConstants()
 
-    resp, err := http.Get(fmt.Sprintf("http://localhost:%s", env.Port))
-    if err != nil || resp.StatusCode != 200 {
-        os.Exit(1)
-    }
+	resp, err := http.Get(fmt.Sprintf("http://localhost:%s/api/health", env.Port))
+	if err != nil || resp.StatusCode != 200 {
+		os.Exit(1)
+	}
 
-    os.Exit(0)
+	os.Exit(0)
 }
