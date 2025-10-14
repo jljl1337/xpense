@@ -17,6 +17,7 @@ import {
   type Expense,
 } from "~/lib/db/expenses";
 import { getPaymentMethods } from "~/lib/db/payment-methods";
+import { YYYYMMDDToLocaleDateString } from "~/lib/format/date";
 
 export async function clientLoader({
   params,
@@ -133,6 +134,9 @@ export default function Page({ params, loaderData }: Route.ComponentProps) {
     {
       accessorKey: "date",
       header: "Date",
+      cell: ({ row }) => {
+        return YYYYMMDDToLocaleDateString(row.original.date);
+      },
     },
     {
       accessorKey: "amount",
