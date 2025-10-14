@@ -3,7 +3,9 @@ package middleware
 import (
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/jljl1337/xpense/internal/env"
@@ -44,9 +46,29 @@ func (m *MiddlewareProvider) Logging() Middleware {
 					wrapped.statusCode,
 					r.RequestURI,
 					duration,
-					r.RemoteAddr,
+					GetClientIP(r),
 				),
 			)
 		})
 	}
+}
+
+// GetClientIP retrieves the client IP address from headers or connection
+func GetClientIP(r *http.Request) string {
+	// Check X-Forwarded-For header (used by proxies/load balancers)
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		// X-Forwarded-For can contain multiple IPs, get the first one
+		ips := strings.Split(xff, ",")
+		if ip := strings.TrimSpace(ips[0]); ip != "" {
+			return ip
+		}
+	}
+
+	// Fallback to RemoteAddr from the connection
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		// If no port is present, use RemoteAddr directly
+		return r.RemoteAddr
+	}
+	return ip
 }
