@@ -140,31 +140,24 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) ([]Use
 	return items, nil
 }
 
-const updateUser = `-- name: UpdateUser :execrows
+const updateUserPassword = `-- name: UpdateUserPassword :execrows
 UPDATE
     user
 SET
-    username = ?1,
-    password_hash = ?2,
-    updated_at = ?3
+    password_hash = ?1,
+    updated_at = ?2
 WHERE
-    id = ?4
+    id = ?3
 `
 
-type UpdateUserParams struct {
-	Username     string `json:"username"`
+type UpdateUserPasswordParams struct {
 	PasswordHash string `json:"passwordHash"`
 	UpdatedAt    string `json:"updatedAt"`
 	ID           string `json:"id"`
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (int64, error) {
-	result, err := q.db.ExecContext(ctx, updateUser,
-		arg.Username,
-		arg.PasswordHash,
-		arg.UpdatedAt,
-		arg.ID,
-	)
+func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateUserPassword, arg.PasswordHash, arg.UpdatedAt, arg.ID)
 	if err != nil {
 		return 0, err
 	}
