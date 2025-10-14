@@ -4,6 +4,7 @@ import {
   Book,
   DollarSign,
   Edit,
+  Info,
   Laptop,
   List,
   Moon,
@@ -197,6 +198,14 @@ export function AppSidebar() {
               <Link to={"/account"}>
                 <User />
                 Account
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem key="about">
+            <SidebarMenuButton asChild isActive={pathname === "/about"}>
+              <Link to={"/about"}>
+                <Info />
+                About
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

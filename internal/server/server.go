@@ -52,6 +52,7 @@ func NewServer() (*Server, error) {
 	expenseService := service.NewExpenseService(queries)
 
 	healthHandler := handler.NewHealthHandler()
+	versionHandler := handler.NewVersionHandler()
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userService)
 	bookHandler := handler.NewBookHandler(bookService)
@@ -60,6 +61,7 @@ func NewServer() (*Server, error) {
 	expenseHandler := handler.NewExpenseHandler(expenseService)
 
 	healthHandler.RegisterRoutes(apiMux)
+	versionHandler.RegisterRoutes(apiMux)
 	authHandler.RegisterRoutes(apiMux)
 	userHandler.RegisterRoutes(apiMux)
 	bookHandler.RegisterRoutes(apiMux)

@@ -3,6 +3,8 @@ package env
 import "net/http"
 
 var (
+	Version = "0.3.0"
+
 	DbPath                string
 	DbBusyTimeout         string
 	BackupDbPath          string
@@ -25,8 +27,8 @@ var (
 	SessionCookieSameSiteMode http.SameSite
 )
 
-func SetConstants() {
-	loadOptionalEnvFile()
+func MustSetConstants() {
+	mustLoadOptionalEnvFile()
 
 	DbPath = MustGetString("DB_PATH", "data/live/db/live.db")
 	DbBusyTimeout = MustGetString("DB_BUSY_TIMEOUT", "30000")

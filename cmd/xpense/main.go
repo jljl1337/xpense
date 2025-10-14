@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	env.SetConstants()
+	env.MustSetConstants()
 
 	log.SetCustomLogger()
 
