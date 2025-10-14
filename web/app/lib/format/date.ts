@@ -9,3 +9,8 @@ export function YYYYMMDDToDate(dateString: string) {
   const [year, month, day] = dateString.split("-").map(Number);
   return new Date(year, month - 1, day);
 }
+
+export function YYYYMMDDToLocaleDateString(dateString: string) {
+  const date = YYYYMMDDToDate(dateString);
+  return date.toLocaleDateString();
+}
