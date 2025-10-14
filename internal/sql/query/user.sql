@@ -31,11 +31,10 @@ FROM
 WHERE
     username = @username;
 
--- name: UpdateUser :execrows
+-- name: UpdateUserPassword :execrows
 UPDATE
     user
 SET
-    username = @username,
     password_hash = @password_hash,
     updated_at = @updated_at
 WHERE
