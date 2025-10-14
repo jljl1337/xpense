@@ -24,7 +24,7 @@ func NewAuthService(queries *repository.Queries) *AuthService {
 }
 
 func (a *AuthService) SignUp(ctx context.Context, username, password string) error {
-	passwordHash, err := crypto.HashPassword(password)
+	passwordHash, err := crypto.HashPassword(password, env.PasswordBcryptCost)
 	if err != nil {
 		return err
 	}
@@ -129,10 +129,37 @@ func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSR
 		return "", "", nil
 	}
 
+	cost, err := crypto.Cost(user.PasswordHash)
+	if err != nil {
+		return "", "", err
+	}
+
+	// Rehash password if the cost is lower than the current standard
+	currentTime := generator.NowISO8601()
+
+	if cost < env.PasswordBcryptCost {
+		newHash, err := crypto.HashPassword(password, env.PasswordBcryptCost)
+		if err != nil {
+			return "", "", err
+		}
+
+		rows, err := a.queries.UpdateUserPassword(ctx, repository.UpdateUserPasswordParams{
+			PasswordHash: newHash,
+			UpdatedAt:    currentTime,
+			ID:           user.ID,
+		})
+		if err != nil {
+			return "", "", err
+		} else if rows < 1 {
+			return "", "", errors.New("no user updated with the new password hash")
+		} else if rows > 1 {
+			return "", "", errors.New("multiple users updated with the same ID")
+		}
+	}
+
 	sessionID := generator.NewULID()
 	sessionToken := generator.NewToken(env.SessionTokenLength, env.SessionTokenCharset)
 	CSRFToken := generator.NewToken(env.CSRFTokenLength, env.CSRFTokenCharset)
-	currentTime := generator.NowISO8601()
 	expiresAt := format.TimeToISO8601(time.Now().Add(24 * time.Hour))
 
 	// Deactivate the pre-session
