@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	env.SetConstants()
+	env.MustSetConstants()
 
 	resp, err := http.Get(fmt.Sprintf("http://localhost:%s/api/health", env.Port))
 	if err != nil || resp.StatusCode != 200 {
