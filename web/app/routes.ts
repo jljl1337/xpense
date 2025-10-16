@@ -15,7 +15,9 @@ export default [
   ]),
 
   layout("layouts/sidebar.tsx", [
-    route("account", "routes/account.tsx"),
+    route("account", "routes/account/index.tsx"),
+    route("account/change-username", "routes/account/change-username.tsx"),
+    route("account/change-password", "routes/account/change-password.tsx"),
     route("about", "routes/about.tsx"),
 
     route("books", "routes/books/index.tsx"),
