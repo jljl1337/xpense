@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 
+	"github.com/jljl1337/xpense/internal/crypto"
+	"github.com/jljl1337/xpense/internal/env"
+	"github.com/jljl1337/xpense/internal/generator"
 	"github.com/jljl1337/xpense/internal/repository"
 )
 
@@ -45,6 +48,72 @@ func (s *UserService) GetUserByID(ctx context.Context, userID string) (*reposito
 	}
 
 	return &users[0], nil
+}
+
+func (s *UserService) UpdateUsernameByID(ctx context.Context, userID, newUsername string) error {
+	rows, err := s.queries.UpdateUserUsername(ctx, repository.UpdateUserUsernameParams{
+		ID:        userID,
+		Username:  newUsername,
+		UpdatedAt: generator.NowISO8601(),
+	})
+	if err != nil {
+		return err
+	}
+
+	if rows < 1 {
+		return errors.New("no user updated")
+	}
+	if rows > 1 {
+		return errors.New("multiple users updated")
+	}
+
+	return nil
+}
+
+func (s *UserService) UpdatePasswordByID(ctx context.Context, userID, oldPassword, newPassword string) error {
+	// Validate credentials
+	users, err := s.queries.GetUserByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	if len(users) > 1 {
+		return errors.New("multiple users found with the same ID")
+	}
+
+	if len(users) < 1 {
+		return errors.New("user not found")
+	}
+
+	user := users[0]
+
+	if !crypto.CheckPasswordHash(oldPassword, user.PasswordHash) {
+		return errors.New("old password is incorrect")
+	}
+
+	// Update password hash
+	passwordHash, err := crypto.HashPassword(newPassword, env.PasswordBcryptCost)
+	if err != nil {
+		return err
+	}
+
+	rows, err := s.queries.UpdateUserPassword(ctx, repository.UpdateUserPasswordParams{
+		PasswordHash: passwordHash,
+		UpdatedAt:    generator.NowISO8601(),
+		ID:           userID,
+	})
+	if err != nil {
+		return err
+	}
+
+	if rows < 1 {
+		return errors.New("no user updated")
+	}
+	if rows > 1 {
+		return errors.New("multiple users updated")
+	}
+
+	return nil
 }
 
 func (s *UserService) DeleteUserByID(ctx context.Context, userID string) error {
