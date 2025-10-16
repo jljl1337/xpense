@@ -19,6 +19,8 @@ var (
 	SessionCookieSecure   bool
 	SessionTokenLength    int
 	SessionTokenCharset   string
+	SessionLifetimeMin    int
+	PreSessionLifetimeMin int
 	CSRFTokenLength       int
 	CSRFTokenCharset      string
 	PageSizeMax           int64
@@ -44,6 +46,8 @@ func MustSetConstants() {
 	SessionCookieSecure = MustGetBool("SESSION_COOKIE_SECURE", false)
 	SessionTokenLength = MustGetInt("SESSION_TOKEN_LENGTH", 32)
 	SessionTokenCharset = MustGetString("SESSION_TOKEN_CHARSET", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	SessionLifetimeMin = MustGetInt("SESSION_LIFETIME_MIN", 60*24*7)
+	PreSessionLifetimeMin = MustGetInt("PRE_SESSION_LIFETIME_MIN", 15)
 	CSRFTokenLength = MustGetInt("CSRF_TOKEN_LENGTH", 32)
 	CSRFTokenCharset = MustGetString("CSRF_TOKEN_CHARSET", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	PageSizeMax = MustGetInt64("PAGE_SIZE_MAX", 100)
