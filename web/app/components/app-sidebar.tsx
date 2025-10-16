@@ -194,7 +194,10 @@ export function AppSidebar() {
             </DropdownMenu>
           </SidebarMenuItem>
           <SidebarMenuItem key="account">
-            <SidebarMenuButton asChild isActive={pathname === "/account"}>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname.startsWith("/account")}
+            >
               <Link to={"/account"}>
                 <User />
                 Account

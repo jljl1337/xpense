@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { redirect, useNavigate } from "react-router";
-import type { Route } from "./+types/account";
+import { Link, redirect, useNavigate } from "react-router";
+import type { Route } from "./+types";
 
 import { LogOut, Trash2 } from "lucide-react";
 
@@ -140,6 +140,32 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               <CardDescription>Manage your account settings</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              <Separator />
+              {/* Change Username */}
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label className="text-base">Change Username</Label>
+                  <p className="text-muted-foreground text-sm">
+                    Change your account username
+                  </p>
+                </div>
+                <Button asChild>
+                  <Link to="/account/change-username">Change Username</Link>
+                </Button>
+              </div>
+              <Separator />
+              {/* Change Password */}
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label className="text-base">Change Password</Label>
+                  <p className="text-muted-foreground text-sm">
+                    Change your account password
+                  </p>
+                </div>
+                <Button asChild>
+                  <Link to="/account/change-password">Change Password</Link>
+                </Button>
+              </div>
               <Separator />
               {/* Sign Out */}
               <div className="flex items-center justify-between">

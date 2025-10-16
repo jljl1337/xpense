@@ -33,6 +33,42 @@ export async function getMe() {
   return { data, error: null };
 }
 
+export async function updateUsername(newUsername: string, csrfToken: string) {
+  const response = await customFetch(
+    "/api/users/me/username",
+    "PATCH",
+    { newUsername },
+    csrfToken,
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    return { error };
+  }
+
+  return { error: null };
+}
+
+export async function updatePassword(
+  oldPassword: string,
+  newPassword: string,
+  csrfToken: string,
+) {
+  const response = await customFetch(
+    "/api/users/me/password",
+    "PATCH",
+    { oldPassword, newPassword },
+    csrfToken,
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    return { error };
+  }
+
+  return { error: null };
+}
+
 export async function deleteMe(csrfToken: string) {
   const response = await customFetch(
     "/api/users/me",

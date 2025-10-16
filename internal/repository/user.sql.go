@@ -163,3 +163,27 @@ func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPassword
 	}
 	return result.RowsAffected()
 }
+
+const updateUserUsername = `-- name: UpdateUserUsername :execrows
+UPDATE
+    user
+SET
+    username = ?1,
+    updated_at = ?2
+WHERE
+    id = ?3
+`
+
+type UpdateUserUsernameParams struct {
+	Username  string `json:"username"`
+	UpdatedAt string `json:"updatedAt"`
+	ID        string `json:"id"`
+}
+
+func (q *Queries) UpdateUserUsername(ctx context.Context, arg UpdateUserUsernameParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateUserUsername, arg.Username, arg.UpdatedAt, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}

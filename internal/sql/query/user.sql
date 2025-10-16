@@ -40,6 +40,15 @@ SET
 WHERE
     id = @id;
 
+-- name: UpdateUserUsername :execrows
+UPDATE
+    user
+SET
+    username = @username,
+    updated_at = @updated_at
+WHERE
+    id = @id;
+
 -- name: DeleteUser :execrows
 DELETE FROM
     user
