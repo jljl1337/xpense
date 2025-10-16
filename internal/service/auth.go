@@ -51,7 +51,7 @@ func (a *AuthService) GetPreSession(ctx context.Context) (string, string, error)
 	sessionToken := generator.NewToken(env.SessionTokenLength, env.SessionTokenCharset)
 	CSRFToken := generator.NewToken(env.CSRFTokenLength, env.CSRFTokenCharset)
 	currentTime := generator.NowISO8601()
-	expiresAt := format.TimeToISO8601(time.Now().Add(10 * time.Minute))
+	expiresAt := format.TimeToISO8601(time.Now().Add(time.Duration(env.PreSessionLifetimeMin) * time.Minute))
 
 	if _, err := a.queries.CreateSession(ctx, repository.CreateSessionParams{
 		ID:        sessionID,
@@ -160,7 +160,7 @@ func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSR
 	sessionID := generator.NewULID()
 	sessionToken := generator.NewToken(env.SessionTokenLength, env.SessionTokenCharset)
 	CSRFToken := generator.NewToken(env.CSRFTokenLength, env.CSRFTokenCharset)
-	expiresAt := format.TimeToISO8601(time.Now().Add(24 * time.Hour))
+	expiresAt := format.TimeToISO8601(time.Now().Add(time.Duration(env.SessionLifetimeMin) * time.Hour))
 
 	// Deactivate the pre-session
 	rows, err := a.queries.UpdateSessionByToken(ctx, repository.UpdateSessionByTokenParams{
@@ -237,8 +237,7 @@ func (a *AuthService) GetSessionUserIDAndRefreshSession(ctx context.Context, ses
 		return "", nil
 	}
 
-	// Refresh the session expiration
-	newExpiresAt := format.TimeToISO8601(now.Add(24 * time.Hour))
+	newExpiresAt := format.TimeToISO8601(now.Add(time.Duration(env.SessionLifetimeMin) * time.Minute))
 	rows, err := a.queries.UpdateSessionByToken(ctx, repository.UpdateSessionByTokenParams{
 		Token:     sessionToken,
 		ExpiresAt: newExpiresAt,
