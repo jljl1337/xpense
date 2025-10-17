@@ -12,13 +12,7 @@ CREATE TABLE expense (
     PRIMARY KEY (id),
     FOREIGN KEY (book_id) REFERENCES book(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE,
-    FOREIGN KEY (payment_method_id) REFERENCES payment_method(id) ON DELETE CASCADE,
-
-    CHECK (
-        date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]' AND
-        date(date) IS NOT NULL AND
-        date(date) = date
-    )
+    FOREIGN KEY (payment_method_id) REFERENCES payment_method(id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_expense_book_id ON expense(book_id);
