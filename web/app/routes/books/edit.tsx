@@ -6,6 +6,7 @@ import type z from "zod";
 import NameDescriptionPage from "~/components/pages/name-description-page";
 import { getCsrfToken } from "~/lib/db/auth";
 import { getBook, updateBook } from "~/lib/db/books";
+import { redirectIfNeeded } from "~/lib/db/common";
 import type { nameDescriptionSchema } from "~/lib/schemas/name-description";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
@@ -14,15 +15,9 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
     getBook(params.bookID),
   ]);
 
-  if (csrfToken.error != null) {
-    return redirect("/error");
-  }
+  redirectIfNeeded(csrfToken.error, book.error);
 
-  if (book.error != null) {
-    return redirect("/error");
-  }
-
-  return { csrfToken: csrfToken.data, book: book.data };
+  return { csrfToken: csrfToken.data!, book: book.data! };
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {

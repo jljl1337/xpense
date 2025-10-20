@@ -26,28 +26,17 @@ import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 
 import { getCsrfToken, signOut, signOutAll } from "~/lib/db/auth";
-import { isUnauthorizedError } from "~/lib/db/common";
+import { redirectIfNeeded } from "~/lib/db/common";
 import { deleteMe, getMe } from "~/lib/db/users";
 
 export async function clientLoader() {
   const [user, csrfToken] = await Promise.all([getMe(), getCsrfToken()]);
 
-  if (user.error != null) {
-    if (isUnauthorizedError(user.error)) {
-      return redirect("/auth/sign-in");
-    }
-    return { data: null, error: user.error };
-  }
-  if (csrfToken.error != null) {
-    if (isUnauthorizedError(csrfToken.error)) {
-      return redirect("/auth/sign-in");
-    }
-    return { data: null, error: csrfToken.error };
-  }
+  redirectIfNeeded(user.error, csrfToken.error);
 
   return {
-    data: { user: user.data, csrfToken: csrfToken.data },
-    error: null,
+    user: user.data!,
+    csrfToken: csrfToken.data!,
   };
 }
 
@@ -57,14 +46,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const [error, setError] = useState<string | null>(null);
 
   async function onSignOut() {
-    if (loaderData.error != null) {
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
-    const { error } = await signOut(loaderData.data.csrfToken);
+    const { error } = await signOut(loaderData.csrfToken);
     if (error) {
       setError(error);
       return;
@@ -76,14 +61,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }
 
   async function onSignOutAll() {
-    if (loaderData.error != null) {
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
-    const { error } = await signOutAll(loaderData.data.csrfToken);
+    const { error } = await signOutAll(loaderData.csrfToken);
     if (error) {
       setError(error);
       return;
@@ -95,14 +76,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }
 
   async function onDeleteAccount() {
-    if (loaderData.error != null) {
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
-    const { error } = await deleteMe(loaderData.data.csrfToken);
+    const { error } = await deleteMe(loaderData.csrfToken);
     if (error) {
       setError(error);
       return;
@@ -119,20 +96,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       <div className="h-full flex items-center justify-center">
         <div className="h-full max-w-[90rem] flex-1 flex flex-col p-8 gap-4">
           <h1 className="text-4xl">Account</h1>
-          {loaderData?.data ? (
-            <div>
-              <p className="mb-2">User ID: {loaderData.data.user.id}</p>
-              <p className="mb-2">Username: {loaderData.data.user.username}</p>
-              <p className="mb-2">
-                Created At:{" "}
-                {new Date(loaderData.data.user.createdAt).toLocaleString()}
-              </p>
-            </div>
-          ) : (
-            <p className="text-destructive">
-              Error: {loaderData?.error || "Failed to load user data."}
+          <div>
+            <p className="mb-2">User ID: {loaderData.user.id}</p>
+            <p className="mb-2">Username: {loaderData.user.username}</p>
+            <p className="mb-2">
+              Created At: {new Date(loaderData.user.createdAt).toLocaleString()}
             </p>
-          )}
+          </div>
 
           <Card>
             <CardHeader>

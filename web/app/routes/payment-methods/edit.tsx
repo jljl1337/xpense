@@ -5,6 +5,7 @@ import type z from "zod";
 
 import NameDescriptionPage from "~/components/pages/name-description-page";
 import { getCsrfToken } from "~/lib/db/auth";
+import { redirectIfNeeded } from "~/lib/db/common";
 import {
   getPaymentMethod,
   updatePaymentMethod,
@@ -17,15 +18,9 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
     getPaymentMethod(params.paymentMethodID),
   ]);
 
-  if (csrfToken.error != null) {
-    return redirect("/error");
-  }
+  redirectIfNeeded(csrfToken.error, paymentMethod.error);
 
-  if (paymentMethod.error != null) {
-    return redirect("/error");
-  }
-
-  return { csrfToken: csrfToken.data, paymentMethod: paymentMethod.data };
+  return { csrfToken: csrfToken.data!, paymentMethod: paymentMethod.data! };
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {

@@ -6,6 +6,7 @@ import type z from "zod";
 import NameDescriptionPage from "~/components/pages/name-description-page";
 import { getCsrfToken } from "~/lib/db/auth";
 import { getCategory, updateCategory } from "~/lib/db/categories";
+import { redirectIfNeeded } from "~/lib/db/common";
 import type { nameDescriptionSchema } from "~/lib/schemas/name-description";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
@@ -14,15 +15,9 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
     getCategory(params.categoryID),
   ]);
 
-  if (csrfToken.error != null) {
-    return redirect("/error");
-  }
+  redirectIfNeeded(csrfToken.error, category.error);
 
-  if (category.error != null) {
-    return redirect("/error");
-  }
-
-  return { csrfToken: csrfToken.data, category: category.data };
+  return { csrfToken: csrfToken.data!, category: category.data! };
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {

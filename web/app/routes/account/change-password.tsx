@@ -1,5 +1,5 @@
 import { redirect, useNavigate } from "react-router";
-import type { Route } from "./+types/change-username";
+import type { Route } from "./+types/change-password";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -24,16 +24,15 @@ import {
 import { Input } from "~/components/ui/input";
 
 import { getCsrfToken } from "~/lib/db/auth";
+import { redirectIfNeeded } from "~/lib/db/common";
 import { updatePassword } from "~/lib/db/users";
 import { updatePasswordSchema } from "~/lib/schemas/auth";
 
 export async function clientLoader() {
   const csrfToken = await getCsrfToken();
-  if (csrfToken.error != null) {
-    return redirect("/error");
-  }
+  redirectIfNeeded(csrfToken.error);
 
-  return { csrfToken: csrfToken.data };
+  return { csrfToken: csrfToken.data! };
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {

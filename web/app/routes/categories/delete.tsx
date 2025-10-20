@@ -4,6 +4,7 @@ import type { Route } from "./+types/delete";
 import DeletePage from "~/components/pages/delete-page";
 import { getCsrfToken } from "~/lib/db/auth";
 import { deleteCategory, getCategory } from "~/lib/db/categories";
+import { redirectIfNeeded } from "~/lib/db/common";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const [csrfToken, category] = await Promise.all([
@@ -11,15 +12,9 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
     getCategory(params.categoryID),
   ]);
 
-  if (csrfToken.error != null) {
-    return redirect("/error");
-  }
+  redirectIfNeeded(csrfToken.error, category.error);
 
-  if (category.error != null) {
-    return redirect("/error");
-  }
-
-  return { csrfToken: csrfToken.data, category: category.data };
+  return { csrfToken: csrfToken.data!, category: category.data! };
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
