@@ -33,7 +33,8 @@ COPY web/embed.go ./web/embed.go
 
 COPY --from=web-build /app/build ./web/build
 
-RUN CGO_ENABLED=1 go build -o /go/bin/xpense cmd/xpense/main.go
+ARG VERSION=dev
+RUN CGO_ENABLED=1 go build -ldflags="-X 'github.com/jljl1337/xpense/internal/env.Version=${VERSION}'" -o /go/bin/xpense cmd/xpense/main.go
 
 FROM gcr.io/distroless/base-nossl AS runtime
 
