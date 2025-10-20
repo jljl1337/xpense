@@ -3,7 +3,7 @@ package env
 import "net/http"
 
 var (
-	Version = "0.3.0"
+	Version = "0.3.2"
 
 	DbPath                string
 	DbBusyTimeout         string
