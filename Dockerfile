@@ -1,5 +1,3 @@
-ARG VERSION=dev
-
 FROM node:22-alpine AS web-build
 
 WORKDIR /app
@@ -28,6 +26,8 @@ COPY internal ./internal
 RUN CGO_ENABLED=0 go build -o /go/bin/healthcheck cmd/healthcheck/main.go
 
 FROM go-dependencies AS go-build-main
+
+ARG VERSION=dev
 
 COPY cmd/xpense ./cmd/xpense
 COPY internal ./internal
