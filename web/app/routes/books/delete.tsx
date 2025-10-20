@@ -4,6 +4,7 @@ import type { Route } from "./+types/delete";
 import DeletePage from "~/components/pages/delete-page";
 import { getCsrfToken } from "~/lib/db/auth";
 import { deleteBook, getBook } from "~/lib/db/books";
+import { redirectIfNeeded } from "~/lib/db/common";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
   const [csrfToken, book] = await Promise.all([
@@ -11,15 +12,9 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
     getBook(params.bookID),
   ]);
 
-  if (csrfToken.error != null) {
-    return redirect("/error");
-  }
+  redirectIfNeeded(csrfToken.error, book.error);
 
-  if (book.error != null) {
-    return redirect("/error");
-  }
-
-  return { csrfToken: csrfToken.data, book: book.data };
+  return { csrfToken: csrfToken.data!, book: book.data! };
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {

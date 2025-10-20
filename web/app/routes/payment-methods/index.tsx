@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 
 import { DataTable } from "~/components/tables/data-table";
 import TableRowDropdown from "~/components/tables/dropdown";
+import { redirectIfNeeded } from "~/lib/db/common";
 import {
   getPaymentMethods,
   type PaymentMethod,
@@ -15,12 +16,10 @@ import {
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const paymentMethodList = await getPaymentMethods(params.bookID);
 
-  if (paymentMethodList.error != null) {
-    return redirect("/error");
-  }
+  redirectIfNeeded(paymentMethodList.error);
 
   return {
-    paymentMethods: paymentMethodList.data,
+    paymentMethods: paymentMethodList.data!,
   };
 }
 

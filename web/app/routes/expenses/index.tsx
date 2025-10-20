@@ -10,7 +10,7 @@ import Pagination from "~/components/pagination";
 import { DataTable } from "~/components/tables/data-table";
 import TableRowDropdown from "~/components/tables/dropdown";
 import { getCategories } from "~/lib/db/categories";
-import { isUnauthorizedError } from "~/lib/db/common";
+import { redirectIfNeeded } from "~/lib/db/common";
 import {
   getExpensesByBookID,
   getExpensesCountByBookID,
@@ -53,37 +53,19 @@ export async function clientLoader({
       ),
     ]);
 
-  if (count.error != null) {
-    if (isUnauthorizedError(count.error)) {
-      return redirect("/auth/sign-in");
-    }
-    return redirect("/error");
-  }
-  if (categoryList.error != null) {
-    if (isUnauthorizedError(categoryList.error)) {
-      return redirect("/auth/sign-in");
-    }
-    return redirect("/error");
-  }
-  if (paymentMethodList.error != null) {
-    if (isUnauthorizedError(paymentMethodList.error)) {
-      return redirect("/auth/sign-in");
-    }
-    return redirect("/error");
-  }
-  if (expenseList.error != null) {
-    if (isUnauthorizedError(expenseList.error)) {
-      return redirect("/auth/sign-in");
-    }
-    return redirect("/error");
-  }
+  redirectIfNeeded(
+    count.error,
+    categoryList.error,
+    paymentMethodList.error,
+    expenseList.error,
+  );
 
   return {
-    count: count.data,
+    count: count.data!,
     page,
-    expenses: expenseList.data,
-    categoryList: categoryList.data,
-    paymentMethodList: paymentMethodList.data,
+    expenses: expenseList.data!,
+    categoryList: categoryList.data!,
+    paymentMethodList: paymentMethodList.data!,
     categoryID,
     paymentMethodID,
     remark,

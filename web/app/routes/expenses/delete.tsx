@@ -3,6 +3,7 @@ import type { Route } from "./+types/delete";
 
 import DeletePage from "~/components/pages/delete-page";
 import { getCsrfToken } from "~/lib/db/auth";
+import { redirectIfNeeded } from "~/lib/db/common";
 import { deleteExpense, getExpense } from "~/lib/db/expenses";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
@@ -11,15 +12,9 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
     getExpense(params.expenseID),
   ]);
 
-  if (csrfToken.error != null) {
-    return redirect("/error");
-  }
+  redirectIfNeeded(csrfToken.error, expense.error);
 
-  if (expense.error != null) {
-    return redirect("/error");
-  }
-
-  return { csrfToken: csrfToken.data, expense: expense.data };
+  return { csrfToken: csrfToken.data!, expense: expense.data! };
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {

@@ -8,16 +8,15 @@ import { Button } from "~/components/ui/button";
 import { DataTable } from "~/components/tables/data-table";
 import TableRowDropdown from "~/components/tables/dropdown";
 import { getCategories, type Category } from "~/lib/db/categories";
+import { redirectIfNeeded } from "~/lib/db/common";
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const categoryList = await getCategories(params.bookID);
 
-  if (categoryList.error != null) {
-    return redirect("/error");
-  }
+  redirectIfNeeded(categoryList.error);
 
   return {
-    categories: categoryList.data,
+    categories: categoryList.data!,
   };
 }
 

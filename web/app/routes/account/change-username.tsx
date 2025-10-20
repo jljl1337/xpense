@@ -24,16 +24,15 @@ import {
 import { Input } from "~/components/ui/input";
 
 import { getCsrfToken } from "~/lib/db/auth";
+import { redirectIfNeeded } from "~/lib/db/common";
 import { checkUsernameExists, updateUsername } from "~/lib/db/users";
 import { usernameSchema } from "~/lib/schemas/auth";
 
 export async function clientLoader() {
   const csrfToken = await getCsrfToken();
-  if (csrfToken.error != null) {
-    return redirect("/error");
-  }
+  redirectIfNeeded(csrfToken.error);
 
-  return { csrfToken: csrfToken.data };
+  return { csrfToken: csrfToken.data! };
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {

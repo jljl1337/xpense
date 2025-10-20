@@ -13,7 +13,7 @@ export async function clientLoader() {
     }
     return redirect("/error");
   }
-  return { data: { version: version.data }, error: null };
+  return { version: version.data };
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
@@ -23,7 +23,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       <div className="h-full flex items-center justify-center">
         <div className="h-full max-w-[90rem] flex-1 flex flex-col p-8 gap-4">
           <h1 className="text-4xl">About</h1>
-          <p className="mb-2">Version: {loaderData.data.version}</p>
+          <p className="mb-2">Version: {loaderData.version}</p>
         </div>
       </div>
     </>

@@ -6,6 +6,7 @@ import type z from "zod";
 import ExpensePage from "~/components/pages/expense-page";
 import { getCsrfToken } from "~/lib/db/auth";
 import { getCategories } from "~/lib/db/categories";
+import { redirectIfNeeded } from "~/lib/db/common";
 import { createExpense } from "~/lib/db/expenses";
 import { getPaymentMethods } from "~/lib/db/payment-methods";
 import { dateToYYYYMMDD } from "~/lib/format/date";
@@ -18,30 +19,24 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     getPaymentMethods(params.bookID),
   ]);
 
-  if (csrfToken.error != null) {
-    return redirect("/error");
-  }
+  redirectIfNeeded(
+    csrfToken.error,
+    categoryList.error,
+    paymentMethodList.error,
+  );
 
-  if (categoryList.error != null) {
-    return redirect("/error");
-  }
-
-  if (paymentMethodList.error != null) {
-    return redirect("/error");
-  }
-
-  if (categoryList.data.length === 0) {
+  if (categoryList.data!.length === 0) {
     return redirect(`/books/${params.bookID}/categories/create`);
   }
 
-  if (paymentMethodList.data.length === 0) {
+  if (paymentMethodList.data!.length === 0) {
     return redirect(`/books/${params.bookID}/payment-methods/create`);
   }
 
   return {
-    csrfToken: csrfToken.data,
-    categoryList: categoryList.data,
-    paymentMethodList: paymentMethodList.data,
+    csrfToken: csrfToken.data!,
+    categoryList: categoryList.data!,
+    paymentMethodList: paymentMethodList.data!,
   };
 }
 

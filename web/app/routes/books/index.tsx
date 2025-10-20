@@ -9,7 +9,7 @@ import Pagination from "~/components/pagination";
 import { DataTable } from "~/components/tables/data-table";
 import TableRowDropdown from "~/components/tables/dropdown";
 import { getBooks, getBooksCount, type Book } from "~/lib/db/books";
-import { isUnauthorizedError } from "~/lib/db/common";
+import { redirectIfNeeded } from "~/lib/db/common";
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const searchParams = new URL(request.url).searchParams;
@@ -23,23 +23,12 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
     getBooks(page, 20),
   ]);
 
-  if (count.error != null) {
-    if (isUnauthorizedError(count.error)) {
-      return redirect("/auth/sign-in");
-    }
-    return redirect("/error");
-  }
-  if (bookList.error != null) {
-    if (isUnauthorizedError(bookList.error)) {
-      return redirect("/auth/sign-in");
-    }
-    return redirect("/error");
-  }
+  redirectIfNeeded(count.error, bookList.error);
 
   return {
-    count: count.data,
+    count: count.data!,
     page,
-    books: bookList.data,
+    books: bookList.data!,
   };
 }
 
