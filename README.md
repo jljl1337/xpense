@@ -11,6 +11,10 @@
 - Efficient: Lightweight and fast, built with Go and SQLite
 - Configurable: Easily customizable via environment variables
 
+## Demo
+
+Live demo available at: https://xpense.jljl1337.com
+
 ## Install
 
 Sample `compose.yml`:
