@@ -22,6 +22,8 @@ services:
     image: jljl1337/xpense:latest # Use specific tag for production
     container_name: xpense
     restart: unless-stopped
+    ports:
+      - 8080:8080
     volumes:
       - ./live:/xpense/data/live
       - ./backup:/xpense/data/backup
@@ -57,6 +59,7 @@ services:
 
 ## Development
 
-```bash
-go run cmd/xpense/main.go
-```
+1. Install [Go](https://golang.org/dl/), [pnpm](https://pnpm.io/installation), and [air](https://github.com/cosmtrek/air)
+2. Run `pnpm install` in the `web` directory to install frontend dependencies
+3. Run `go mod download` in the project root to install backend dependencies
+4. Start the development server with `air`
