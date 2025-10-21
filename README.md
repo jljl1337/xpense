@@ -6,6 +6,22 @@
 
 ## Install
 
+Sample `compose.yml`:
+
+```yml
+services:
+
+  xpense:
+    image: jljl1337/xpense:latest
+    container_name: xpense
+    restart: unless-stopped
+    volumes:
+      - ./data:/xpense/data/live
+      - ./backup:/xpense/data/backup
+    environment:
+      - BACKUP_CRON_SCHEDULE=0 * * * * # Backup every hour
+```
+
 ## Configuration
 
 | Environment Variable | Type | Default Value | Description |
