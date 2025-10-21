@@ -6,6 +6,32 @@
 
 ## Install
 
+## Configuration
+
+| Environment Variable | Type | Default Value | Description |
+|---------------------|------|---------------|-------------|
+| `DB_PATH` | string | `data/live/db/live.db` | Path to the SQLite database file |
+| `DB_BUSY_TIMEOUT` | string | `30000` | Database busy timeout in milliseconds |
+| `BACKUP_DB_PATH` | string | `data/backup/db/backup.db` | Path to the backup database file |
+| `BACKUP_CRON_SCHEDULE` | string | `0 0 * * *` | Cron schedule for database backups (daily at midnight) |
+| `LOG_LEVEL` | int | `0` | Logging level for the application |
+| `LOG_HEALTH_CHECK` | bool | `false` | Whether to log health check requests |
+| `PORT` | string | `8080` | Port number for the HTTP server |
+| `CORS_ORIGINS` | string | `*` | Allowed CORS origins (comma-separated) |
+| `PASSWORD_BCRYPT_COST` | int | `12` | Bcrypt cost factor for password hashing |
+| `SESSION_COOKIE_NAME` | string | `xpense_session_token` | Name of the session cookie |
+| `SESSION_COOKIE_HTTP_ONLY` | bool | `true` | Whether the session cookie is HTTP-only |
+| `SESSION_COOKIE_SECURE` | bool | `false` | Whether the session cookie requires HTTPS |
+| `SESSION_TOKEN_LENGTH` | int | `32` | Length of generated session tokens |
+| `SESSION_TOKEN_CHARSET` | string | `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789` | Character set for session token generation |
+| `SESSION_LIFETIME_MIN` | int | `10080` (7 days) | Session lifetime in minutes |
+| `PRE_SESSION_LIFETIME_MIN` | int | `15` | Pre-session lifetime in minutes |
+| `CSRF_TOKEN_LENGTH` | int | `32` | Length of generated CSRF tokens |
+| `CSRF_TOKEN_CHARSET` | string | `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789` | Character set for CSRF token generation |
+| `PAGE_SIZE_MAX` | int64 | `100` | Maximum page size for paginated results |
+| `PAGE_SIZE_DEFAULT` | int64 | `10` | Default page size for paginated results |
+| `SESSION_COOKIE_SAME_SITE_MODE` | string | `lax` | SameSite mode for session cookie (`lax`, `strict`, or `none`), other values are treated as `none` |
+
 ## Development
 
 ```bash
