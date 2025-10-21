@@ -6,7 +6,7 @@
 
 ## Features
 
-- Simple: Everything in one image, no separate database instance required
+- Self-contained: Everything in one image, no separate database instance required
 - Disaster-ready: Built-in automated database backups
 - Efficient: Lightweight and fast, built with Go and SQLite
 - Configurable: Easily customizable via environment variables
