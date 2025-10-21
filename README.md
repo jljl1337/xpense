@@ -15,6 +15,10 @@
 
 Live demo available at: https://xpense.jljl1337.com
 
+> [!IMPORTANT]
+> This is a public demo instance. Do not store any sensitive and/or critical data
+> here. Data persistence and availability are not guaranteed.
+
 ## Install
 
 Sample `compose.yml`:
