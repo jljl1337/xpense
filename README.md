@@ -4,6 +4,13 @@
 [![Docker](https://img.shields.io/docker/pulls/jljl1337/xpense?logo=docker&label=jljl1337%2Fxpense)](https://hub.docker.com/r/jljl1337/xpense)
 ![GitHub License](https://img.shields.io/github/license/jljl1337/xpense?label=License)
 
+## Features
+
+- Simple: Everything in one image, no separate database instance required
+- Disaster-ready: Built-in automated database backups
+- Efficient: Lightweight and fast, built with Go and SQLite
+- Configurable: Easily customizable via environment variables
+
 ## Install
 
 Sample `compose.yml`:
@@ -12,11 +19,11 @@ Sample `compose.yml`:
 services:
 
   xpense:
-    image: jljl1337/xpense:latest
+    image: jljl1337/xpense:latest # Use specific tag for production
     container_name: xpense
     restart: unless-stopped
     volumes:
-      - ./data:/xpense/data/live
+      - ./live:/xpense/data/live
       - ./backup:/xpense/data/backup
     environment:
       - BACKUP_CRON_SCHEDULE=0 * * * * # Backup every hour
