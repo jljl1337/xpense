@@ -23,11 +23,11 @@
 | `SESSION_COOKIE_HTTP_ONLY` | bool | `true` | Whether the session cookie is HTTP-only |
 | `SESSION_COOKIE_SECURE` | bool | `false` | Whether the session cookie requires HTTPS |
 | `SESSION_TOKEN_LENGTH` | int | `32` | Length of generated session tokens |
-| `SESSION_TOKEN_CHARSET` | string | `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789` | Character set for session token generation |
+| `SESSION_TOKEN_CHARSET` | string | alphanumeric characters (case-sensitive) | Character set for session token generation |
 | `SESSION_LIFETIME_MIN` | int | `10080` (7 days) | Session lifetime in minutes |
 | `PRE_SESSION_LIFETIME_MIN` | int | `15` | Pre-session lifetime in minutes |
 | `CSRF_TOKEN_LENGTH` | int | `32` | Length of generated CSRF tokens |
-| `CSRF_TOKEN_CHARSET` | string | `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789` | Character set for CSRF token generation |
+| `CSRF_TOKEN_CHARSET` | string | alphanumeric characters (case-sensitive) | Character set for CSRF token generation |
 | `PAGE_SIZE_MAX` | int64 | `100` | Maximum page size for paginated results |
 | `PAGE_SIZE_DEFAULT` | int64 | `10` | Default page size for paginated results |
 | `SESSION_COOKIE_SAME_SITE_MODE` | string | `lax` | SameSite mode for session cookie (`lax`, `strict`, or `none`), other values are treated as `none` |
