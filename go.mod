@@ -1,6 +1,6 @@
 module github.com/jljl1337/xpense
 
-go 1.25.1
+go 1.25.3
 
 require (
 	github.com/go-co-op/gocron/v2 v2.16.5

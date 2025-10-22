@@ -10,7 +10,7 @@ COPY web .
 
 RUN pnpm build
 
-FROM golang:1.25.1 AS go-dependencies
+FROM golang:1.25.3 AS go-dependencies
 
 WORKDIR /go/src
 
