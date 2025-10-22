@@ -4,6 +4,7 @@ import type { Route } from "./+types/delete";
 import DeletePage from "~/components/pages/delete-page";
 import { getCsrfToken } from "~/lib/db/auth";
 import { redirectIfNeeded } from "~/lib/db/common";
+import { getExpensesCountByBookID } from "~/lib/db/expenses";
 import {
   deletePaymentMethod,
   getPaymentMethod,
@@ -17,7 +18,19 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 
   redirectIfNeeded(csrfToken.error, paymentMethod.error);
 
-  return { csrfToken: csrfToken.data!, paymentMethod: paymentMethod.data! };
+  const expenseCount = await getExpensesCountByBookID(
+    paymentMethod.data!.bookID,
+    undefined,
+    paymentMethod.data!.id,
+  );
+
+  redirectIfNeeded(expenseCount.error);
+
+  return {
+    csrfToken: csrfToken.data!,
+    paymentMethod: paymentMethod.data!,
+    expenseCount: expenseCount.data!,
+  };
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
@@ -33,12 +46,18 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     return { error: null };
   }
 
+  let description = `Are you sure you want to delete the following payment method: ${loaderData.paymentMethod.name}?`;
+
+  if (loaderData.expenseCount > 0) {
+    description += ` The associated ${loaderData.expenseCount} expense(s) will also be deleted. This action cannot be undone.`;
+  }
+
   return (
     <>
       <title>Delete Payment Method | Xpense</title>
       <DeletePage
         title="Delete Payment Method"
-        description={`Are you sure you want to delete the following payment method: ${loaderData.paymentMethod.name}?`}
+        description={description}
         action={action}
         redirectTo={`/books/${loaderData.paymentMethod.bookID}/payment-methods`}
       />
