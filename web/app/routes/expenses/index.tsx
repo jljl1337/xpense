@@ -157,16 +157,27 @@ export default function Page({ params, loaderData }: Route.ComponentProps) {
     },
   ];
 
+  const filterParams = new URLSearchParams();
+  if (loaderData.categoryID) {
+    filterParams.append("category-id", loaderData.categoryID);
+  }
+  if (loaderData.paymentMethodID) {
+    filterParams.append("payment-method-id", loaderData.paymentMethodID);
+  }
+  if (loaderData.remark) {
+    filterParams.append("remark", loaderData.remark);
+  }
+
   const totalPages = Math.ceil(loaderData.count / 20);
-  const firstPageUrl = `/books/${params.bookID}/expenses`;
-  const lastPageUrl = `/books/${params.bookID}/expenses?page=${totalPages}`;
+  const firstPageUrl = `/books/${params.bookID}/expenses?${filterParams.toString()}`;
+  const lastPageUrl = `/books/${params.bookID}/expenses?page=${totalPages}&${filterParams.toString()}`;
   const previousPageUrl =
     loaderData.page > 1
-      ? `/books/${params.bookID}/expenses?page=${loaderData.page - 1}`
+      ? `/books/${params.bookID}/expenses?page=${loaderData.page - 1}&${filterParams.toString()}`
       : "";
   const nextPageUrl =
     loaderData.page < totalPages
-      ? `/books/${params.bookID}/expenses?page=${loaderData.page + 1}`
+      ? `/books/${params.bookID}/expenses?page=${loaderData.page + 1}&${filterParams.toString()}`
       : "";
 
   return (
