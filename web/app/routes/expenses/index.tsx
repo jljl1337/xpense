@@ -169,15 +169,25 @@ export default function Page({ params, loaderData }: Route.ComponentProps) {
   }
 
   const totalPages = Math.ceil(loaderData.count / 20);
-  const firstPageUrl = `/books/${params.bookID}/expenses?${filterParams.toString()}`;
-  const lastPageUrl = `/books/${params.bookID}/expenses?page=${totalPages}&${filterParams.toString()}`;
+
+  const firstPageParam = new URLSearchParams(filterParams);
+  firstPageParam.append("page", "1");
+  const lastPageParam = new URLSearchParams(filterParams);
+  lastPageParam.append("page", totalPages.toString());
+  const previousPageParam = new URLSearchParams(filterParams);
+  previousPageParam.append("page", (loaderData.page - 1).toString());
+  const nextPageParam = new URLSearchParams(filterParams);
+  nextPageParam.append("page", (loaderData.page + 1).toString());
+
+  const firstPageUrl = `/books/${params.bookID}/expenses?${firstPageParam.toString()}`;
+  const lastPageUrl = `/books/${params.bookID}/expenses?${lastPageParam.toString()}`;
   const previousPageUrl =
     loaderData.page > 1
-      ? `/books/${params.bookID}/expenses?page=${loaderData.page - 1}&${filterParams.toString()}`
+      ? `/books/${params.bookID}/expenses?${previousPageParam.toString()}`
       : "";
   const nextPageUrl =
     loaderData.page < totalPages
-      ? `/books/${params.bookID}/expenses?page=${loaderData.page + 1}&${filterParams.toString()}`
+      ? `/books/${params.bookID}/expenses?${nextPageParam.toString()}`
       : "";
 
   return (
