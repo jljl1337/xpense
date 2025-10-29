@@ -44,9 +44,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                const theme = localStorage.getItem('vite-ui-theme') || 
-                  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                document.documentElement.classList.toggle('dark', theme === 'dark');
+                try {
+                  const saved = localStorage.getItem('vite-ui-theme');
+                  // default to 'system' if nothing is saved
+                  let theme = saved ?? 'system';
+                  // if theme is 'system', derive from prefers-color-scheme
+                  if (theme === 'system') {
+                    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                  }
+                  document.documentElement.classList.toggle('dark', theme === 'dark');
+                } catch (e) {}
               })();
             `,
           }}
