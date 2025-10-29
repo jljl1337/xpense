@@ -8,9 +8,11 @@ import {
 } from "react-router";
 import type { Route } from "./+types/root";
 
-import "./app.css";
+import "~/app.css";
 
-import { ThemeProvider } from "./components/theme-provider";
+import { Spinner } from "~/components/ui/spinner";
+
+import { ThemeProvider } from "~/components/theme-provider";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -37,6 +39,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
         />
         <Meta />
         <Links />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const theme = localStorage.getItem('vite-ui-theme') || 
+                  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.classList.toggle('dark', theme === 'dark');
+              })();
+            `,
+          }}
+        />
       </head>
       <body>
         {children}
@@ -48,8 +61,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export function HydrateFallback() {
-  // Render a grey screen while hydrating to avoid a flash of unstyled content
-  return <div className="h-screen w-screen bg-background" />;
+  return (
+    <div className="h-screen w-screen bg-background flex items-center justify-center">
+      <Spinner />
+    </div>
+  );
 }
 
 export default function App() {
