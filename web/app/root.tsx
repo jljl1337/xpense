@@ -13,6 +13,7 @@ import "~/app.css";
 import { Spinner } from "~/components/ui/spinner";
 
 import { ThemeProvider } from "~/components/theme-provider";
+import { NavigationLoadingBar } from "~/components/top-loading-bar";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -71,6 +72,7 @@ export function HydrateFallback() {
 export default function App() {
   return (
     <ThemeProvider>
+      <NavigationLoadingBar />
       <Outlet />
     </ThemeProvider>
   );
