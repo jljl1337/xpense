@@ -31,7 +31,7 @@ services:
     container_name: xpense
     restart: unless-stopped
     ports:
-      - 8080:8080
+      - "8080:8080"
     volumes:
       - ./live:/xpense/data/live
       - ./backup:/xpense/data/backup
