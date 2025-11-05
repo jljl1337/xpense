@@ -18,8 +18,6 @@ func NewPaymentMethodService(queries *repository.Queries) *PaymentMethodService 
 }
 
 // CreatePaymentMethod creates a new payment method if the user has access to the book.
-//
-// It returns true if the payment method was created, false if the user has no access to the book
 func (s *PaymentMethodService) CreatePaymentMethod(ctx context.Context, userID, bookID, name, description string) error {
 	// Check if the user has access to the book
 	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
@@ -54,8 +52,6 @@ func (s *PaymentMethodService) CreatePaymentMethod(ctx context.Context, userID, 
 // GetPaymentMethodsByBookID retrieves all payment methods for a specific book.
 //
 // It returns an empty slice if no payment methods are found in the book.
-//
-// It returns nil if the user has no access to the book.
 func (s *PaymentMethodService) GetPaymentMethodsByBookID(ctx context.Context, userID, bookID string) ([]repository.PaymentMethod, error) {
 	// Check if the user has access to the book
 	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
@@ -79,9 +75,6 @@ func (s *PaymentMethodService) GetPaymentMethodsByBookID(ctx context.Context, us
 }
 
 // GetPaymentMethodByID retrieves a payment method by its ID if the user has access to the book.
-//
-// It returns nil if the payment method does not exist or the user does not have
-// access to the book.
 func (s *PaymentMethodService) GetPaymentMethodByID(ctx context.Context, userID, paymentMethodID string) (*repository.PaymentMethod, error) {
 	// Get the payment method to find the book ID
 	paymentMethods, err := s.queries.GetPaymentMethodByID(ctx, paymentMethodID)
@@ -116,9 +109,6 @@ func (s *PaymentMethodService) GetPaymentMethodByID(ctx context.Context, userID,
 }
 
 // UpdatePaymentMethodByID updates a payment method if the user has access to the book.
-//
-// It returns true if the payment method was updated, false if the user has no access
-// to the payment method or the payment method does not exist
 func (s *PaymentMethodService) UpdatePaymentMethodByID(ctx context.Context, userID, paymentMethodID, name, description string) error {
 	// Check if the user has access to the payment method
 	canAccess, err := s.queries.CheckPaymentMethodAccess(ctx, repository.CheckPaymentMethodAccessParams{
@@ -155,9 +145,6 @@ func (s *PaymentMethodService) UpdatePaymentMethodByID(ctx context.Context, user
 }
 
 // DeletePaymentMethodByID deletes a payment method if the user has access to the book.
-//
-// It returns true if the payment method was deleted, false if the user has no access
-// to the payment method or the payment method does not exist
 func (s *PaymentMethodService) DeletePaymentMethodByID(ctx context.Context, userID, paymentMethodID string) error {
 	// Check if the user has access to the payment method
 	canAccess, err := s.queries.CheckPaymentMethodAccess(ctx, repository.CheckPaymentMethodAccessParams{

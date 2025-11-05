@@ -18,8 +18,6 @@ func NewCategoryService(queries *repository.Queries) *CategoryService {
 }
 
 // CreateCategory creates a new category if the user has access to the book.
-//
-// It returns true if the category was created, false if the user has no access to the book
 func (s *CategoryService) CreateCategory(ctx context.Context, userID, bookID, name, description string) error {
 	// Check if the user has access to the book
 	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
@@ -54,8 +52,6 @@ func (s *CategoryService) CreateCategory(ctx context.Context, userID, bookID, na
 // GetCategoriesByBookID retrieves all categories for a specific book.
 //
 // It returns an empty slice if no categories are found in the book.
-//
-// It returns nil if the user has no access to the book.
 func (s *CategoryService) GetCategoriesByBookID(ctx context.Context, userID, bookID string) ([]repository.Category, error) {
 	// Check if the user has access to the book
 	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
@@ -79,9 +75,6 @@ func (s *CategoryService) GetCategoriesByBookID(ctx context.Context, userID, boo
 }
 
 // GetCategoryByID retrieves a category by its ID if the user has access to the book.
-//
-// It returns nil if the category does not exist or the user does not have
-// access to the book.
 func (s *CategoryService) GetCategoryByID(ctx context.Context, userID, categoryID string) (*repository.Category, error) {
 	// Get the category to find the book ID
 	categories, err := s.queries.GetCategoryByID(ctx, categoryID)
@@ -116,9 +109,6 @@ func (s *CategoryService) GetCategoryByID(ctx context.Context, userID, categoryI
 }
 
 // UpdateCategoryByID updates a category if the user has access to the book.
-//
-// It returns true if the category was updated, false if the user has no access
-// to the category or the category does not exist
 func (s *CategoryService) UpdateCategoryByID(ctx context.Context, userID, categoryID, name, description string) error {
 	// Check if the user has access to the category
 	canAccess, err := s.queries.CheckCategoryAccess(ctx, repository.CheckCategoryAccessParams{
@@ -155,9 +145,6 @@ func (s *CategoryService) UpdateCategoryByID(ctx context.Context, userID, catego
 }
 
 // DeleteCategoryByID deletes a category if the user has access to the book.
-//
-// It returns true if the category was deleted, false if the user has no access
-// to the category or the category does not exist
 func (s *CategoryService) DeleteCategoryByID(ctx context.Context, userID, categoryID string) error {
 	// Check if the user has access to the category
 	canAccess, err := s.queries.CheckCategoryAccess(ctx, repository.CheckCategoryAccessParams{

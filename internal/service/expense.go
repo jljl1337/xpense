@@ -19,10 +19,6 @@ func NewExpenseService(queries *repository.Queries) *ExpenseService {
 
 // CreateExpense creates a new expense if the user has access to the book,
 // category, and payment method.
-//
-// It returns true if the expense was created, false if the user has no access
-// to the book, category, or payment method. It also returns false if the
-// category or payment method does not belong to the book.
 func (s *ExpenseService) CreateExpense(ctx context.Context, userID, bookID, categoryID, paymentMethodID, date string, amount float64, remark string) error {
 	// Check if the user has access to the book, category, and payment method
 	err := s.checkBookCategoryPaymentMethod(ctx, userID, bookID, categoryID, paymentMethodID)
@@ -81,8 +77,6 @@ func (s *ExpenseService) GetExpensesCountByBookID(ctx context.Context, userID, b
 // GetExpensesByBookID retrieves all expenses for a specific book with pagination.
 //
 // It returns an empty slice if no expenses are found in the book.
-//
-// It returns nil if the user has no access to the book or the book does not exist.
 func (s *ExpenseService) GetExpensesByBookID(ctx context.Context, userID, bookID, categoryID, paymentMethodID, remark string, page int64, pageSize int64) ([]repository.Expense, error) {
 	// Check if the user has access to the book
 	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
@@ -115,8 +109,6 @@ func (s *ExpenseService) GetExpensesByBookID(ctx context.Context, userID, bookID
 }
 
 // GetExpenseByID retrieves an expense by its ID if the user has access to the book.
-//
-// It returns nil if the expense does not exist or the user does not have access to the book.
 func (s *ExpenseService) GetExpenseByID(ctx context.Context, userID, expenseID string) (*repository.Expense, error) {
 	expenses, err := s.queries.GetExpenseByID(ctx, expenseID)
 	if err != nil {
@@ -151,10 +143,6 @@ func (s *ExpenseService) GetExpenseByID(ctx context.Context, userID, expenseID s
 
 // UpdateExpense updates an existing expense if the user has access to the book,
 // category, and payment method.
-//
-// It returns true if the expense was updated, false if the expense does not
-// exist or the user has no access to the book, category, or payment method, or
-// the category or payment method does not belong to the book.
 func (s *ExpenseService) UpdateExpense(ctx context.Context, userID, expenseID, categoryID, paymentMethodID, date string, amount float64, remark string) error {
 	// Get the expense to find the book ID
 	expenses, err := s.queries.GetExpenseByID(ctx, expenseID)
@@ -205,9 +193,6 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, userID, expenseID, c
 
 // DeleteExpenseByID deletes an expense by its ID if the user has access to the
 // book.
-//
-// It returns true if the expense was deleted, false if the expense does not
-// exist or the user does not have access to the book.
 func (s *ExpenseService) DeleteExpenseByID(ctx context.Context, userID, expenseID string) error {
 	// Get the expense to find the book ID
 	expenses, err := s.queries.GetExpenseByID(ctx, expenseID)

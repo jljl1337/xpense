@@ -63,8 +63,6 @@ func (s *BookService) GetBooksByUserID(ctx context.Context, userID string, page 
 }
 
 // GetBookByID retrieves a book by its ID if the user has access to it.
-//
-// It returns nil if the book does not exist or the user does not have access to it.
 func (s *BookService) GetBookByID(ctx context.Context, userID, bookID string) (*repository.Book, error) {
 	// Check if the user has access to the book
 	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
@@ -99,9 +97,6 @@ func (s *BookService) GetBookByID(ctx context.Context, userID, bookID string) (*
 }
 
 // UpdateBookByID updates a book's name and description if the user has access to it.
-//
-// It returns true if the update was successful, false if the book does not exist
-// or the user does not have access to it.
 func (s *BookService) UpdateBookByID(ctx context.Context, userID, bookID, name, description string) error {
 	// Check if the user has access to the book
 	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
@@ -139,9 +134,6 @@ func (s *BookService) UpdateBookByID(ctx context.Context, userID, bookID, name, 
 }
 
 // DeleteBookByID deletes a book by its ID if the user has access to it.
-//
-// It returns true if the deletion was successful, false if the book does not exist
-// or the user does not have access to it.
 func (s *BookService) DeleteBookByID(ctx context.Context, userID, bookID string) error {
 	// Check if the user has access to the book
 	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{

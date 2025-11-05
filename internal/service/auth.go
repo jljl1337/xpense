@@ -45,8 +45,6 @@ func (a *AuthService) SignUp(ctx context.Context, username, password string) err
 
 // GetPreSession creates a pre-session with no associated user.
 // It returns a non-empty session token and CSRF token.
-//
-// If an error occurs during the process, it returns the error.
 func (a *AuthService) GetPreSession(ctx context.Context) (string, string, error) {
 	sessionID := generator.NewULID()
 	sessionToken := generator.NewToken(env.SessionTokenLength, env.SessionTokenCharset)
@@ -71,10 +69,6 @@ func (a *AuthService) GetPreSession(ctx context.Context) (string, string, error)
 
 // SignIn authenticates a user and creates a new session.
 // It returns non-empty session token and CSRF token if the credentials are valid.
-//
-// If the credentials are invalid, it returns empty strings and no error.
-//
-// If an error occurs during the process, it returns the error.
 func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSRFToken, username, password string) (string, string, error) {
 	// Validate pre-session
 	sessions, err := a.queries.GetSessionByToken(ctx, preSessionToken)
@@ -200,10 +194,6 @@ func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSR
 
 // GetSessionUserIDAndRefreshSession validates the session token (and CSRF token),
 // refreshes the session expiration, and returns the associated user ID.
-//
-// If the session is invalid or expired, it returns an empty string and no error.
-//
-// If an error occurs during the process, it returns the error.
 func (a *AuthService) GetSessionUserIDAndRefreshSession(ctx context.Context, sessionToken, CSRFToken string) (string, error) {
 	sessions, err := a.queries.GetSessionByToken(ctx, sessionToken)
 
