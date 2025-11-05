@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/jljl1337/xpense/internal/env"
+	"github.com/jljl1337/xpense/internal/http/common"
 	"github.com/jljl1337/xpense/internal/http/middleware"
 	"github.com/jljl1337/xpense/internal/service"
 )
@@ -57,14 +58,13 @@ func (h *BookHandler) createBook(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	err = h.bookService.CreateBook(ctx, userID, req.Name, req.Description)
 	if err != nil {
-		slog.Error("Error creating book: " + err.Error())
-		http.Error(w, "Failed to create book", http.StatusInternalServerError)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -79,14 +79,13 @@ func (h *BookHandler) getBooksCount(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	count, err := h.bookService.GetBooksCountByUserID(ctx, userID)
 	if err != nil {
-		slog.Error("Error getting books count: " + err.Error())
-		http.Error(w, "Failed to get books count", http.StatusInternalServerError)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -114,13 +113,13 @@ func (h *BookHandler) getBooks(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	books, err := h.bookService.GetBooksByUserID(ctx, userID, page, pageSize)
 	if err != nil {
-		http.Error(w, "Failed to get books", http.StatusInternalServerError)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -142,19 +141,13 @@ func (h *BookHandler) getBook(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	book, err := h.bookService.GetBookByID(ctx, userID, bookID)
 	if err != nil {
-		slog.Error("Error getting book: " + err.Error())
-		http.Error(w, "Failed to get book", http.StatusInternalServerError)
-		return
-	}
-
-	if book == nil {
-		http.Error(w, "Book not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -187,19 +180,13 @@ func (h *BookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	ok, err := h.bookService.UpdateBookByID(ctx, userID, bookID, req.Name, req.Description)
+	err = h.bookService.UpdateBookByID(ctx, userID, bookID, req.Name, req.Description)
 	if err != nil {
-		slog.Error("Error updating book: " + err.Error())
-		http.Error(w, "Failed to update book", http.StatusInternalServerError)
-		return
-	}
-
-	if !ok {
-		http.Error(w, "Book not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -221,19 +208,13 @@ func (h *BookHandler) deleteBook(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	ok, err := h.bookService.DeleteBookByID(ctx, userID, bookID)
+	err = h.bookService.DeleteBookByID(ctx, userID, bookID)
 	if err != nil {
-		slog.Error("Error deleting book: " + err.Error())
-		http.Error(w, "Failed to delete book", http.StatusInternalServerError)
-		return
-	}
-
-	if !ok {
-		http.Error(w, "Book not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 

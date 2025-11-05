@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/jljl1337/xpense/internal/generator"
 	"github.com/jljl1337/xpense/internal/repository"
@@ -24,15 +23,11 @@ func NewExpenseService(queries *repository.Queries) *ExpenseService {
 // It returns true if the expense was created, false if the user has no access
 // to the book, category, or payment method. It also returns false if the
 // category or payment method does not belong to the book.
-func (s *ExpenseService) CreateExpense(ctx context.Context, userID, bookID, categoryID, paymentMethodID, date string, amount float64, remark string) (bool, error) {
+func (s *ExpenseService) CreateExpense(ctx context.Context, userID, bookID, categoryID, paymentMethodID, date string, amount float64, remark string) error {
 	// Check if the user has access to the book, category, and payment method
-	canAccess, err := s.checkBookCategoryPaymentMethod(ctx, userID, bookID, categoryID, paymentMethodID)
+	err := s.checkBookCategoryPaymentMethod(ctx, userID, bookID, categoryID, paymentMethodID)
 	if err != nil {
-		return false, err
-	}
-
-	if !canAccess {
-		return false, nil
+		return err
 	}
 
 	// Create the expense
@@ -50,10 +45,10 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, userID, bookID, cate
 		UpdatedAt:       currentTime,
 	})
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to create expense: %v", err)
 	}
 
-	return true, nil
+	return nil
 }
 
 func (s *ExpenseService) GetExpensesCountByBookID(ctx context.Context, userID, bookID, categoryID, paymentMethodID, remark string) (int64, error) {
@@ -63,11 +58,11 @@ func (s *ExpenseService) GetExpensesCountByBookID(ctx context.Context, userID, b
 		UserID: userID,
 	})
 	if err != nil {
-		return 0, err
+		return 0, NewServiceErrorf(ErrCodeInternal, "failed to check book access: %v", err)
 	}
 
 	if !canAccess {
-		return 0, nil
+		return 0, NewServiceError(ErrCodeNotFound, "book not found or access denied")
 	}
 
 	countResult, err := s.queries.GetExpenseCountByBookID(ctx, repository.GetExpenseCountByBookIDParams{
@@ -77,7 +72,7 @@ func (s *ExpenseService) GetExpensesCountByBookID(ctx context.Context, userID, b
 		Remark:          remark,
 	})
 	if err != nil {
-		return 0, err
+		return 0, NewServiceErrorf(ErrCodeInternal, "failed to get expenses count: %v", err)
 	}
 
 	return countResult, nil
@@ -95,11 +90,11 @@ func (s *ExpenseService) GetExpensesByBookID(ctx context.Context, userID, bookID
 		UserID: userID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, NewServiceErrorf(ErrCodeInternal, "failed to check book access: %v", err)
 	}
 
 	if !canAccess {
-		return nil, nil
+		return nil, NewServiceError(ErrCodeUnprocessable, "book not found or access denied")
 	}
 
 	offset := (page - 1) * pageSize
@@ -113,7 +108,7 @@ func (s *ExpenseService) GetExpensesByBookID(ctx context.Context, userID, bookID
 		Limit:           limit,
 	})
 	if err != nil {
-		return nil, err
+		return nil, NewServiceErrorf(ErrCodeInternal, "failed to get expenses by book ID: %v", err)
 	}
 
 	return expenses, nil
@@ -125,15 +120,15 @@ func (s *ExpenseService) GetExpensesByBookID(ctx context.Context, userID, bookID
 func (s *ExpenseService) GetExpenseByID(ctx context.Context, userID, expenseID string) (*repository.Expense, error) {
 	expenses, err := s.queries.GetExpenseByID(ctx, expenseID)
 	if err != nil {
-		return nil, err
+		return nil, NewServiceErrorf(ErrCodeInternal, "failed to get expense by ID: %v", err)
 	}
 
 	if len(expenses) > 1 {
-		return nil, errors.New("multiple expenses found with the same ID")
+		return nil, NewServiceError(ErrCodeInternal, "multiple expenses found with the same ID")
 	}
 
 	if len(expenses) < 1 {
-		return nil, nil
+		return nil, NewServiceError(ErrCodeNotFound, "expense not found or access denied")
 	}
 
 	expense := expenses[0]
@@ -144,11 +139,11 @@ func (s *ExpenseService) GetExpenseByID(ctx context.Context, userID, expenseID s
 		UserID: userID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, NewServiceErrorf(ErrCodeInternal, "failed to check book access: %v", err)
 	}
 
 	if !canAccess {
-		return nil, nil
+		return nil, NewServiceError(ErrCodeNotFound, "expense not found or access denied")
 	}
 
 	return &expense, nil
@@ -160,31 +155,27 @@ func (s *ExpenseService) GetExpenseByID(ctx context.Context, userID, expenseID s
 // It returns true if the expense was updated, false if the expense does not
 // exist or the user has no access to the book, category, or payment method, or
 // the category or payment method does not belong to the book.
-func (s *ExpenseService) UpdateExpense(ctx context.Context, userID, expenseID, categoryID, paymentMethodID, date string, amount float64, remark string) (bool, error) {
+func (s *ExpenseService) UpdateExpense(ctx context.Context, userID, expenseID, categoryID, paymentMethodID, date string, amount float64, remark string) error {
 	// Get the expense to find the book ID
 	expenses, err := s.queries.GetExpenseByID(ctx, expenseID)
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to get expense: %v", err)
 	}
 
 	if len(expenses) > 1 {
-		return false, errors.New("multiple expenses found with the same ID")
+		return NewServiceError(ErrCodeInternal, "multiple expenses found with the same ID")
 	}
 
 	if len(expenses) < 1 {
-		return false, nil
+		return NewServiceError(ErrCodeNotFound, "expense not found or access denied")
 	}
 
 	expense := expenses[0]
 
 	// Check if the user has access to the book, category, and payment method
-	canAccess, err := s.checkBookCategoryPaymentMethod(ctx, userID, expense.BookID, categoryID, paymentMethodID)
+	err = s.checkBookCategoryPaymentMethod(ctx, userID, expense.BookID, categoryID, paymentMethodID)
 	if err != nil {
-		return false, err
-	}
-
-	if !canAccess {
-		return false, nil
+		return err
 	}
 
 	// Update the expense
@@ -198,18 +189,18 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, userID, expenseID, c
 		UpdatedAt:       generator.NowISO8601(),
 	})
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to update expense: %v", err)
 	}
 
 	if rows > 1 {
-		return false, errors.New("multiple expenses updated with the same ID")
+		return NewServiceError(ErrCodeInternal, "multiple expenses updated with the same ID")
 	}
 
 	if rows < 1 {
-		return false, nil
+		return NewServiceError(ErrCodeInternal, "expense not updated")
 	}
 
-	return true, nil
+	return nil
 }
 
 // DeleteExpenseByID deletes an expense by its ID if the user has access to the
@@ -217,19 +208,19 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, userID, expenseID, c
 //
 // It returns true if the expense was deleted, false if the expense does not
 // exist or the user does not have access to the book.
-func (s *ExpenseService) DeleteExpenseByID(ctx context.Context, userID, expenseID string) (bool, error) {
+func (s *ExpenseService) DeleteExpenseByID(ctx context.Context, userID, expenseID string) error {
 	// Get the expense to find the book ID
 	expenses, err := s.queries.GetExpenseByID(ctx, expenseID)
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to get expense: %v", err)
 	}
 
 	if len(expenses) > 1 {
-		return false, errors.New("multiple expenses found with the same ID")
+		return NewServiceError(ErrCodeInternal, "multiple expenses found with the same ID")
 	}
 
 	if len(expenses) < 1 {
-		return false, nil
+		return NewServiceError(ErrCodeNotFound, "expense not found or access denied")
 	}
 
 	expense := expenses[0]
@@ -240,87 +231,87 @@ func (s *ExpenseService) DeleteExpenseByID(ctx context.Context, userID, expenseI
 		UserID: userID,
 	})
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to check book access: %v", err)
 	}
 
 	if !canAccess {
-		return false, nil
+		return NewServiceError(ErrCodeNotFound, "expense not found or access denied")
 	}
 
 	// Proceed to delete the expense
 	rows, err := s.queries.DeleteExpenseByID(ctx, expenseID)
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to delete expense: %v", err)
 	}
 
 	if rows > 1 {
-		return false, errors.New("multiple expenses deleted with the same ID")
+		return NewServiceError(ErrCodeInternal, "multiple expenses deleted with the same ID")
 	}
 
 	if rows < 1 {
-		return false, nil
+		return NewServiceError(ErrCodeInternal, "expense not deleted")
 	}
 
-	return true, nil
+	return nil
 }
 
 // checkBookCategoryPaymentMethod checks if the user has access to the book,
 // category, and payment method.
 //
 // It also checks if the category and payment method belong to the book.
-func (s *ExpenseService) checkBookCategoryPaymentMethod(ctx context.Context, userID, bookID, categoryID, paymentMethodID string) (bool, error) {
+func (s *ExpenseService) checkBookCategoryPaymentMethod(ctx context.Context, userID, bookID, categoryID, paymentMethodID string) error {
 	// Check if the user has access to the book
 	canAccessBook, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
 		UserID: userID,
 	})
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to check book access: %v", err)
 	}
 
 	if !canAccessBook {
-		return false, nil
+		return NewServiceError(ErrCodeUnprocessable, "book not found or access denied")
 	}
 
 	// Check if the categories belongs to the book
 	categories, err := s.queries.GetCategoryByID(ctx, categoryID)
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to get category by ID: %v", err)
 	}
 
 	if len(categories) > 1 {
-		return false, errors.New("multiple categories found with the same ID")
+		return NewServiceError(ErrCodeInternal, "multiple categories found with the same ID")
 	}
 
 	if len(categories) < 1 {
-		return false, nil
+		return NewServiceError(ErrCodeUnprocessable, "category not found or access denied")
 	}
 
 	category := categories[0]
 
 	if category.BookID != bookID {
-		return false, nil
+		return NewServiceError(ErrCodeUnprocessable, "category does not belong to the book")
 	}
 
 	// Check if the payment method belongs to the book
 	paymentMethod, err := s.queries.GetPaymentMethodByID(ctx, paymentMethodID)
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to get payment method by ID: %v", err)
 	}
 
 	if len(paymentMethod) > 1 {
-		return false, errors.New("multiple payment methods found with the same ID")
+		return NewServiceError(ErrCodeInternal, "multiple payment methods found with the same ID")
 	}
 
 	if len(paymentMethod) < 1 {
-		return false, nil
+		return NewServiceError(ErrCodeUnprocessable, "payment method not found or access denied")
 	}
 
 	pm := paymentMethod[0]
 
 	if pm.BookID != bookID {
-		return false, nil
+		return NewServiceError(ErrCodeUnprocessable, "payment method does not belong to the book")
 	}
 
-	return true, nil
+	return nil
 }

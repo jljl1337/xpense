@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"time"
 
 	"github.com/jljl1337/xpense/internal/crypto"
@@ -26,20 +25,22 @@ func NewAuthService(queries *repository.Queries) *AuthService {
 func (a *AuthService) SignUp(ctx context.Context, username, password string) error {
 	passwordHash, err := crypto.HashPassword(password, env.PasswordBcryptCost)
 	if err != nil {
-		return err
+		return NewServiceErrorf(ErrCodeInternal, "failed to hash password: %v", err)
 	}
 
 	currentTime := generator.NowISO8601()
 
-	_, err = a.queries.CreateUser(ctx, repository.CreateUserParams{
+	if _, err = a.queries.CreateUser(ctx, repository.CreateUserParams{
 		ID:           generator.NewULID(),
 		Username:     username,
 		PasswordHash: passwordHash,
 		CreatedAt:    currentTime,
 		UpdatedAt:    currentTime,
-	})
+	}); err != nil {
+		return NewServiceErrorf(ErrCodeInternal, "failed to create user: %v", err)
+	}
 
-	return err
+	return nil
 }
 
 // GetPreSession creates a pre-session with no associated user.
@@ -62,7 +63,7 @@ func (a *AuthService) GetPreSession(ctx context.Context) (string, string, error)
 		CreatedAt: currentTime,
 		UpdatedAt: currentTime,
 	}); err != nil {
-		return "", "", err
+		return "", "", NewServiceErrorf(ErrCodeInternal, "failed to create pre-session: %v", err)
 	}
 
 	return sessionToken, CSRFToken, nil
@@ -79,59 +80,59 @@ func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSR
 	sessions, err := a.queries.GetSessionByToken(ctx, preSessionToken)
 
 	if err != nil {
-		return "", "", err
+		return "", "", NewServiceErrorf(ErrCodeInternal, "failed to get pre-session: %v", err)
 	}
 
 	if len(sessions) > 1 {
-		return "", "", errors.New("multiple sessions found with the same token")
+		return "", "", NewServiceError(ErrCodeInternal, "multiple sessions found with the same token")
 	}
 
 	if len(sessions) < 1 {
-		return "", "", nil
+		return "", "", NewServiceError(ErrCodeUnauthorized, "invalid credentials")
 	}
 
 	session := sessions[0]
 
 	// Check if the session is already associated with a user
 	if session.UserID.Valid {
-		return "", "", nil
+		return "", "", NewServiceError(ErrCodeUnauthorized, "invalid credentials")
 	}
 
 	// CSRF token does not match
 	if preSessionCSRFToken != "" && session.CsrfToken != preSessionCSRFToken {
-		return "", "", nil
+		return "", "", NewServiceError(ErrCodeUnauthorized, "invalid credentials")
 	}
 
 	// Session expired
 	now := time.Now()
 	nowISO8601 := format.TimeToISO8601(now)
 	if session.ExpiresAt < nowISO8601 {
-		return "", "", nil
+		return "", "", NewServiceError(ErrCodeUnauthorized, "session expired")
 	}
 
 	// Validate credentials
 	users, err := a.queries.GetUserByUsername(ctx, username)
 	if err != nil {
-		return "", "", err
+		return "", "", NewServiceErrorf(ErrCodeInternal, "failed to get user by username: %v", err)
 	}
 
 	if len(users) > 1 {
-		return "", "", errors.New("multiple users found with the same username")
+		return "", "", NewServiceError(ErrCodeInternal, "multiple users found with the same username")
 	}
 
 	if len(users) < 1 {
-		return "", "", nil
+		return "", "", NewServiceError(ErrCodeUnauthorized, "invalid credentials")
 	}
 
 	user := users[0]
 
 	if !crypto.CheckPasswordHash(password, user.PasswordHash) {
-		return "", "", nil
+		return "", "", NewServiceError(ErrCodeUnauthorized, "invalid credentials")
 	}
 
 	cost, err := crypto.Cost(user.PasswordHash)
 	if err != nil {
-		return "", "", err
+		return "", "", NewServiceErrorf(ErrCodeInternal, "failed to get password hash cost: %v", err)
 	}
 
 	// Rehash password if the cost is lower than the current standard
@@ -140,7 +141,7 @@ func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSR
 	if cost < env.PasswordBcryptCost {
 		newHash, err := crypto.HashPassword(password, env.PasswordBcryptCost)
 		if err != nil {
-			return "", "", err
+			return "", "", NewServiceErrorf(ErrCodeInternal, "failed to hash password: %v", err)
 		}
 
 		rows, err := a.queries.UpdateUserPassword(ctx, repository.UpdateUserPasswordParams{
@@ -149,11 +150,11 @@ func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSR
 			ID:           user.ID,
 		})
 		if err != nil {
-			return "", "", err
+			return "", "", NewServiceErrorf(ErrCodeInternal, "failed to update user password hash: %v", err)
 		} else if rows < 1 {
-			return "", "", errors.New("no user updated with the new password hash")
+			return "", "", NewServiceError(ErrCodeInternal, "no user updated with the new password hash")
 		} else if rows > 1 {
-			return "", "", errors.New("multiple users updated with the same ID")
+			return "", "", NewServiceError(ErrCodeInternal, "multiple users updated with the same ID")
 		}
 	}
 
@@ -169,11 +170,11 @@ func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSR
 		UpdatedAt: nowISO8601,
 	})
 	if err != nil {
-		return "", "", err
+		return "", "", NewServiceErrorf(ErrCodeInternal, "failed to update pre-session: %v", err)
 	} else if rows < 1 {
-		return "", "", errors.New("no pre-session updated")
+		return "", "", NewServiceError(ErrCodeInternal, "no pre-session updated")
 	} else if rows > 1 {
-		return "", "", errors.New("multiple pre-sessions updated with the same token")
+		return "", "", NewServiceError(ErrCodeInternal, "multiple pre-sessions updated with the same token")
 	}
 
 	// Create a new session associated with the user
@@ -187,17 +188,17 @@ func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSR
 		UpdatedAt: currentTime,
 	})
 	if err != nil {
-		return "", "", err
+		return "", "", NewServiceErrorf(ErrCodeInternal, "failed to create session: %v", err)
 	} else if rows < 1 {
-		return "", "", errors.New("no session created")
+		return "", "", NewServiceError(ErrCodeInternal, "no session created")
 	} else if rows > 1 {
-		return "", "", errors.New("multiple sessions created with the same ID")
+		return "", "", NewServiceError(ErrCodeInternal, "multiple sessions created with the same ID")
 	}
 
 	return sessionToken, CSRFToken, nil
 }
 
-// GetSessionUserIDAndRefreshSession validates the session token and CSRF token,
+// GetSessionUserIDAndRefreshSession validates the session token (and CSRF token),
 // refreshes the session expiration, and returns the associated user ID.
 //
 // If the session is invalid or expired, it returns an empty string and no error.
@@ -207,34 +208,34 @@ func (a *AuthService) GetSessionUserIDAndRefreshSession(ctx context.Context, ses
 	sessions, err := a.queries.GetSessionByToken(ctx, sessionToken)
 
 	if err != nil {
-		return "", err
+		return "", NewServiceErrorf(ErrCodeInternal, "failed to get session: %v", err)
 	}
 
 	if len(sessions) > 1 {
-		return "", errors.New("multiple sessions found with the same token")
+		return "", NewServiceError(ErrCodeInternal, "multiple sessions found with the same token")
 	}
 
 	if len(sessions) < 1 {
-		return "", nil
+		return "", NewServiceError(ErrCodeUnauthorized, "invalid session")
 	}
 
 	session := sessions[0]
 
 	// Check if the session is associated with a user
 	if !session.UserID.Valid {
-		return "", nil
+		return "", NewServiceError(ErrCodeUnauthorized, "invalid session")
 	}
 
 	// CSRF token does not match
 	if CSRFToken != "" && session.CsrfToken != CSRFToken {
-		return "", nil
+		return "", NewServiceError(ErrCodeUnauthorized, "invalid CSRF token")
 	}
 
 	// Session expired
 	now := time.Now()
 	nowISO8601 := format.TimeToISO8601(now)
 	if session.ExpiresAt < nowISO8601 {
-		return "", nil
+		return "", NewServiceError(ErrCodeUnauthorized, "session expired")
 	}
 
 	newExpiresAt := format.TimeToISO8601(now.Add(time.Duration(env.SessionLifetimeMin) * time.Minute))
@@ -244,11 +245,11 @@ func (a *AuthService) GetSessionUserIDAndRefreshSession(ctx context.Context, ses
 		UpdatedAt: nowISO8601,
 	})
 	if err != nil {
-		return "", err
+		return "", NewServiceErrorf(ErrCodeInternal, "failed to refresh session: %v", err)
 	}
 
 	if rows < 1 {
-		return "", errors.New("no session updated")
+		return "", NewServiceError(ErrCodeInternal, "no session updated")
 	}
 
 	return session.UserID.String, nil
@@ -262,11 +263,11 @@ func (a *AuthService) SignOut(ctx context.Context, sessionToken string) error {
 		UpdatedAt: now,
 	})
 	if err != nil {
-		return err
+		return NewServiceErrorf(ErrCodeInternal, "failed to sign out session: %v", err)
 	}
 
 	if rows < 1 {
-		return errors.New("no session updated")
+		return NewServiceError(ErrCodeInternal, "no session updated")
 	}
 
 	return nil
@@ -280,11 +281,11 @@ func (a *AuthService) SignOutAllSession(ctx context.Context, userID string) erro
 		UpdatedAt: now,
 	})
 	if err != nil {
-		return err
+		return NewServiceErrorf(ErrCodeInternal, "failed to sign out all sessions: %v", err)
 	}
 
 	if rows < 1 {
-		return errors.New("no sessions deleted")
+		return NewServiceError(ErrCodeInternal, "no sessions deleted")
 	}
 
 	return nil
@@ -294,15 +295,15 @@ func (a *AuthService) CSRFToken(ctx context.Context, sessionToken string) (strin
 	sessions, err := a.queries.GetSessionByToken(ctx, sessionToken)
 
 	if err != nil {
-		return "", err
+		return "", NewServiceErrorf(ErrCodeInternal, "failed to get session: %v", err)
 	}
 
 	if len(sessions) > 1 {
-		return "", errors.New("multiple sessions found with the same token")
+		return "", NewServiceError(ErrCodeInternal, "multiple sessions found with the same token")
 	}
 
 	if len(sessions) < 1 {
-		return "", nil
+		return "", NewServiceError(ErrCodeUnauthorized, "invalid session")
 	}
 
 	session := sessions[0]

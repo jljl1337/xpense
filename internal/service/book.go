@@ -2,8 +2,6 @@ package service
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 
 	"github.com/jljl1337/xpense/internal/generator"
 	"github.com/jljl1337/xpense/internal/repository"
@@ -31,7 +29,7 @@ func (s *BookService) CreateBook(ctx context.Context, userID, name, description 
 		UpdatedAt:   currentTime,
 	})
 	if err != nil {
-		return err
+		return NewServiceErrorf(ErrCodeInternal, "failed to create book: %v", err)
 	}
 
 	return nil
@@ -40,7 +38,7 @@ func (s *BookService) CreateBook(ctx context.Context, userID, name, description 
 func (s *BookService) GetBooksCountByUserID(ctx context.Context, userID string) (int64, error) {
 	countResult, err := s.queries.GetBooksCountByUserID(ctx, userID)
 	if err != nil {
-		return 0, err
+		return 0, NewServiceErrorf(ErrCodeInternal, "failed to get books count: %v", err)
 	}
 
 	return countResult, nil
@@ -58,7 +56,7 @@ func (s *BookService) GetBooksByUserID(ctx context.Context, userID string, page 
 		Limit:  limit,
 	})
 	if err != nil {
-		return nil, err
+		return nil, NewServiceErrorf(ErrCodeInternal, "failed to get books by user ID: %v", err)
 	}
 
 	return books, nil
@@ -74,25 +72,25 @@ func (s *BookService) GetBookByID(ctx context.Context, userID, bookID string) (*
 		UserID: userID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, NewServiceErrorf(ErrCodeInternal, "failed to check book access: %v", err)
 	}
 
 	if !canAccess {
-		return nil, nil
+		return nil, NewServiceErrorf(ErrCodeNotFound, "book not found or access denied")
 	}
 
 	// Fetch the book details
 	books, err := s.queries.GetBookByID(ctx, bookID)
 	if err != nil {
-		return nil, err
+		return nil, NewServiceErrorf(ErrCodeInternal, "failed to get book by ID: %v", err)
 	}
 
 	if len(books) > 1 {
-		return nil, errors.New("multiple books found with the same ID")
+		return nil, NewServiceError(ErrCodeInternal, "multiple books found with the same ID")
 	}
 
 	if len(books) < 1 {
-		return nil, sql.ErrNoRows
+		return nil, NewServiceErrorf(ErrCodeNotFound, "book not found or access denied")
 	}
 
 	book := books[0]
@@ -104,18 +102,18 @@ func (s *BookService) GetBookByID(ctx context.Context, userID, bookID string) (*
 //
 // It returns true if the update was successful, false if the book does not exist
 // or the user does not have access to it.
-func (s *BookService) UpdateBookByID(ctx context.Context, userID, bookID, name, description string) (bool, error) {
+func (s *BookService) UpdateBookByID(ctx context.Context, userID, bookID, name, description string) error {
 	// Check if the user has access to the book
 	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
 		UserID: userID,
 	})
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to check book access: %v", err)
 	}
 
 	if !canAccess {
-		return false, nil
+		return NewServiceError(ErrCodeNotFound, "book not found or access denied")
 	}
 
 	// Proceed to update the book
@@ -126,51 +124,51 @@ func (s *BookService) UpdateBookByID(ctx context.Context, userID, bookID, name, 
 		UpdatedAt:   generator.NowISO8601(),
 	})
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to update book: %v", err)
 	}
 
 	if rows > 1 {
-		return false, errors.New("multiple books updated, data integrity issue")
+		return NewServiceError(ErrCodeInternal, "multiple books updated, data integrity issue")
 	}
 
 	if rows < 1 {
-		return false, nil
+		return NewServiceError(ErrCodeInternal, "no book updated")
 	}
 
-	return true, nil
+	return nil
 }
 
 // DeleteBookByID deletes a book by its ID if the user has access to it.
 //
 // It returns true if the deletion was successful, false if the book does not exist
 // or the user does not have access to it.
-func (s *BookService) DeleteBookByID(ctx context.Context, userID, bookID string) (bool, error) {
+func (s *BookService) DeleteBookByID(ctx context.Context, userID, bookID string) error {
 	// Check if the user has access to the book
 	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
 		UserID: userID,
 	})
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to check book access: %v", err)
 	}
 
 	if !canAccess {
-		return false, nil
+		return NewServiceError(ErrCodeNotFound, "book not found or access denied")
 	}
 
 	// Proceed to delete the book
 	rows, err := s.queries.DeleteBookByID(ctx, bookID)
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to delete book: %v", err)
 	}
 
 	if rows > 1 {
-		return false, errors.New("multiple books deleted, data integrity issue")
+		return NewServiceError(ErrCodeInternal, "multiple books deleted, data integrity issue")
 	}
 
 	if rows < 1 {
-		return false, errors.New("no book deleted")
+		return NewServiceError(ErrCodeInternal, "no book deleted")
 	}
 
-	return true, nil
+	return nil
 }

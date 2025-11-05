@@ -3,10 +3,10 @@ package middleware
 import (
 	"context"
 	"errors"
-	"log/slog"
 	"net/http"
 
 	"github.com/jljl1337/xpense/internal/env"
+	"github.com/jljl1337/xpense/internal/http/common"
 )
 
 type contextKey string
@@ -41,12 +41,7 @@ func (m *MiddlewareProvider) Auth() Middleware {
 			// Validate session token (and CSRF token)
 			userID, err := m.authService.GetSessionUserIDAndRefreshSession(r.Context(), cookie.Value, CSRFToken)
 			if err != nil {
-				slog.Error("Failed to check session: " + err.Error())
-				return
-			}
-
-			if userID == "" {
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				common.WriteErrorResponse(w, err)
 				return
 			}
 
