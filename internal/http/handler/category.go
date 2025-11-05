@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/jljl1337/xpense/internal/http/common"
 	"github.com/jljl1337/xpense/internal/http/middleware"
 	"github.com/jljl1337/xpense/internal/service"
 )
@@ -56,18 +57,13 @@ func (h *CategoryHandler) createCategory(w http.ResponseWriter, r *http.Request)
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	ok, err := h.categoryService.CreateCategory(ctx, userID, req.BookID, req.Name, req.Description)
+	err = h.categoryService.CreateCategory(ctx, userID, req.BookID, req.Name, req.Description)
 	if err != nil {
-		http.Error(w, "Failed to create category", http.StatusInternalServerError)
-		return
-	}
-
-	if !ok {
-		http.Error(w, "Book not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -89,18 +85,13 @@ func (h *CategoryHandler) getCategoriesByBookID(w http.ResponseWriter, r *http.R
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	categories, err := h.categoryService.GetCategoriesByBookID(r.Context(), userID, bookID)
 	if err != nil {
-		http.Error(w, "Failed to get categories", http.StatusInternalServerError)
-		return
-	}
-
-	if categories == nil {
-		http.Error(w, "Book not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -122,18 +113,13 @@ func (h *CategoryHandler) getCategoryByID(w http.ResponseWriter, r *http.Request
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	category, err := h.categoryService.GetCategoryByID(r.Context(), userID, categoryID)
 	if err != nil {
-		http.Error(w, "Failed to get category", http.StatusInternalServerError)
-		return
-	}
-
-	if category == nil {
-		http.Error(w, "Category not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -166,18 +152,13 @@ func (h *CategoryHandler) updateCategory(w http.ResponseWriter, r *http.Request)
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	ok, err := h.categoryService.UpdateCategoryByID(ctx, userID, categoryID, req.Name, req.Description)
+	err = h.categoryService.UpdateCategoryByID(ctx, userID, categoryID, req.Name, req.Description)
 	if err != nil {
-		http.Error(w, "Failed to update category", http.StatusInternalServerError)
-		return
-	}
-
-	if !ok {
-		http.Error(w, "Category not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -199,18 +180,13 @@ func (h *CategoryHandler) deleteCategory(w http.ResponseWriter, r *http.Request)
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	ok, err := h.categoryService.DeleteCategoryByID(ctx, userID, categoryID)
+	err = h.categoryService.DeleteCategoryByID(ctx, userID, categoryID)
 	if err != nil {
-		http.Error(w, "Failed to delete category", http.StatusInternalServerError)
-		return
-	}
-
-	if !ok {
-		http.Error(w, "Category not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 

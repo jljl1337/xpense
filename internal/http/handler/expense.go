@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jljl1337/xpense/internal/env"
+	"github.com/jljl1337/xpense/internal/http/common"
 	"github.com/jljl1337/xpense/internal/http/middleware"
 	"github.com/jljl1337/xpense/internal/service"
 )
@@ -71,19 +72,13 @@ func (h *ExpenseHandler) createExpense(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	created, err := h.expenseService.CreateExpense(ctx, userID, req.BookID, req.CategoryID, req.PaymentMethodID, req.Date, req.Amount, req.Remark)
+	err = h.expenseService.CreateExpense(ctx, userID, req.BookID, req.CategoryID, req.PaymentMethodID, req.Date, req.Amount, req.Remark)
 	if err != nil {
-		slog.Error("Error creating expense: " + err.Error())
-		http.Error(w, "Failed to create expense", http.StatusInternalServerError)
-		return
-	}
-
-	if !created {
-		http.Error(w, "Failed to create expense. Make sure you have access to the book, category and payment method, and that the category and payment method belong to the book.", http.StatusBadRequest)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -108,14 +103,13 @@ func (h *ExpenseHandler) getExpensesCountByBookID(w http.ResponseWriter, r *http
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	count, err := h.expenseService.GetExpensesCountByBookID(r.Context(), userID, bookID, categoryID, paymentMethodID, remark)
 	if err != nil {
-		slog.Error("Error getting expenses count: " + err.Error())
-		http.Error(w, "Failed to get expenses count", http.StatusInternalServerError)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -150,19 +144,13 @@ func (h *ExpenseHandler) getExpensesByBookID(w http.ResponseWriter, r *http.Requ
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	expenses, err := h.expenseService.GetExpensesByBookID(r.Context(), userID, bookID, categoryID, paymentMethodID, remark, page, pageSize)
 	if err != nil {
-		slog.Error("Error getting expenses: " + err.Error())
-		http.Error(w, "Failed to get expenses", http.StatusInternalServerError)
-		return
-	}
-
-	if expenses == nil {
-		http.Error(w, "Book not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -184,19 +172,13 @@ func (h *ExpenseHandler) getExpenseByID(w http.ResponseWriter, r *http.Request) 
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	expense, err := h.expenseService.GetExpenseByID(r.Context(), userID, expenseID)
 	if err != nil {
-		slog.Error("Error getting expense: " + err.Error())
-		http.Error(w, "Failed to get expense", http.StatusInternalServerError)
-		return
-	}
-
-	if expense == nil {
-		http.Error(w, "Expense not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -234,19 +216,13 @@ func (h *ExpenseHandler) updateExpense(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	updated, err := h.expenseService.UpdateExpense(ctx, userID, expenseID, req.CategoryID, req.PaymentMethodID, req.Date, req.Amount, req.Remark)
+	err = h.expenseService.UpdateExpense(ctx, userID, expenseID, req.CategoryID, req.PaymentMethodID, req.Date, req.Amount, req.Remark)
 	if err != nil {
-		slog.Error("Error updating expense: " + err.Error())
-		http.Error(w, "Failed to update expense", http.StatusInternalServerError)
-		return
-	}
-
-	if !updated {
-		http.Error(w, "Failed to update expense. Make sure you have access to the book, category and payment method, and that the category and payment method belong to the book.", http.StatusBadRequest)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -268,19 +244,13 @@ func (h *ExpenseHandler) deleteExpense(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	deleted, err := h.expenseService.DeleteExpenseByID(r.Context(), userID, expenseID)
+	err = h.expenseService.DeleteExpenseByID(r.Context(), userID, expenseID)
 	if err != nil {
-		slog.Error("Error deleting expense: " + err.Error())
-		http.Error(w, "Failed to delete expense", http.StatusInternalServerError)
-		return
-	}
-
-	if !deleted {
-		http.Error(w, "Expense not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 

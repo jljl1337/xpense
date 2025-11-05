@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/jljl1337/xpense/internal/http/common"
 	"github.com/jljl1337/xpense/internal/http/middleware"
 	"github.com/jljl1337/xpense/internal/service"
 )
@@ -56,18 +57,13 @@ func (h *PaymentMethodHandler) createPaymentMethod(w http.ResponseWriter, r *htt
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	ok, err := h.paymentMethodService.CreatePaymentMethod(ctx, userID, req.BookID, req.Name, req.Description)
+	err = h.paymentMethodService.CreatePaymentMethod(ctx, userID, req.BookID, req.Name, req.Description)
 	if err != nil {
-		http.Error(w, "Failed to create payment method", http.StatusInternalServerError)
-		return
-	}
-
-	if !ok {
-		http.Error(w, "Book not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -89,18 +85,13 @@ func (h *PaymentMethodHandler) getPaymentMethodsByBookID(w http.ResponseWriter, 
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	paymentMethods, err := h.paymentMethodService.GetPaymentMethodsByBookID(r.Context(), userID, bookID)
 	if err != nil {
-		http.Error(w, "Failed to get payment methods", http.StatusInternalServerError)
-		return
-	}
-
-	if paymentMethods == nil {
-		http.Error(w, "Book not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -122,18 +113,13 @@ func (h *PaymentMethodHandler) getPaymentMethodByID(w http.ResponseWriter, r *ht
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	paymentMethod, err := h.paymentMethodService.GetPaymentMethodByID(r.Context(), userID, paymentMethodID)
 	if err != nil {
-		http.Error(w, "Failed to get payment method", http.StatusInternalServerError)
-		return
-	}
-
-	if paymentMethod == nil {
-		http.Error(w, "Payment method not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -166,18 +152,13 @@ func (h *PaymentMethodHandler) updatePaymentMethod(w http.ResponseWriter, r *htt
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	ok, err := h.paymentMethodService.UpdatePaymentMethodByID(ctx, userID, paymentMethodID, req.Name, req.Description)
+	err = h.paymentMethodService.UpdatePaymentMethodByID(ctx, userID, paymentMethodID, req.Name, req.Description)
 	if err != nil {
-		http.Error(w, "Failed to update payment method", http.StatusInternalServerError)
-		return
-	}
-
-	if !ok {
-		http.Error(w, "Payment method not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -199,18 +180,13 @@ func (h *PaymentMethodHandler) deletePaymentMethod(w http.ResponseWriter, r *htt
 	userID, err := middleware.GetUserIDFromContext(ctx)
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	ok, err := h.paymentMethodService.DeletePaymentMethodByID(ctx, userID, paymentMethodID)
+	err = h.paymentMethodService.DeletePaymentMethodByID(ctx, userID, paymentMethodID)
 	if err != nil {
-		http.Error(w, "Failed to delete payment method", http.StatusInternalServerError)
-		return
-	}
-
-	if !ok {
-		http.Error(w, "Payment method not found or access denied", http.StatusNotFound)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 

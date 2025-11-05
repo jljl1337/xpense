@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/jljl1337/xpense/internal/generator"
 	"github.com/jljl1337/xpense/internal/repository"
@@ -19,20 +18,18 @@ func NewPaymentMethodService(queries *repository.Queries) *PaymentMethodService 
 }
 
 // CreatePaymentMethod creates a new payment method if the user has access to the book.
-//
-// It returns true if the payment method was created, false if the user has no access to the book
-func (s *PaymentMethodService) CreatePaymentMethod(ctx context.Context, userID, bookID, name, description string) (bool, error) {
+func (s *PaymentMethodService) CreatePaymentMethod(ctx context.Context, userID, bookID, name, description string) error {
 	// Check if the user has access to the book
 	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
 		UserID: userID,
 	})
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to check book access: %v", err)
 	}
 
 	if !canAccess {
-		return false, nil
+		return NewServiceError(ErrCodeUnprocessable, "book not found or access denied")
 	}
 
 	currentTime := generator.NowISO8601()
@@ -46,17 +43,15 @@ func (s *PaymentMethodService) CreatePaymentMethod(ctx context.Context, userID, 
 		UpdatedAt:   currentTime,
 	})
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to create payment method: %v", err)
 	}
 
-	return true, nil
+	return nil
 }
 
 // GetPaymentMethodsByBookID retrieves all payment methods for a specific book.
 //
 // It returns an empty slice if no payment methods are found in the book.
-//
-// It returns nil if the user has no access to the book.
 func (s *PaymentMethodService) GetPaymentMethodsByBookID(ctx context.Context, userID, bookID string) ([]repository.PaymentMethod, error) {
 	// Check if the user has access to the book
 	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
@@ -64,38 +59,35 @@ func (s *PaymentMethodService) GetPaymentMethodsByBookID(ctx context.Context, us
 		UserID: userID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, NewServiceErrorf(ErrCodeInternal, "failed to check book access: %v", err)
 	}
 
 	if !canAccess {
-		return nil, nil
+		return nil, NewServiceError(ErrCodeUnprocessable, "book not found or access denied")
 	}
 
 	paymentMethods, err := s.queries.GetPaymentMethodsByBookID(ctx, bookID)
 	if err != nil {
-		return nil, err
+		return nil, NewServiceErrorf(ErrCodeInternal, "failed to get payment methods by book ID: %v", err)
 	}
 
 	return paymentMethods, nil
 }
 
 // GetPaymentMethodByID retrieves a payment method by its ID if the user has access to the book.
-//
-// It returns nil if the payment method does not exist or the user does not have
-// access to the book.
 func (s *PaymentMethodService) GetPaymentMethodByID(ctx context.Context, userID, paymentMethodID string) (*repository.PaymentMethod, error) {
 	// Get the payment method to find the book ID
 	paymentMethods, err := s.queries.GetPaymentMethodByID(ctx, paymentMethodID)
 	if err != nil {
-		return nil, err
+		return nil, NewServiceErrorf(ErrCodeInternal, "failed to get payment method: %v", err)
 	}
 
 	if len(paymentMethods) > 1 {
-		return nil, errors.New("multiple payment methods found with the same ID")
+		return nil, NewServiceError(ErrCodeInternal, "multiple payment methods found with the same ID")
 	}
 
 	if len(paymentMethods) < 1 {
-		return nil, nil
+		return nil, NewServiceError(ErrCodeNotFound, "payment method not found or access denied")
 	}
 
 	paymentMethod := paymentMethods[0]
@@ -106,32 +98,29 @@ func (s *PaymentMethodService) GetPaymentMethodByID(ctx context.Context, userID,
 		UserID: userID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, NewServiceErrorf(ErrCodeInternal, "failed to check book access: %v", err)
 	}
 
 	if !canAccess {
-		return nil, nil
+		return nil, NewServiceError(ErrCodeNotFound, "book not found or access denied")
 	}
 
 	return &paymentMethod, nil
 }
 
 // UpdatePaymentMethodByID updates a payment method if the user has access to the book.
-//
-// It returns true if the payment method was updated, false if the user has no access
-// to the payment method or the payment method does not exist
-func (s *PaymentMethodService) UpdatePaymentMethodByID(ctx context.Context, userID, paymentMethodID, name, description string) (bool, error) {
+func (s *PaymentMethodService) UpdatePaymentMethodByID(ctx context.Context, userID, paymentMethodID, name, description string) error {
 	// Check if the user has access to the payment method
 	canAccess, err := s.queries.CheckPaymentMethodAccess(ctx, repository.CheckPaymentMethodAccessParams{
 		PaymentMethodID: paymentMethodID,
 		UserID:          userID,
 	})
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to check payment method access: %v", err)
 	}
 
 	if !canAccess {
-		return false, nil
+		return NewServiceError(ErrCodeNotFound, "payment method not found or access denied")
 	}
 
 	rows, err := s.queries.UpdatePaymentMethodByID(ctx, repository.UpdatePaymentMethodByIDParams{
@@ -141,50 +130,47 @@ func (s *PaymentMethodService) UpdatePaymentMethodByID(ctx context.Context, user
 		UpdatedAt:   generator.NowISO8601(),
 	})
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to update payment method: %v", err)
 	}
 
 	if rows > 1 {
-		return false, errors.New("multiple payment methods updated, data integrity issue")
+		return NewServiceError(ErrCodeInternal, "multiple payment methods updated, data integrity issue")
 	}
 
 	if rows < 1 {
-		return false, nil
+		return NewServiceError(ErrCodeInternal, "no payment method updated")
 	}
 
-	return true, nil
+	return nil
 }
 
 // DeletePaymentMethodByID deletes a payment method if the user has access to the book.
-//
-// It returns true if the payment method was deleted, false if the user has no access
-// to the payment method or the payment method does not exist
-func (s *PaymentMethodService) DeletePaymentMethodByID(ctx context.Context, userID, paymentMethodID string) (bool, error) {
+func (s *PaymentMethodService) DeletePaymentMethodByID(ctx context.Context, userID, paymentMethodID string) error {
 	// Check if the user has access to the payment method
 	canAccess, err := s.queries.CheckPaymentMethodAccess(ctx, repository.CheckPaymentMethodAccessParams{
 		PaymentMethodID: paymentMethodID,
 		UserID:          userID,
 	})
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to check payment method access: %v", err)
 	}
 
 	if !canAccess {
-		return false, nil
+		return NewServiceError(ErrCodeNotFound, "payment method not found or access denied")
 	}
 
 	rows, err := s.queries.DeletePaymentMethodByID(ctx, paymentMethodID)
 	if err != nil {
-		return false, err
+		return NewServiceErrorf(ErrCodeInternal, "failed to delete payment method: %v", err)
 	}
 
 	if rows > 1 {
-		return false, errors.New("multiple payment methods deleted, data integrity issue")
+		return NewServiceError(ErrCodeInternal, "multiple payment methods deleted, data integrity issue")
 	}
 
 	if rows < 1 {
-		return false, nil
+		return NewServiceError(ErrCodeInternal, "no payment method deleted")
 	}
 
-	return true, nil
+	return nil
 }

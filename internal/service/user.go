@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/jljl1337/xpense/internal/crypto"
 	"github.com/jljl1337/xpense/internal/env"
@@ -23,11 +22,11 @@ func NewUserService(queries *repository.Queries) *UserService {
 func (s *UserService) UserExistsByUsername(ctx context.Context, username string) (bool, error) {
 	users, err := s.queries.GetUserByUsername(ctx, username)
 	if err != nil {
-		return false, err
+		return false, NewServiceErrorf(ErrCodeInternal, "failed to get user by username: %v", err)
 	}
 
 	if len(users) > 1 {
-		return false, errors.New("multiple users found with the same username")
+		return false, NewServiceError(ErrCodeInternal, "multiple users found with the same username")
 	}
 
 	return len(users) == 1, nil
@@ -36,15 +35,15 @@ func (s *UserService) UserExistsByUsername(ctx context.Context, username string)
 func (s *UserService) GetUserByID(ctx context.Context, userID string) (*repository.User, error) {
 	users, err := s.queries.GetUserByID(ctx, userID)
 	if err != nil {
-		return nil, err
+		return nil, NewServiceErrorf(ErrCodeInternal, "failed to get user: %v", err)
 	}
 
 	if len(users) > 1 {
-		return nil, errors.New("multiple users found with the same ID")
+		return nil, NewServiceError(ErrCodeInternal, "multiple users found with the same ID")
 	}
 
 	if len(users) < 1 {
-		return nil, nil
+		return nil, NewServiceError(ErrCodeNotFound, "user not found")
 	}
 
 	return &users[0], nil
@@ -57,14 +56,14 @@ func (s *UserService) UpdateUsernameByID(ctx context.Context, userID, newUsernam
 		UpdatedAt: generator.NowISO8601(),
 	})
 	if err != nil {
-		return err
+		return NewServiceErrorf(ErrCodeInternal, "failed to update username: %v", err)
 	}
 
 	if rows < 1 {
-		return errors.New("no user updated")
+		return NewServiceError(ErrCodeInternal, "no user updated")
 	}
 	if rows > 1 {
-		return errors.New("multiple users updated")
+		return NewServiceError(ErrCodeInternal, "multiple users updated")
 	}
 
 	return nil
@@ -74,27 +73,27 @@ func (s *UserService) UpdatePasswordByID(ctx context.Context, userID, oldPasswor
 	// Validate credentials
 	users, err := s.queries.GetUserByID(ctx, userID)
 	if err != nil {
-		return err
+		return NewServiceErrorf(ErrCodeInternal, "failed to get user: %v", err)
 	}
 
 	if len(users) > 1 {
-		return errors.New("multiple users found with the same ID")
+		return NewServiceError(ErrCodeInternal, "multiple users found with the same ID")
 	}
 
 	if len(users) < 1 {
-		return errors.New("user not found")
+		return NewServiceError(ErrCodeNotFound, "user not found")
 	}
 
 	user := users[0]
 
 	if !crypto.CheckPasswordHash(oldPassword, user.PasswordHash) {
-		return errors.New("old password is incorrect")
+		return NewServiceError(ErrCodeUnprocessable, "old password is incorrect")
 	}
 
 	// Update password hash
 	passwordHash, err := crypto.HashPassword(newPassword, env.PasswordBcryptCost)
 	if err != nil {
-		return err
+		return NewServiceErrorf(ErrCodeInternal, "failed to hash password: %v", err)
 	}
 
 	rows, err := s.queries.UpdateUserPassword(ctx, repository.UpdateUserPasswordParams{
@@ -103,14 +102,14 @@ func (s *UserService) UpdatePasswordByID(ctx context.Context, userID, oldPasswor
 		ID:           userID,
 	})
 	if err != nil {
-		return err
+		return NewServiceErrorf(ErrCodeInternal, "failed to update password: %v", err)
 	}
 
 	if rows < 1 {
-		return errors.New("no user updated")
+		return NewServiceError(ErrCodeInternal, "no user updated")
 	}
 	if rows > 1 {
-		return errors.New("multiple users updated")
+		return NewServiceError(ErrCodeInternal, "multiple users updated")
 	}
 
 	return nil
@@ -119,11 +118,11 @@ func (s *UserService) UpdatePasswordByID(ctx context.Context, userID, oldPasswor
 func (s *UserService) DeleteUserByID(ctx context.Context, userID string) error {
 	rows, err := s.queries.DeleteUser(ctx, userID)
 	if err != nil {
-		return err
+		return NewServiceErrorf(ErrCodeInternal, "failed to delete user: %v", err)
 	}
 
 	if rows < 1 {
-		return errors.New("no user deleted")
+		return NewServiceError(ErrCodeInternal, "no user deleted")
 	}
 
 	return nil

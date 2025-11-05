@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/jljl1337/xpense/internal/http/common"
 	"github.com/jljl1337/xpense/internal/http/middleware"
 	"github.com/jljl1337/xpense/internal/service"
 )
@@ -48,8 +49,7 @@ func (h *UserHandler) getUsernameExist(w http.ResponseWriter, r *http.Request) {
 	// Process the request
 	exists, err := h.userService.UserExistsByUsername(r.Context(), username)
 	if err != nil {
-		slog.Error("Error checking username existence: " + err.Error())
-		http.Error(w, "Failed to check username existence", http.StatusInternalServerError)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -64,14 +64,13 @@ func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	user, err := h.userService.GetUserByID(r.Context(), userID)
-	if user == nil || err != nil {
-		slog.Error("Failed to get user with ID: " + userID)
-		http.Error(w, "Failed to get the current user", http.StatusInternalServerError)
+	if err != nil {
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -103,13 +102,12 @@ func (h *UserHandler) updateUsername(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to update the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	if err := h.userService.UpdateUsernameByID(r.Context(), userID, req.NewUsername); err != nil {
-		slog.Error("Error updating username for user with ID: " + userID + " - " + err.Error())
-		http.Error(w, "Failed to update the current user", http.StatusInternalServerError)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -137,13 +135,12 @@ func (h *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to update the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	if err := h.userService.UpdatePasswordByID(r.Context(), userID, req.OldPassword, req.NewPassword); err != nil {
-		slog.Error("Error updating password for user with ID: " + userID + " - " + err.Error())
-		http.Error(w, "Failed to update the current user", http.StatusInternalServerError)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
@@ -157,13 +154,12 @@ func (h *UserHandler) deleteCurrentUser(w http.ResponseWriter, r *http.Request) 
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		slog.Error("Error getting user ID from context")
-		http.Error(w, "Failed to delete the current user", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	if err := h.userService.DeleteUserByID(r.Context(), userID); err != nil {
-		slog.Error("Error deleting user with ID: " + userID + " - " + err.Error())
-		http.Error(w, "Failed to delete the current user", http.StatusInternalServerError)
+		common.WriteErrorResponse(w, err)
 		return
 	}
 
