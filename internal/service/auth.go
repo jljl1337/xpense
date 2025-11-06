@@ -23,6 +23,19 @@ func NewAuthService(queries *repository.Queries) *AuthService {
 }
 
 func (a *AuthService) SignUp(ctx context.Context, username, password string) error {
+	users, err := a.queries.GetUserByUsername(ctx, username)
+	if err != nil {
+		return NewServiceErrorf(ErrCodeInternal, "failed to get user by username: %v", err)
+	}
+
+	if len(users) > 1 {
+		return NewServiceError(ErrCodeInternal, "multiple users found with the same username")
+	}
+
+	if len(users) > 0 {
+		return NewServiceError(ErrCodeConflict, "username already exists")
+	}
+
 	passwordHash, err := crypto.HashPassword(password, env.PasswordBcryptCost)
 	if err != nil {
 		return NewServiceErrorf(ErrCodeInternal, "failed to hash password: %v", err)
