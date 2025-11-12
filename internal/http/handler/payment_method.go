@@ -7,7 +7,6 @@ import (
 
 	"github.com/jljl1337/xpense/internal/http/common"
 	"github.com/jljl1337/xpense/internal/http/middleware"
-	"github.com/jljl1337/xpense/internal/service"
 )
 
 type createPaymentMethodRequest struct {
@@ -21,17 +20,7 @@ type updatePaymentMethodRequest struct {
 	Description string `json:"description"`
 }
 
-type PaymentMethodHandler struct {
-	paymentMethodService *service.PaymentMethodService
-}
-
-func NewPaymentMethodHandler(paymentMethodService *service.PaymentMethodService) *PaymentMethodHandler {
-	return &PaymentMethodHandler{
-		paymentMethodService: paymentMethodService,
-	}
-}
-
-func (h *PaymentMethodHandler) RegisterRoutes(mux *http.ServeMux) {
+func (h *EndpointHandler) registerPaymentMethodRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /payment-methods", h.createPaymentMethod)
 	mux.HandleFunc("GET /payment-methods", h.getPaymentMethodsByBookID)
 	mux.HandleFunc("GET /payment-methods/{id}", h.getPaymentMethodByID)
@@ -39,7 +28,7 @@ func (h *PaymentMethodHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("DELETE /payment-methods/{id}", h.deletePaymentMethod)
 }
 
-func (h *PaymentMethodHandler) createPaymentMethod(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) createPaymentMethod(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	var req createPaymentMethodRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -61,7 +50,7 @@ func (h *PaymentMethodHandler) createPaymentMethod(w http.ResponseWriter, r *htt
 		return
 	}
 
-	err = h.paymentMethodService.CreatePaymentMethod(ctx, userID, req.BookID, req.Name, req.Description)
+	err = h.service.CreatePaymentMethod(ctx, userID, req.BookID, req.Name, req.Description)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -72,7 +61,7 @@ func (h *PaymentMethodHandler) createPaymentMethod(w http.ResponseWriter, r *htt
 	w.Write([]byte("Payment method created successfully"))
 }
 
-func (h *PaymentMethodHandler) getPaymentMethodsByBookID(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) getPaymentMethodsByBookID(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	bookID := r.URL.Query().Get("book-id")
 	if bookID == "" {
@@ -89,7 +78,7 @@ func (h *PaymentMethodHandler) getPaymentMethodsByBookID(w http.ResponseWriter, 
 		return
 	}
 
-	paymentMethods, err := h.paymentMethodService.GetPaymentMethodsByBookID(r.Context(), userID, bookID)
+	paymentMethods, err := h.service.GetPaymentMethodsByBookID(r.Context(), userID, bookID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -100,7 +89,7 @@ func (h *PaymentMethodHandler) getPaymentMethodsByBookID(w http.ResponseWriter, 
 	json.NewEncoder(w).Encode(paymentMethods)
 }
 
-func (h *PaymentMethodHandler) getPaymentMethodByID(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) getPaymentMethodByID(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	paymentMethodID := r.PathValue("id")
 	if paymentMethodID == "" {
@@ -117,7 +106,7 @@ func (h *PaymentMethodHandler) getPaymentMethodByID(w http.ResponseWriter, r *ht
 		return
 	}
 
-	paymentMethod, err := h.paymentMethodService.GetPaymentMethodByID(r.Context(), userID, paymentMethodID)
+	paymentMethod, err := h.service.GetPaymentMethodByID(r.Context(), userID, paymentMethodID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -128,7 +117,7 @@ func (h *PaymentMethodHandler) getPaymentMethodByID(w http.ResponseWriter, r *ht
 	json.NewEncoder(w).Encode(paymentMethod)
 }
 
-func (h *PaymentMethodHandler) updatePaymentMethod(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) updatePaymentMethod(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	var req updatePaymentMethodRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -156,7 +145,7 @@ func (h *PaymentMethodHandler) updatePaymentMethod(w http.ResponseWriter, r *htt
 		return
 	}
 
-	err = h.paymentMethodService.UpdatePaymentMethodByID(ctx, userID, paymentMethodID, req.Name, req.Description)
+	err = h.service.UpdatePaymentMethodByID(ctx, userID, paymentMethodID, req.Name, req.Description)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -167,7 +156,7 @@ func (h *PaymentMethodHandler) updatePaymentMethod(w http.ResponseWriter, r *htt
 	w.Write([]byte("Payment method updated successfully"))
 }
 
-func (h *PaymentMethodHandler) deletePaymentMethod(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) deletePaymentMethod(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	paymentMethodID := r.PathValue("id")
 	if paymentMethodID == "" {
@@ -184,7 +173,7 @@ func (h *PaymentMethodHandler) deletePaymentMethod(w http.ResponseWriter, r *htt
 		return
 	}
 
-	err = h.paymentMethodService.DeletePaymentMethodByID(ctx, userID, paymentMethodID)
+	err = h.service.DeletePaymentMethodByID(ctx, userID, paymentMethodID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return

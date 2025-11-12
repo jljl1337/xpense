@@ -7,7 +7,6 @@ import (
 
 	"github.com/jljl1337/xpense/internal/http/common"
 	"github.com/jljl1337/xpense/internal/http/middleware"
-	"github.com/jljl1337/xpense/internal/service"
 )
 
 type createCategoryRequest struct {
@@ -21,17 +20,7 @@ type updateCategoryRequest struct {
 	Description string `json:"description"`
 }
 
-type CategoryHandler struct {
-	categoryService *service.CategoryService
-}
-
-func NewCategoryHandler(categoryService *service.CategoryService) *CategoryHandler {
-	return &CategoryHandler{
-		categoryService: categoryService,
-	}
-}
-
-func (h *CategoryHandler) RegisterRoutes(mux *http.ServeMux) {
+func (h *EndpointHandler) registerCategoryRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /categories", h.createCategory)
 	mux.HandleFunc("GET /categories", h.getCategoriesByBookID)
 	mux.HandleFunc("GET /categories/{id}", h.getCategoryByID)
@@ -39,7 +28,7 @@ func (h *CategoryHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("DELETE /categories/{id}", h.deleteCategory)
 }
 
-func (h *CategoryHandler) createCategory(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) createCategory(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	var req createCategoryRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -61,7 +50,7 @@ func (h *CategoryHandler) createCategory(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = h.categoryService.CreateCategory(ctx, userID, req.BookID, req.Name, req.Description)
+	err = h.service.CreateCategory(ctx, userID, req.BookID, req.Name, req.Description)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -72,7 +61,7 @@ func (h *CategoryHandler) createCategory(w http.ResponseWriter, r *http.Request)
 	w.Write([]byte("Category created successfully"))
 }
 
-func (h *CategoryHandler) getCategoriesByBookID(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) getCategoriesByBookID(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	bookID := r.URL.Query().Get("book-id")
 	if bookID == "" {
@@ -89,7 +78,7 @@ func (h *CategoryHandler) getCategoriesByBookID(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	categories, err := h.categoryService.GetCategoriesByBookID(r.Context(), userID, bookID)
+	categories, err := h.service.GetCategoriesByBookID(r.Context(), userID, bookID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -100,7 +89,7 @@ func (h *CategoryHandler) getCategoriesByBookID(w http.ResponseWriter, r *http.R
 	json.NewEncoder(w).Encode(categories)
 }
 
-func (h *CategoryHandler) getCategoryByID(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) getCategoryByID(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	categoryID := r.PathValue("id")
 	if categoryID == "" {
@@ -117,7 +106,7 @@ func (h *CategoryHandler) getCategoryByID(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	category, err := h.categoryService.GetCategoryByID(r.Context(), userID, categoryID)
+	category, err := h.service.GetCategoryByID(r.Context(), userID, categoryID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -128,7 +117,7 @@ func (h *CategoryHandler) getCategoryByID(w http.ResponseWriter, r *http.Request
 	json.NewEncoder(w).Encode(category)
 }
 
-func (h *CategoryHandler) updateCategory(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) updateCategory(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	var req updateCategoryRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -156,7 +145,7 @@ func (h *CategoryHandler) updateCategory(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = h.categoryService.UpdateCategoryByID(ctx, userID, categoryID, req.Name, req.Description)
+	err = h.service.UpdateCategoryByID(ctx, userID, categoryID, req.Name, req.Description)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -167,7 +156,7 @@ func (h *CategoryHandler) updateCategory(w http.ResponseWriter, r *http.Request)
 	w.Write([]byte("Category updated successfully"))
 }
 
-func (h *CategoryHandler) deleteCategory(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) deleteCategory(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	categoryID := r.PathValue("id")
 	if categoryID == "" {
@@ -184,7 +173,7 @@ func (h *CategoryHandler) deleteCategory(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = h.categoryService.DeleteCategoryByID(ctx, userID, categoryID)
+	err = h.service.DeleteCategoryByID(ctx, userID, categoryID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return

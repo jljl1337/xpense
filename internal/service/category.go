@@ -7,20 +7,12 @@ import (
 	"github.com/jljl1337/xpense/internal/repository"
 )
 
-type CategoryService struct {
-	queries *repository.Queries
-}
-
-func NewCategoryService(queries *repository.Queries) *CategoryService {
-	return &CategoryService{
-		queries: queries,
-	}
-}
-
 // CreateCategory creates a new category if the user has access to the book.
-func (s *CategoryService) CreateCategory(ctx context.Context, userID, bookID, name, description string) error {
+func (s *EndpointService) CreateCategory(ctx context.Context, userID, bookID, name, description string) error {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the book
-	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+	canAccess, err := queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
 		UserID: userID,
 	})
@@ -34,7 +26,7 @@ func (s *CategoryService) CreateCategory(ctx context.Context, userID, bookID, na
 
 	currentTime := generator.NowISO8601()
 
-	_, err = s.queries.CreateCategory(ctx, repository.CreateCategoryParams{
+	_, err = queries.CreateCategory(ctx, repository.CreateCategoryParams{
 		ID:          generator.NewULID(),
 		BookID:      bookID,
 		Name:        name,
@@ -52,9 +44,11 @@ func (s *CategoryService) CreateCategory(ctx context.Context, userID, bookID, na
 // GetCategoriesByBookID retrieves all categories for a specific book.
 //
 // It returns an empty slice if no categories are found in the book.
-func (s *CategoryService) GetCategoriesByBookID(ctx context.Context, userID, bookID string) ([]repository.Category, error) {
+func (s *EndpointService) GetCategoriesByBookID(ctx context.Context, userID, bookID string) ([]repository.Category, error) {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the book
-	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+	canAccess, err := queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
 		UserID: userID,
 	})
@@ -66,7 +60,7 @@ func (s *CategoryService) GetCategoriesByBookID(ctx context.Context, userID, boo
 		return nil, NewServiceError(ErrCodeUnprocessable, "book not found or access denied")
 	}
 
-	categories, err := s.queries.GetCategoriesByBookID(ctx, bookID)
+	categories, err := queries.GetCategoriesByBookID(ctx, bookID)
 	if err != nil {
 		return nil, NewServiceErrorf(ErrCodeInternal, "failed to get categories by book ID: %v", err)
 	}
@@ -75,9 +69,11 @@ func (s *CategoryService) GetCategoriesByBookID(ctx context.Context, userID, boo
 }
 
 // GetCategoryByID retrieves a category by its ID if the user has access to the book.
-func (s *CategoryService) GetCategoryByID(ctx context.Context, userID, categoryID string) (*repository.Category, error) {
+func (s *EndpointService) GetCategoryByID(ctx context.Context, userID, categoryID string) (*repository.Category, error) {
+	queries := repository.New(s.db)
+
 	// Get the category to find the book ID
-	categories, err := s.queries.GetCategoryByID(ctx, categoryID)
+	categories, err := queries.GetCategoryByID(ctx, categoryID)
 	if err != nil {
 		return nil, NewServiceErrorf(ErrCodeInternal, "failed to get category by ID: %v", err)
 	}
@@ -93,7 +89,7 @@ func (s *CategoryService) GetCategoryByID(ctx context.Context, userID, categoryI
 	category := categories[0]
 
 	// Check if the user has access to the book
-	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+	canAccess, err := queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: category.BookID,
 		UserID: userID,
 	})
@@ -109,9 +105,11 @@ func (s *CategoryService) GetCategoryByID(ctx context.Context, userID, categoryI
 }
 
 // UpdateCategoryByID updates a category if the user has access to the book.
-func (s *CategoryService) UpdateCategoryByID(ctx context.Context, userID, categoryID, name, description string) error {
+func (s *EndpointService) UpdateCategoryByID(ctx context.Context, userID, categoryID, name, description string) error {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the category
-	canAccess, err := s.queries.CheckCategoryAccess(ctx, repository.CheckCategoryAccessParams{
+	canAccess, err := queries.CheckCategoryAccess(ctx, repository.CheckCategoryAccessParams{
 		CategoryID: categoryID,
 		UserID:     userID,
 	})
@@ -123,7 +121,7 @@ func (s *CategoryService) UpdateCategoryByID(ctx context.Context, userID, catego
 		return NewServiceError(ErrCodeNotFound, "category not found or access denied")
 	}
 
-	rows, err := s.queries.UpdateCategoryByID(ctx, repository.UpdateCategoryByIDParams{
+	rows, err := queries.UpdateCategoryByID(ctx, repository.UpdateCategoryByIDParams{
 		ID:          categoryID,
 		Name:        name,
 		Description: description,
@@ -145,9 +143,11 @@ func (s *CategoryService) UpdateCategoryByID(ctx context.Context, userID, catego
 }
 
 // DeleteCategoryByID deletes a category if the user has access to the book.
-func (s *CategoryService) DeleteCategoryByID(ctx context.Context, userID, categoryID string) error {
+func (s *EndpointService) DeleteCategoryByID(ctx context.Context, userID, categoryID string) error {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the category
-	canAccess, err := s.queries.CheckCategoryAccess(ctx, repository.CheckCategoryAccessParams{
+	canAccess, err := queries.CheckCategoryAccess(ctx, repository.CheckCategoryAccessParams{
 		CategoryID: categoryID,
 		UserID:     userID,
 	})
@@ -159,7 +159,7 @@ func (s *CategoryService) DeleteCategoryByID(ctx context.Context, userID, catego
 		return NewServiceError(ErrCodeNotFound, "category not found or access denied")
 	}
 
-	rows, err := s.queries.DeleteCategoryByID(ctx, categoryID)
+	rows, err := queries.DeleteCategoryByID(ctx, categoryID)
 	if err != nil {
 		return NewServiceErrorf(ErrCodeInternal, "failed to delete category: %v", err)
 	}

@@ -7,19 +7,11 @@ import (
 	"github.com/jljl1337/xpense/internal/repository"
 )
 
-type ExpenseService struct {
-	queries *repository.Queries
-}
-
-func NewExpenseService(queries *repository.Queries) *ExpenseService {
-	return &ExpenseService{
-		queries: queries,
-	}
-}
-
 // CreateExpense creates a new expense if the user has access to the book,
 // category, and payment method.
-func (s *ExpenseService) CreateExpense(ctx context.Context, userID, bookID, categoryID, paymentMethodID, date string, amount float64, remark string) error {
+func (s *EndpointService) CreateExpense(ctx context.Context, userID, bookID, categoryID, paymentMethodID, date string, amount float64, remark string) error {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the book, category, and payment method
 	err := s.checkBookCategoryPaymentMethod(ctx, userID, bookID, categoryID, paymentMethodID)
 	if err != nil {
@@ -29,7 +21,7 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, userID, bookID, cate
 	// Create the expense
 	currentTime := generator.NowISO8601()
 
-	_, err = s.queries.CreateExpense(ctx, repository.CreateExpenseParams{
+	_, err = queries.CreateExpense(ctx, repository.CreateExpenseParams{
 		ID:              generator.NewULID(),
 		BookID:          bookID,
 		CategoryID:      categoryID,
@@ -47,9 +39,11 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, userID, bookID, cate
 	return nil
 }
 
-func (s *ExpenseService) GetExpensesCountByBookID(ctx context.Context, userID, bookID, categoryID, paymentMethodID, remark string) (int64, error) {
+func (s *EndpointService) GetExpensesCountByBookID(ctx context.Context, userID, bookID, categoryID, paymentMethodID, remark string) (int64, error) {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the book
-	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+	canAccess, err := queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
 		UserID: userID,
 	})
@@ -61,7 +55,7 @@ func (s *ExpenseService) GetExpensesCountByBookID(ctx context.Context, userID, b
 		return 0, NewServiceError(ErrCodeNotFound, "book not found or access denied")
 	}
 
-	countResult, err := s.queries.GetExpenseCountByBookID(ctx, repository.GetExpenseCountByBookIDParams{
+	countResult, err := queries.GetExpenseCountByBookID(ctx, repository.GetExpenseCountByBookIDParams{
 		BookID:          bookID,
 		CategoryID:      categoryID,
 		PaymentMethodID: paymentMethodID,
@@ -77,9 +71,11 @@ func (s *ExpenseService) GetExpensesCountByBookID(ctx context.Context, userID, b
 // GetExpensesByBookID retrieves all expenses for a specific book with pagination.
 //
 // It returns an empty slice if no expenses are found in the book.
-func (s *ExpenseService) GetExpensesByBookID(ctx context.Context, userID, bookID, categoryID, paymentMethodID, remark string, page int64, pageSize int64) ([]repository.Expense, error) {
+func (s *EndpointService) GetExpensesByBookID(ctx context.Context, userID, bookID, categoryID, paymentMethodID, remark string, page int64, pageSize int64) ([]repository.Expense, error) {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the book
-	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+	canAccess, err := queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
 		UserID: userID,
 	})
@@ -93,7 +89,7 @@ func (s *ExpenseService) GetExpensesByBookID(ctx context.Context, userID, bookID
 
 	offset := (page - 1) * pageSize
 	limit := pageSize
-	expenses, err := s.queries.GetExpensesByBookID(ctx, repository.GetExpensesByBookIDParams{
+	expenses, err := queries.GetExpensesByBookID(ctx, repository.GetExpensesByBookIDParams{
 		BookID:          bookID,
 		CategoryID:      categoryID,
 		PaymentMethodID: paymentMethodID,
@@ -109,8 +105,10 @@ func (s *ExpenseService) GetExpensesByBookID(ctx context.Context, userID, bookID
 }
 
 // GetExpenseByID retrieves an expense by its ID if the user has access to the book.
-func (s *ExpenseService) GetExpenseByID(ctx context.Context, userID, expenseID string) (*repository.Expense, error) {
-	expenses, err := s.queries.GetExpenseByID(ctx, expenseID)
+func (s *EndpointService) GetExpenseByID(ctx context.Context, userID, expenseID string) (*repository.Expense, error) {
+	queries := repository.New(s.db)
+
+	expenses, err := queries.GetExpenseByID(ctx, expenseID)
 	if err != nil {
 		return nil, NewServiceErrorf(ErrCodeInternal, "failed to get expense by ID: %v", err)
 	}
@@ -126,7 +124,7 @@ func (s *ExpenseService) GetExpenseByID(ctx context.Context, userID, expenseID s
 	expense := expenses[0]
 
 	// Check if the user has access to the book
-	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+	canAccess, err := queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: expense.BookID,
 		UserID: userID,
 	})
@@ -143,9 +141,11 @@ func (s *ExpenseService) GetExpenseByID(ctx context.Context, userID, expenseID s
 
 // UpdateExpense updates an existing expense if the user has access to the book,
 // category, and payment method.
-func (s *ExpenseService) UpdateExpense(ctx context.Context, userID, expenseID, categoryID, paymentMethodID, date string, amount float64, remark string) error {
+func (s *EndpointService) UpdateExpense(ctx context.Context, userID, expenseID, categoryID, paymentMethodID, date string, amount float64, remark string) error {
+	queries := repository.New(s.db)
+
 	// Get the expense to find the book ID
-	expenses, err := s.queries.GetExpenseByID(ctx, expenseID)
+	expenses, err := queries.GetExpenseByID(ctx, expenseID)
 	if err != nil {
 		return NewServiceErrorf(ErrCodeInternal, "failed to get expense: %v", err)
 	}
@@ -167,7 +167,7 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, userID, expenseID, c
 	}
 
 	// Update the expense
-	rows, err := s.queries.UpdateExpenseByID(ctx, repository.UpdateExpenseByIDParams{
+	rows, err := queries.UpdateExpenseByID(ctx, repository.UpdateExpenseByIDParams{
 		ID:              expenseID,
 		CategoryID:      categoryID,
 		PaymentMethodID: paymentMethodID,
@@ -193,9 +193,11 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, userID, expenseID, c
 
 // DeleteExpenseByID deletes an expense by its ID if the user has access to the
 // book.
-func (s *ExpenseService) DeleteExpenseByID(ctx context.Context, userID, expenseID string) error {
+func (s *EndpointService) DeleteExpenseByID(ctx context.Context, userID, expenseID string) error {
+	queries := repository.New(s.db)
+
 	// Get the expense to find the book ID
-	expenses, err := s.queries.GetExpenseByID(ctx, expenseID)
+	expenses, err := queries.GetExpenseByID(ctx, expenseID)
 	if err != nil {
 		return NewServiceErrorf(ErrCodeInternal, "failed to get expense: %v", err)
 	}
@@ -211,7 +213,7 @@ func (s *ExpenseService) DeleteExpenseByID(ctx context.Context, userID, expenseI
 	expense := expenses[0]
 
 	// Check if the user has access to the book
-	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+	canAccess, err := queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: expense.BookID,
 		UserID: userID,
 	})
@@ -224,7 +226,7 @@ func (s *ExpenseService) DeleteExpenseByID(ctx context.Context, userID, expenseI
 	}
 
 	// Proceed to delete the expense
-	rows, err := s.queries.DeleteExpenseByID(ctx, expenseID)
+	rows, err := queries.DeleteExpenseByID(ctx, expenseID)
 	if err != nil {
 		return NewServiceErrorf(ErrCodeInternal, "failed to delete expense: %v", err)
 	}
@@ -244,9 +246,11 @@ func (s *ExpenseService) DeleteExpenseByID(ctx context.Context, userID, expenseI
 // category, and payment method.
 //
 // It also checks if the category and payment method belong to the book.
-func (s *ExpenseService) checkBookCategoryPaymentMethod(ctx context.Context, userID, bookID, categoryID, paymentMethodID string) error {
+func (s *EndpointService) checkBookCategoryPaymentMethod(ctx context.Context, userID, bookID, categoryID, paymentMethodID string) error {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the book
-	canAccessBook, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+	canAccessBook, err := queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
 		UserID: userID,
 	})
@@ -259,7 +263,7 @@ func (s *ExpenseService) checkBookCategoryPaymentMethod(ctx context.Context, use
 	}
 
 	// Check if the categories belongs to the book
-	categories, err := s.queries.GetCategoryByID(ctx, categoryID)
+	categories, err := queries.GetCategoryByID(ctx, categoryID)
 	if err != nil {
 		return NewServiceErrorf(ErrCodeInternal, "failed to get category by ID: %v", err)
 	}
@@ -279,7 +283,7 @@ func (s *ExpenseService) checkBookCategoryPaymentMethod(ctx context.Context, use
 	}
 
 	// Check if the payment method belongs to the book
-	paymentMethod, err := s.queries.GetPaymentMethodByID(ctx, paymentMethodID)
+	paymentMethod, err := queries.GetPaymentMethodByID(ctx, paymentMethodID)
 	if err != nil {
 		return NewServiceErrorf(ErrCodeInternal, "failed to get payment method by ID: %v", err)
 	}

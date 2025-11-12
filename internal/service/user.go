@@ -9,18 +9,10 @@ import (
 	"github.com/jljl1337/xpense/internal/repository"
 )
 
-type UserService struct {
-	queries *repository.Queries
-}
+func (s *EndpointService) UserExistsByUsername(ctx context.Context, username string) (bool, error) {
+	queries := repository.New(s.db)
 
-func NewUserService(queries *repository.Queries) *UserService {
-	return &UserService{
-		queries: queries,
-	}
-}
-
-func (s *UserService) UserExistsByUsername(ctx context.Context, username string) (bool, error) {
-	users, err := s.queries.GetUserByUsername(ctx, username)
+	users, err := queries.GetUserByUsername(ctx, username)
 	if err != nil {
 		return false, NewServiceErrorf(ErrCodeInternal, "failed to get user by username: %v", err)
 	}
@@ -32,8 +24,10 @@ func (s *UserService) UserExistsByUsername(ctx context.Context, username string)
 	return len(users) == 1, nil
 }
 
-func (s *UserService) GetUserByID(ctx context.Context, userID string) (*repository.User, error) {
-	users, err := s.queries.GetUserByID(ctx, userID)
+func (s *EndpointService) GetUserByID(ctx context.Context, userID string) (*repository.User, error) {
+	queries := repository.New(s.db)
+
+	users, err := queries.GetUserByID(ctx, userID)
 	if err != nil {
 		return nil, NewServiceErrorf(ErrCodeInternal, "failed to get user: %v", err)
 	}
@@ -49,8 +43,10 @@ func (s *UserService) GetUserByID(ctx context.Context, userID string) (*reposito
 	return &users[0], nil
 }
 
-func (s *UserService) UpdateUsernameByID(ctx context.Context, userID, newUsername string) error {
-	rows, err := s.queries.UpdateUserUsername(ctx, repository.UpdateUserUsernameParams{
+func (s *EndpointService) UpdateUsernameByID(ctx context.Context, userID, newUsername string) error {
+	queries := repository.New(s.db)
+
+	rows, err := queries.UpdateUserUsername(ctx, repository.UpdateUserUsernameParams{
 		ID:        userID,
 		Username:  newUsername,
 		UpdatedAt: generator.NowISO8601(),
@@ -69,9 +65,11 @@ func (s *UserService) UpdateUsernameByID(ctx context.Context, userID, newUsernam
 	return nil
 }
 
-func (s *UserService) UpdatePasswordByID(ctx context.Context, userID, oldPassword, newPassword string) error {
+func (s *EndpointService) UpdatePasswordByID(ctx context.Context, userID, oldPassword, newPassword string) error {
+	queries := repository.New(s.db)
+
 	// Validate credentials
-	users, err := s.queries.GetUserByID(ctx, userID)
+	users, err := queries.GetUserByID(ctx, userID)
 	if err != nil {
 		return NewServiceErrorf(ErrCodeInternal, "failed to get user: %v", err)
 	}
@@ -96,7 +94,7 @@ func (s *UserService) UpdatePasswordByID(ctx context.Context, userID, oldPasswor
 		return NewServiceErrorf(ErrCodeInternal, "failed to hash password: %v", err)
 	}
 
-	rows, err := s.queries.UpdateUserPassword(ctx, repository.UpdateUserPasswordParams{
+	rows, err := queries.UpdateUserPassword(ctx, repository.UpdateUserPasswordParams{
 		PasswordHash: passwordHash,
 		UpdatedAt:    generator.NowISO8601(),
 		ID:           userID,
@@ -115,8 +113,10 @@ func (s *UserService) UpdatePasswordByID(ctx context.Context, userID, oldPasswor
 	return nil
 }
 
-func (s *UserService) DeleteUserByID(ctx context.Context, userID string) error {
-	rows, err := s.queries.DeleteUser(ctx, userID)
+func (s *EndpointService) DeleteUserByID(ctx context.Context, userID string) error {
+	queries := repository.New(s.db)
+
+	rows, err := queries.DeleteUser(ctx, userID)
 	if err != nil {
 		return NewServiceErrorf(ErrCodeInternal, "failed to delete user: %v", err)
 	}

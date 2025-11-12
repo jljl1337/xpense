@@ -8,7 +8,6 @@ import (
 	"github.com/jljl1337/xpense/internal/env"
 	"github.com/jljl1337/xpense/internal/http/common"
 	"github.com/jljl1337/xpense/internal/http/middleware"
-	"github.com/jljl1337/xpense/internal/service"
 )
 
 type signUpSignInRequest struct {
@@ -20,17 +19,7 @@ type signInPreSessionCSRFTokenResponse struct {
 	CSRFToken string `json:"csrfToken"`
 }
 
-type AuthHandler struct {
-	authService *service.AuthService
-}
-
-func NewAuthHandler(authService *service.AuthService) *AuthHandler {
-	return &AuthHandler{
-		authService: authService,
-	}
-}
-
-func (h *AuthHandler) RegisterRoutes(mux *http.ServeMux) {
+func (h *EndpointHandler) registerAuthRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /auth/sign-up", h.signUp)
 	mux.HandleFunc("POST /auth/pre-session", h.preSession)
 	mux.HandleFunc("POST /auth/sign-in", h.signIn)
@@ -39,7 +28,7 @@ func (h *AuthHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /auth/csrf-token", h.csrfToken)
 }
 
-func (h *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) signUp(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	var req signUpSignInRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -53,7 +42,7 @@ func (h *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Process the request
-	if err := h.authService.SignUp(r.Context(), req.Username, req.Password); err != nil {
+	if err := h.service.SignUp(r.Context(), req.Username, req.Password); err != nil {
 		common.WriteErrorResponse(w, err)
 		return
 	}
@@ -63,9 +52,9 @@ func (h *AuthHandler) signUp(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("User signed up successfully"))
 }
 
-func (h *AuthHandler) preSession(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) preSession(w http.ResponseWriter, r *http.Request) {
 	// Process the request
-	sessionToken, CSRFToken, err := h.authService.GetPreSession(r.Context())
+	sessionToken, CSRFToken, err := h.service.GetPreSession(r.Context())
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -80,7 +69,7 @@ func (h *AuthHandler) preSession(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *AuthHandler) signIn(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) signIn(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	preSessionToken, err := r.Cookie(env.SessionCookieName)
 	if err != nil {
@@ -106,7 +95,7 @@ func (h *AuthHandler) signIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Process the request
-	sessionToken, CSRFToken, err := h.authService.SignIn(r.Context(), preSessionToken.Value, preSessionCSRFToken, req.Username, req.Password)
+	sessionToken, CSRFToken, err := h.service.SignIn(r.Context(), preSessionToken.Value, preSessionCSRFToken, req.Username, req.Password)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -121,7 +110,7 @@ func (h *AuthHandler) signIn(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *AuthHandler) signOut(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) signOut(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	sessionToken, err := r.Cookie(env.SessionCookieName)
 	if err != nil {
@@ -130,7 +119,7 @@ func (h *AuthHandler) signOut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Process the request
-	if err := h.authService.SignOut(r.Context(), sessionToken.Value); err != nil {
+	if err := h.service.SignOut(r.Context(), sessionToken.Value); err != nil {
 		common.WriteErrorResponse(w, err)
 		return
 	}
@@ -142,7 +131,7 @@ func (h *AuthHandler) signOut(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("User logged out successfully"))
 }
 
-func (h *AuthHandler) signOutAll(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) signOutAll(w http.ResponseWriter, r *http.Request) {
 	// Process the request
 	ctx := r.Context()
 	userID, err := middleware.GetUserIDFromContext(ctx)
@@ -152,7 +141,7 @@ func (h *AuthHandler) signOutAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.authService.SignOutAllSession(r.Context(), userID); err != nil {
+	if err := h.service.SignOutAllSession(r.Context(), userID); err != nil {
 		common.WriteErrorResponse(w, err)
 		return
 	}
@@ -164,7 +153,7 @@ func (h *AuthHandler) signOutAll(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("User logged out from all sessions successfully"))
 }
 
-func (h *AuthHandler) csrfToken(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) csrfToken(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	sessionToken, err := r.Cookie(env.SessionCookieName)
 	if err != nil {
@@ -173,7 +162,7 @@ func (h *AuthHandler) csrfToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Process the request
-	CSRFToken, err := h.authService.CSRFToken(r.Context(), sessionToken.Value)
+	CSRFToken, err := h.service.CSRFToken(r.Context(), sessionToken.Value)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
