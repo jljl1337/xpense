@@ -219,26 +219,26 @@ func (a *AuthService) GetSessionUserIDAndRefreshSession(ctx context.Context, ses
 	}
 
 	if len(sessions) < 1 {
-		return "", NewServiceError(ErrCodeUnauthorized, "invalid session")
+		return "", NewServiceError(ErrCodeUnauthorized, "unauthorized")
 	}
 
 	session := sessions[0]
 
 	// Check if the session is associated with a user
 	if !session.UserID.Valid {
-		return "", NewServiceError(ErrCodeUnauthorized, "invalid session")
+		return "", NewServiceError(ErrCodeUnauthorized, "unauthorized")
 	}
 
 	// CSRF token does not match
 	if CSRFToken != "" && session.CsrfToken != CSRFToken {
-		return "", NewServiceError(ErrCodeUnauthorized, "invalid CSRF token")
+		return "", NewServiceError(ErrCodeUnauthorized, "unauthorized")
 	}
 
 	// Session expired
 	now := time.Now()
 	nowISO8601 := format.TimeToISO8601(now)
 	if session.ExpiresAt < nowISO8601 {
-		return "", NewServiceError(ErrCodeUnauthorized, "session expired")
+		return "", NewServiceError(ErrCodeUnauthorized, "unauthorized")
 	}
 
 	newExpiresAt := format.TimeToISO8601(now.Add(time.Duration(env.SessionLifetimeMin) * time.Minute))

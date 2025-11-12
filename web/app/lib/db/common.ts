@@ -19,5 +19,5 @@ export function redirectIfNeeded(...errors: (string | null)[]) {
 }
 
 export function isUnauthorizedError(error: string): boolean {
-  return error.trim() === "Unauthorized";
+  return error.trim().toLowerCase() === "unauthorized";
 }
