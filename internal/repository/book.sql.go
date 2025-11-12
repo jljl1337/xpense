@@ -4,27 +4,6 @@ import (
 	"context"
 )
 
-const checkBookAccess = `
-SELECT
-    COUNT(*) > 0 AS can_access
-FROM
-    book
-WHERE
-    id = :book_id AND
-    user_id = :user_id
-`
-
-type CheckBookAccessParams struct {
-	BookID string `db:"book_id"`
-	UserID string `db:"user_id"`
-}
-
-func (q *Queries) CheckBookAccess(ctx context.Context, arg CheckBookAccessParams) (bool, error) {
-	var canAccess bool
-	err := NamedGetContext(ctx, q.db, &canAccess, checkBookAccess, arg)
-	return canAccess, err
-}
-
 const createBook = `
 INSERT INTO book (
     id,
@@ -56,38 +35,23 @@ func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (int64, 
 	return NamedExecRowsAffectedContext(ctx, q.db, createBook, arg)
 }
 
-const deleteBookByID = `
-DELETE FROM
-    book
-WHERE
-    id = :id
-`
-
-type DeleteBookByIDParams struct {
-	ID string `db:"id"`
-}
-
-func (q *Queries) DeleteBookByID(ctx context.Context, id string) (int64, error) {
-	return NamedExecRowsAffectedContext(ctx, q.db, deleteBookByID, DeleteBookByIDParams{ID: id})
-}
-
-const getBookByID = `
+const getBooksCountByUserID = `
 SELECT
-	*
+    COUNT(*) AS count
 FROM
     book
 WHERE
-    id = :id
+    user_id = :user_id
 `
 
-type GetBookByIDParams struct {
-	ID string `db:"id"`
+type GetBooksCountByUserIDParams struct {
+	UserID string `db:"user_id"`
 }
 
-func (q *Queries) GetBookByID(ctx context.Context, id string) ([]Book, error) {
-	items := []Book{}
-	err := NamedSelectContext(ctx, q.db, &items, getBookByID, GetBookByIDParams{ID: id})
-	return items, err
+func (q *Queries) GetBooksCountByUserID(ctx context.Context, userID string) (int64, error) {
+	var count int64
+	err := NamedGetContext(ctx, q.db, &count, getBooksCountByUserID, GetBooksCountByUserIDParams{UserID: userID})
+	return count, err
 }
 
 const getBooksByUserID = `
@@ -117,23 +81,23 @@ func (q *Queries) GetBooksByUserID(ctx context.Context, arg GetBooksByUserIDPara
 	return items, err
 }
 
-const getBooksCountByUserID = `
+const getBookByID = `
 SELECT
-    COUNT(*) AS count
+	*
 FROM
     book
 WHERE
-    user_id = :user_id
+    id = :id
 `
 
-type GetBooksCountByUserIDParams struct {
-	UserID string `db:"user_id"`
+type GetBookByIDParams struct {
+	ID string `db:"id"`
 }
 
-func (q *Queries) GetBooksCountByUserID(ctx context.Context, userID string) (int64, error) {
-	var count int64
-	err := NamedGetContext(ctx, q.db, &count, getBooksCountByUserID, GetBooksCountByUserIDParams{UserID: userID})
-	return count, err
+func (q *Queries) GetBookByID(ctx context.Context, id string) ([]Book, error) {
+	items := []Book{}
+	err := NamedSelectContext(ctx, q.db, &items, getBookByID, GetBookByIDParams{ID: id})
+	return items, err
 }
 
 const updateBookByID = `
@@ -156,4 +120,40 @@ type UpdateBookByIDParams struct {
 
 func (q *Queries) UpdateBookByID(ctx context.Context, arg UpdateBookByIDParams) (int64, error) {
 	return NamedExecRowsAffectedContext(ctx, q.db, updateBookByID, arg)
+}
+
+const deleteBookByID = `
+DELETE FROM
+    book
+WHERE
+    id = :id
+`
+
+type DeleteBookByIDParams struct {
+	ID string `db:"id"`
+}
+
+func (q *Queries) DeleteBookByID(ctx context.Context, id string) (int64, error) {
+	return NamedExecRowsAffectedContext(ctx, q.db, deleteBookByID, DeleteBookByIDParams{ID: id})
+}
+
+const checkBookAccess = `
+SELECT
+    COUNT(*) > 0 AS can_access
+FROM
+    book
+WHERE
+    id = :book_id AND
+    user_id = :user_id
+`
+
+type CheckBookAccessParams struct {
+	BookID string `db:"book_id"`
+	UserID string `db:"user_id"`
+}
+
+func (q *Queries) CheckBookAccess(ctx context.Context, arg CheckBookAccessParams) (bool, error) {
+	var canAccess bool
+	err := NamedGetContext(ctx, q.db, &canAccess, checkBookAccess, arg)
+	return canAccess, err
 }

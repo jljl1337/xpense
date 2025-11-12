@@ -4,31 +4,6 @@ import (
 	"context"
 )
 
-const checkCategoryAccess = `
-SELECT
-    COUNT(*) > 0 AS can_access
-FROM
-    category AS c
-LEFT JOIN
-    book AS b
-ON
-    c.book_id = b.id
-WHERE
-    c.id = :id AND
-    b.user_id = :user_id
-`
-
-type CheckCategoryAccessParams struct {
-	CategoryID string `db:"id"`
-	UserID     string `db:"user_id"`
-}
-
-func (q *Queries) CheckCategoryAccess(ctx context.Context, arg CheckCategoryAccessParams) (bool, error) {
-	var canAccess bool
-	err := NamedGetContext(ctx, q.db, &canAccess, checkCategoryAccess, arg)
-	return canAccess, err
-}
-
 const createCategory = `
 INSERT INTO category (
     id,
@@ -58,21 +33,6 @@ type CreateCategoryParams struct {
 
 func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) (int64, error) {
 	return NamedExecRowsAffectedContext(ctx, q.db, createCategory, arg)
-}
-
-const deleteCategoryByID = `
-DELETE FROM
-    category
-WHERE
-    id = :id
-`
-
-type DeleteCategoryByIDParams struct {
-	ID string `db:"id"`
-}
-
-func (q *Queries) DeleteCategoryByID(ctx context.Context, id string) (int64, error) {
-	return NamedExecRowsAffectedContext(ctx, q.db, deleteCategoryByID, DeleteCategoryByIDParams{ID: id})
 }
 
 const getCategoriesByBookID = `
@@ -135,4 +95,44 @@ type UpdateCategoryByIDParams struct {
 
 func (q *Queries) UpdateCategoryByID(ctx context.Context, arg UpdateCategoryByIDParams) (int64, error) {
 	return NamedExecRowsAffectedContext(ctx, q.db, updateCategoryByID, arg)
+}
+
+const deleteCategoryByID = `
+DELETE FROM
+    category
+WHERE
+    id = :id
+`
+
+type DeleteCategoryByIDParams struct {
+	ID string `db:"id"`
+}
+
+func (q *Queries) DeleteCategoryByID(ctx context.Context, id string) (int64, error) {
+	return NamedExecRowsAffectedContext(ctx, q.db, deleteCategoryByID, DeleteCategoryByIDParams{ID: id})
+}
+
+const checkCategoryAccess = `
+SELECT
+    COUNT(*) > 0 AS can_access
+FROM
+    category AS c
+LEFT JOIN
+    book AS b
+ON
+    c.book_id = b.id
+WHERE
+    c.id = :id AND
+    b.user_id = :user_id
+`
+
+type CheckCategoryAccessParams struct {
+	CategoryID string `db:"id"`
+	UserID     string `db:"user_id"`
+}
+
+func (q *Queries) CheckCategoryAccess(ctx context.Context, arg CheckCategoryAccessParams) (bool, error) {
+	var canAccess bool
+	err := NamedGetContext(ctx, q.db, &canAccess, checkCategoryAccess, arg)
+	return canAccess, err
 }

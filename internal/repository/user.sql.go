@@ -32,21 +32,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int64, 
 	return NamedExecRowsAffectedContext(ctx, q.db, createUser, arg)
 }
 
-const deleteUser = `
-DELETE FROM
-    user
-WHERE
-    id = :id
-`
-
-type DeleteUserParams struct {
-	ID string `db:"id"`
-}
-
-func (q *Queries) DeleteUser(ctx context.Context, id string) (int64, error) {
-	return NamedExecRowsAffectedContext(ctx, q.db, deleteUser, DeleteUserParams{ID: id})
-}
-
 const getUserByID = `
 SELECT
     *
@@ -123,4 +108,19 @@ type UpdateUserUsernameParams struct {
 
 func (q *Queries) UpdateUserUsername(ctx context.Context, arg UpdateUserUsernameParams) (int64, error) {
 	return NamedExecRowsAffectedContext(ctx, q.db, updateUserUsername, arg)
+}
+
+const deleteUser = `
+DELETE FROM
+    user
+WHERE
+    id = :id
+`
+
+type DeleteUserParams struct {
+	ID string `db:"id"`
+}
+
+func (q *Queries) DeleteUser(ctx context.Context, id string) (int64, error) {
+	return NamedExecRowsAffectedContext(ctx, q.db, deleteUser, DeleteUserParams{ID: id})
 }

@@ -39,21 +39,6 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (i
 	return NamedExecRowsAffectedContext(ctx, q.db, createSession, arg)
 }
 
-const deleteSessionByExpiresAt = `
-DELETE FROM
-    session
-WHERE
-    expires_at < :expires_at
-`
-
-type DeleteSessionByExpiresAtParams struct {
-	ExpiresAt string `db:"expires_at"`
-}
-
-func (q *Queries) DeleteSessionByExpiresAt(ctx context.Context, expiresAt string) (int64, error) {
-	return NamedExecRowsAffectedContext(ctx, q.db, deleteSessionByExpiresAt, DeleteSessionByExpiresAtParams{ExpiresAt: expiresAt})
-}
-
 const getSessionByToken = `
 SELECT
 	*
@@ -112,4 +97,19 @@ type UpdateSessionByUserIDParams struct {
 
 func (q *Queries) UpdateSessionByUserID(ctx context.Context, arg UpdateSessionByUserIDParams) (int64, error) {
 	return NamedExecRowsAffectedContext(ctx, q.db, updateSessionByUserID, arg)
+}
+
+const deleteSessionByExpiresAt = `
+DELETE FROM
+    session
+WHERE
+    expires_at < :expires_at
+`
+
+type DeleteSessionByExpiresAtParams struct {
+	ExpiresAt string `db:"expires_at"`
+}
+
+func (q *Queries) DeleteSessionByExpiresAt(ctx context.Context, expiresAt string) (int64, error) {
+	return NamedExecRowsAffectedContext(ctx, q.db, deleteSessionByExpiresAt, DeleteSessionByExpiresAtParams{ExpiresAt: expiresAt})
 }

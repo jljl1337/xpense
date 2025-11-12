@@ -4,69 +4,6 @@ import (
 	"context"
 )
 
-const checkExpenseAccess = `
-SELECT
-    COUNT(*) > 0 AS can_access
-FROM
-    expense AS e
-LEFT JOIN
-    book AS b
-ON
-    e.book_id = b.id
-WHERE
-    e.id = :id AND
-    b.user_id = :user_id
-`
-
-type CheckExpenseAccessParams struct {
-	ExpenseID string `db:"id"`
-	UserID    string `db:"user_id"`
-}
-
-func (q *Queries) CheckExpenseAccess(ctx context.Context, arg CheckExpenseAccessParams) (bool, error) {
-	var canAccess bool
-	err := NamedGetContext(ctx, q.db, &canAccess, checkExpenseAccess, arg)
-	return canAccess, err
-}
-
-const countExpensesByCategoryID = `
-SELECT
-    COUNT(*) AS count
-FROM
-    expense
-WHERE
-    category_id = :category_id
-`
-
-type CountExpensesByCategoryIDParams struct {
-	CategoryID string `db:"category_id"`
-}
-
-func (q *Queries) CountExpensesByCategoryID(ctx context.Context, categoryID string) (int64, error) {
-	var count int64
-	err := NamedGetContext(ctx, q.db, &count, countExpensesByCategoryID, CountExpensesByCategoryIDParams{CategoryID: categoryID})
-	return count, err
-}
-
-const countExpensesByPaymentMethodID = `
-SELECT
-    COUNT(*) AS count
-FROM
-    expense
-WHERE
-    payment_method_id = :payment_method_id
-`
-
-type CountExpensesByPaymentMethodIDParams struct {
-	PaymentMethodID string `db:"payment_method_id"`
-}
-
-func (q *Queries) CountExpensesByPaymentMethodID(ctx context.Context, paymentMethodID string) (int64, error) {
-	var count int64
-	err := NamedGetContext(ctx, q.db, &count, countExpensesByPaymentMethodID, CountExpensesByPaymentMethodIDParams{PaymentMethodID: paymentMethodID})
-	return count, err
-}
-
 const createExpense = `
 INSERT INTO expense (
     id,
@@ -105,40 +42,6 @@ type CreateExpenseParams struct {
 
 func (q *Queries) CreateExpense(ctx context.Context, arg CreateExpenseParams) (int64, error) {
 	return NamedExecRowsAffectedContext(ctx, q.db, createExpense, arg)
-}
-
-const deleteExpenseByID = `
-DELETE FROM
-    expense
-WHERE
-    id = :id
-`
-
-type DeleteExpenseByIDParams struct {
-	ID string `db:"id"`
-}
-
-func (q *Queries) DeleteExpenseByID(ctx context.Context, id string) (int64, error) {
-	return NamedExecRowsAffectedContext(ctx, q.db, deleteExpenseByID, DeleteExpenseByIDParams{ID: id})
-}
-
-const getExpenseByID = `
-SELECT
-	*
-FROM
-    expense
-WHERE
-    id = :id
-`
-
-type GetExpenseByIDParams struct {
-	ID string `db:"id"`
-}
-
-func (q *Queries) GetExpenseByID(ctx context.Context, id string) ([]Expense, error) {
-	items := []Expense{}
-	err := NamedSelectContext(ctx, q.db, &items, getExpenseByID, GetExpenseByIDParams{ID: id})
-	return items, err
 }
 
 const getExpenseCountByBookID = `
@@ -200,6 +103,25 @@ func (q *Queries) GetExpensesByBookID(ctx context.Context, arg GetExpensesByBook
 	return items, err
 }
 
+const getExpenseByID = `
+SELECT
+	*
+FROM
+    expense
+WHERE
+    id = :id
+`
+
+type GetExpenseByIDParams struct {
+	ID string `db:"id"`
+}
+
+func (q *Queries) GetExpenseByID(ctx context.Context, id string) ([]Expense, error) {
+	items := []Expense{}
+	err := NamedSelectContext(ctx, q.db, &items, getExpenseByID, GetExpenseByIDParams{ID: id})
+	return items, err
+}
+
 const updateExpenseByID = `
 UPDATE 
     expense
@@ -226,4 +148,82 @@ type UpdateExpenseByIDParams struct {
 
 func (q *Queries) UpdateExpenseByID(ctx context.Context, arg UpdateExpenseByIDParams) (int64, error) {
 	return NamedExecRowsAffectedContext(ctx, q.db, updateExpenseByID, arg)
+}
+
+const deleteExpenseByID = `
+DELETE FROM
+    expense
+WHERE
+    id = :id
+`
+
+type DeleteExpenseByIDParams struct {
+	ID string `db:"id"`
+}
+
+func (q *Queries) DeleteExpenseByID(ctx context.Context, id string) (int64, error) {
+	return NamedExecRowsAffectedContext(ctx, q.db, deleteExpenseByID, DeleteExpenseByIDParams{ID: id})
+}
+
+const checkExpenseAccess = `
+SELECT
+    COUNT(*) > 0 AS can_access
+FROM
+    expense AS e
+LEFT JOIN
+    book AS b
+ON
+    e.book_id = b.id
+WHERE
+    e.id = :id AND
+    b.user_id = :user_id
+`
+
+type CheckExpenseAccessParams struct {
+	ExpenseID string `db:"id"`
+	UserID    string `db:"user_id"`
+}
+
+func (q *Queries) CheckExpenseAccess(ctx context.Context, arg CheckExpenseAccessParams) (bool, error) {
+	var canAccess bool
+	err := NamedGetContext(ctx, q.db, &canAccess, checkExpenseAccess, arg)
+	return canAccess, err
+}
+
+const countExpensesByCategoryID = `
+SELECT
+    COUNT(*) AS count
+FROM
+    expense
+WHERE
+    category_id = :category_id
+`
+
+type CountExpensesByCategoryIDParams struct {
+	CategoryID string `db:"category_id"`
+}
+
+func (q *Queries) CountExpensesByCategoryID(ctx context.Context, categoryID string) (int64, error) {
+	var count int64
+	err := NamedGetContext(ctx, q.db, &count, countExpensesByCategoryID, CountExpensesByCategoryIDParams{CategoryID: categoryID})
+	return count, err
+}
+
+const countExpensesByPaymentMethodID = `
+SELECT
+    COUNT(*) AS count
+FROM
+    expense
+WHERE
+    payment_method_id = :payment_method_id
+`
+
+type CountExpensesByPaymentMethodIDParams struct {
+	PaymentMethodID string `db:"payment_method_id"`
+}
+
+func (q *Queries) CountExpensesByPaymentMethodID(ctx context.Context, paymentMethodID string) (int64, error) {
+	var count int64
+	err := NamedGetContext(ctx, q.db, &count, countExpensesByPaymentMethodID, CountExpensesByPaymentMethodIDParams{PaymentMethodID: paymentMethodID})
+	return count, err
 }

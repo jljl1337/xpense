@@ -4,31 +4,6 @@ import (
 	"context"
 )
 
-const checkPaymentMethodAccess = `
-SELECT
-    COUNT(*) > 0 AS can_access
-FROM
-    payment_method AS pm
-LEFT JOIN
-    book AS b
-ON
-    pm.book_id = b.id
-WHERE
-    pm.id = :id AND
-    b.user_id = :user_id
-`
-
-type CheckPaymentMethodAccessParams struct {
-	PaymentMethodID string `db:"id"`
-	UserID          string `db:"user_id"`
-}
-
-func (q *Queries) CheckPaymentMethodAccess(ctx context.Context, arg CheckPaymentMethodAccessParams) (bool, error) {
-	var canAccess bool
-	err := NamedGetContext(ctx, q.db, &canAccess, checkPaymentMethodAccess, arg)
-	return canAccess, err
-}
-
 const createPaymentMethod = `
 INSERT INTO payment_method (
     id,
@@ -60,40 +35,6 @@ func (q *Queries) CreatePaymentMethod(ctx context.Context, arg CreatePaymentMeth
 	return NamedExecRowsAffectedContext(ctx, q.db, createPaymentMethod, arg)
 }
 
-const deletePaymentMethodByID = `
-DELETE FROM
-    payment_method
-WHERE
-    id = :id
-`
-
-type DeletePaymentMethodByIDParams struct {
-	ID string `db:"id"`
-}
-
-func (q *Queries) DeletePaymentMethodByID(ctx context.Context, id string) (int64, error) {
-	return NamedExecRowsAffectedContext(ctx, q.db, deletePaymentMethodByID, DeletePaymentMethodByIDParams{ID: id})
-}
-
-const getPaymentMethodByID = `
-SELECT
-    *
-FROM
-    payment_method
-WHERE
-    id = :id
-`
-
-type GetPaymentMethodByIDParams struct {
-	ID string `db:"id"`
-}
-
-func (q *Queries) GetPaymentMethodByID(ctx context.Context, id string) ([]PaymentMethod, error) {
-	items := []PaymentMethod{}
-	err := NamedSelectContext(ctx, q.db, &items, getPaymentMethodByID, GetPaymentMethodByIDParams{ID: id})
-	return items, err
-}
-
 const getPaymentMethodsByBookID = `
 SELECT
     *
@@ -112,6 +53,25 @@ type GetPaymentMethodsByBookIDParams struct {
 func (q *Queries) GetPaymentMethodsByBookID(ctx context.Context, bookID string) ([]PaymentMethod, error) {
 	items := []PaymentMethod{}
 	err := NamedSelectContext(ctx, q.db, &items, getPaymentMethodsByBookID, GetPaymentMethodsByBookIDParams{BookID: bookID})
+	return items, err
+}
+
+const getPaymentMethodByID = `
+SELECT
+    *
+FROM
+    payment_method
+WHERE
+    id = :id
+`
+
+type GetPaymentMethodByIDParams struct {
+	ID string `db:"id"`
+}
+
+func (q *Queries) GetPaymentMethodByID(ctx context.Context, id string) ([]PaymentMethod, error) {
+	items := []PaymentMethod{}
+	err := NamedSelectContext(ctx, q.db, &items, getPaymentMethodByID, GetPaymentMethodByIDParams{ID: id})
 	return items, err
 }
 
@@ -135,4 +95,44 @@ type UpdatePaymentMethodByIDParams struct {
 
 func (q *Queries) UpdatePaymentMethodByID(ctx context.Context, arg UpdatePaymentMethodByIDParams) (int64, error) {
 	return NamedExecRowsAffectedContext(ctx, q.db, updatePaymentMethodByID, arg)
+}
+
+const deletePaymentMethodByID = `
+DELETE FROM
+    payment_method
+WHERE
+    id = :id
+`
+
+type DeletePaymentMethodByIDParams struct {
+	ID string `db:"id"`
+}
+
+func (q *Queries) DeletePaymentMethodByID(ctx context.Context, id string) (int64, error) {
+	return NamedExecRowsAffectedContext(ctx, q.db, deletePaymentMethodByID, DeletePaymentMethodByIDParams{ID: id})
+}
+
+const checkPaymentMethodAccess = `
+SELECT
+    COUNT(*) > 0 AS can_access
+FROM
+    payment_method AS pm
+LEFT JOIN
+    book AS b
+ON
+    pm.book_id = b.id
+WHERE
+    pm.id = :id AND
+    b.user_id = :user_id
+`
+
+type CheckPaymentMethodAccessParams struct {
+	PaymentMethodID string `db:"id"`
+	UserID          string `db:"user_id"`
+}
+
+func (q *Queries) CheckPaymentMethodAccess(ctx context.Context, arg CheckPaymentMethodAccessParams) (bool, error) {
+	var canAccess bool
+	err := NamedGetContext(ctx, q.db, &canAccess, checkPaymentMethodAccess, arg)
+	return canAccess, err
 }
