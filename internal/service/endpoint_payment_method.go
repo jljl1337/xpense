@@ -7,20 +7,12 @@ import (
 	"github.com/jljl1337/xpense/internal/repository"
 )
 
-type PaymentMethodService struct {
-	queries *repository.Queries
-}
-
-func NewPaymentMethodService(queries *repository.Queries) *PaymentMethodService {
-	return &PaymentMethodService{
-		queries: queries,
-	}
-}
-
 // CreatePaymentMethod creates a new payment method if the user has access to the book.
-func (s *PaymentMethodService) CreatePaymentMethod(ctx context.Context, userID, bookID, name, description string) error {
+func (s *EndpointService) CreatePaymentMethod(ctx context.Context, userID, bookID, name, description string) error {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the book
-	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+	canAccess, err := queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
 		UserID: userID,
 	})
@@ -34,7 +26,7 @@ func (s *PaymentMethodService) CreatePaymentMethod(ctx context.Context, userID, 
 
 	currentTime := generator.NowISO8601()
 
-	_, err = s.queries.CreatePaymentMethod(ctx, repository.CreatePaymentMethodParams{
+	_, err = queries.CreatePaymentMethod(ctx, repository.CreatePaymentMethodParams{
 		ID:          generator.NewULID(),
 		BookID:      bookID,
 		Name:        name,
@@ -52,9 +44,11 @@ func (s *PaymentMethodService) CreatePaymentMethod(ctx context.Context, userID, 
 // GetPaymentMethodsByBookID retrieves all payment methods for a specific book.
 //
 // It returns an empty slice if no payment methods are found in the book.
-func (s *PaymentMethodService) GetPaymentMethodsByBookID(ctx context.Context, userID, bookID string) ([]repository.PaymentMethod, error) {
+func (s *EndpointService) GetPaymentMethodsByBookID(ctx context.Context, userID, bookID string) ([]repository.PaymentMethod, error) {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the book
-	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+	canAccess, err := queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
 		UserID: userID,
 	})
@@ -66,7 +60,7 @@ func (s *PaymentMethodService) GetPaymentMethodsByBookID(ctx context.Context, us
 		return nil, NewServiceError(ErrCodeUnprocessable, "book not found or access denied")
 	}
 
-	paymentMethods, err := s.queries.GetPaymentMethodsByBookID(ctx, bookID)
+	paymentMethods, err := queries.GetPaymentMethodsByBookID(ctx, bookID)
 	if err != nil {
 		return nil, NewServiceErrorf(ErrCodeInternal, "failed to get payment methods by book ID: %v", err)
 	}
@@ -75,9 +69,11 @@ func (s *PaymentMethodService) GetPaymentMethodsByBookID(ctx context.Context, us
 }
 
 // GetPaymentMethodByID retrieves a payment method by its ID if the user has access to the book.
-func (s *PaymentMethodService) GetPaymentMethodByID(ctx context.Context, userID, paymentMethodID string) (*repository.PaymentMethod, error) {
+func (s *EndpointService) GetPaymentMethodByID(ctx context.Context, userID, paymentMethodID string) (*repository.PaymentMethod, error) {
+	queries := repository.New(s.db)
+
 	// Get the payment method to find the book ID
-	paymentMethods, err := s.queries.GetPaymentMethodByID(ctx, paymentMethodID)
+	paymentMethods, err := queries.GetPaymentMethodByID(ctx, paymentMethodID)
 	if err != nil {
 		return nil, NewServiceErrorf(ErrCodeInternal, "failed to get payment method: %v", err)
 	}
@@ -93,7 +89,7 @@ func (s *PaymentMethodService) GetPaymentMethodByID(ctx context.Context, userID,
 	paymentMethod := paymentMethods[0]
 
 	// Check if the user has access to the book
-	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+	canAccess, err := queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: paymentMethod.BookID,
 		UserID: userID,
 	})
@@ -109,9 +105,11 @@ func (s *PaymentMethodService) GetPaymentMethodByID(ctx context.Context, userID,
 }
 
 // UpdatePaymentMethodByID updates a payment method if the user has access to the book.
-func (s *PaymentMethodService) UpdatePaymentMethodByID(ctx context.Context, userID, paymentMethodID, name, description string) error {
+func (s *EndpointService) UpdatePaymentMethodByID(ctx context.Context, userID, paymentMethodID, name, description string) error {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the payment method
-	canAccess, err := s.queries.CheckPaymentMethodAccess(ctx, repository.CheckPaymentMethodAccessParams{
+	canAccess, err := queries.CheckPaymentMethodAccess(ctx, repository.CheckPaymentMethodAccessParams{
 		PaymentMethodID: paymentMethodID,
 		UserID:          userID,
 	})
@@ -123,7 +121,7 @@ func (s *PaymentMethodService) UpdatePaymentMethodByID(ctx context.Context, user
 		return NewServiceError(ErrCodeNotFound, "payment method not found or access denied")
 	}
 
-	rows, err := s.queries.UpdatePaymentMethodByID(ctx, repository.UpdatePaymentMethodByIDParams{
+	rows, err := queries.UpdatePaymentMethodByID(ctx, repository.UpdatePaymentMethodByIDParams{
 		ID:          paymentMethodID,
 		Name:        name,
 		Description: description,
@@ -145,9 +143,11 @@ func (s *PaymentMethodService) UpdatePaymentMethodByID(ctx context.Context, user
 }
 
 // DeletePaymentMethodByID deletes a payment method if the user has access to the book.
-func (s *PaymentMethodService) DeletePaymentMethodByID(ctx context.Context, userID, paymentMethodID string) error {
+func (s *EndpointService) DeletePaymentMethodByID(ctx context.Context, userID, paymentMethodID string) error {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the payment method
-	canAccess, err := s.queries.CheckPaymentMethodAccess(ctx, repository.CheckPaymentMethodAccessParams{
+	canAccess, err := queries.CheckPaymentMethodAccess(ctx, repository.CheckPaymentMethodAccessParams{
 		PaymentMethodID: paymentMethodID,
 		UserID:          userID,
 	})
@@ -159,7 +159,7 @@ func (s *PaymentMethodService) DeletePaymentMethodByID(ctx context.Context, user
 		return NewServiceError(ErrCodeNotFound, "payment method not found or access denied")
 	}
 
-	rows, err := s.queries.DeletePaymentMethodByID(ctx, paymentMethodID)
+	rows, err := queries.DeletePaymentMethodByID(ctx, paymentMethodID)
 	if err != nil {
 		return NewServiceErrorf(ErrCodeInternal, "failed to delete payment method: %v", err)
 	}

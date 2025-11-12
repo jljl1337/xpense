@@ -7,7 +7,6 @@ import (
 
 	"github.com/jljl1337/xpense/internal/http/common"
 	"github.com/jljl1337/xpense/internal/http/middleware"
-	"github.com/jljl1337/xpense/internal/service"
 )
 
 type usernameExistResponse struct {
@@ -20,17 +19,7 @@ type getCurrentUserResponse struct {
 	CreatedAt string `json:"createdAt"`
 }
 
-type UserHandler struct {
-	userService *service.UserService
-}
-
-func NewUserHandler(userService *service.UserService) *UserHandler {
-	return &UserHandler{
-		userService: userService,
-	}
-}
-
-func (h *UserHandler) RegisterRoutes(mux *http.ServeMux) {
+func (h *EndpointHandler) registerUserRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /users/exists", h.getUsernameExist)
 	mux.HandleFunc("GET /users/me", h.getCurrentUser)
 	mux.HandleFunc("PATCH /users/me/username", h.updateUsername)
@@ -38,7 +27,7 @@ func (h *UserHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("DELETE /users/me", h.deleteCurrentUser)
 }
 
-func (h *UserHandler) getUsernameExist(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) getUsernameExist(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	username := r.URL.Query().Get("username")
 	if username == "" {
@@ -47,7 +36,7 @@ func (h *UserHandler) getUsernameExist(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Process the request
-	exists, err := h.userService.UserExistsByUsername(r.Context(), username)
+	exists, err := h.service.UserExistsByUsername(r.Context(), username)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -59,7 +48,7 @@ func (h *UserHandler) getUsernameExist(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
 	// Process the request
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
@@ -68,7 +57,7 @@ func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userService.GetUserByID(r.Context(), userID)
+	user, err := h.service.GetUserByID(r.Context(), userID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -84,7 +73,7 @@ func (h *UserHandler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func (h *UserHandler) updateUsername(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) updateUsername(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	var req struct {
 		NewUsername string `json:"newUsername"`
@@ -106,7 +95,7 @@ func (h *UserHandler) updateUsername(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.userService.UpdateUsernameByID(r.Context(), userID, req.NewUsername); err != nil {
+	if err := h.service.UpdateUsernameByID(r.Context(), userID, req.NewUsername); err != nil {
 		common.WriteErrorResponse(w, err)
 		return
 	}
@@ -116,7 +105,7 @@ func (h *UserHandler) updateUsername(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Username updated successfully"))
 }
 
-func (h *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	var req struct {
 		OldPassword string `json:"oldPassword"`
@@ -139,7 +128,7 @@ func (h *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.userService.UpdatePasswordByID(r.Context(), userID, req.OldPassword, req.NewPassword); err != nil {
+	if err := h.service.UpdatePasswordByID(r.Context(), userID, req.OldPassword, req.NewPassword); err != nil {
 		common.WriteErrorResponse(w, err)
 		return
 	}
@@ -149,7 +138,7 @@ func (h *UserHandler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Password updated successfully"))
 }
 
-func (h *UserHandler) deleteCurrentUser(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) deleteCurrentUser(w http.ResponseWriter, r *http.Request) {
 	// Process the request
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
@@ -158,7 +147,7 @@ func (h *UserHandler) deleteCurrentUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err := h.userService.DeleteUserByID(r.Context(), userID); err != nil {
+	if err := h.service.DeleteUserByID(r.Context(), userID); err != nil {
 		common.WriteErrorResponse(w, err)
 		return
 	}

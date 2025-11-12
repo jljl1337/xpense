@@ -12,18 +12,10 @@ import (
 	"github.com/jljl1337/xpense/internal/repository"
 )
 
-type AuthService struct {
-	queries *repository.Queries
-}
+func (s *EndpointService) SignUp(ctx context.Context, username, password string) error {
+	queries := repository.New(s.db)
 
-func NewAuthService(queries *repository.Queries) *AuthService {
-	return &AuthService{
-		queries: queries,
-	}
-}
-
-func (a *AuthService) SignUp(ctx context.Context, username, password string) error {
-	users, err := a.queries.GetUserByUsername(ctx, username)
+	users, err := queries.GetUserByUsername(ctx, username)
 	if err != nil {
 		return NewServiceErrorf(ErrCodeInternal, "failed to get user by username: %v", err)
 	}
@@ -43,7 +35,7 @@ func (a *AuthService) SignUp(ctx context.Context, username, password string) err
 
 	currentTime := generator.NowISO8601()
 
-	if _, err = a.queries.CreateUser(ctx, repository.CreateUserParams{
+	if _, err = queries.CreateUser(ctx, repository.CreateUserParams{
 		ID:           generator.NewULID(),
 		Username:     username,
 		PasswordHash: passwordHash,
@@ -58,14 +50,16 @@ func (a *AuthService) SignUp(ctx context.Context, username, password string) err
 
 // GetPreSession creates a pre-session with no associated user.
 // It returns a non-empty session token and CSRF token.
-func (a *AuthService) GetPreSession(ctx context.Context) (string, string, error) {
+func (s *EndpointService) GetPreSession(ctx context.Context) (string, string, error) {
+	queries := repository.New(s.db)
+
 	sessionID := generator.NewULID()
 	sessionToken := generator.NewToken(env.SessionTokenLength, env.SessionTokenCharset)
 	CSRFToken := generator.NewToken(env.CSRFTokenLength, env.CSRFTokenCharset)
 	currentTime := generator.NowISO8601()
 	expiresAt := format.TimeToISO8601(time.Now().Add(time.Duration(env.PreSessionLifetimeMin) * time.Minute))
 
-	if _, err := a.queries.CreateSession(ctx, repository.CreateSessionParams{
+	if _, err := queries.CreateSession(ctx, repository.CreateSessionParams{
 		ID:        sessionID,
 		UserID:    sql.NullString{Valid: false},
 		Token:     sessionToken,
@@ -82,9 +76,11 @@ func (a *AuthService) GetPreSession(ctx context.Context) (string, string, error)
 
 // SignIn authenticates a user and creates a new session.
 // It returns non-empty session token and CSRF token if the credentials are valid.
-func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSRFToken, username, password string) (string, string, error) {
+func (s *EndpointService) SignIn(ctx context.Context, preSessionToken, preSessionCSRFToken, username, password string) (string, string, error) {
+	queries := repository.New(s.db)
+
 	// Validate pre-session
-	sessions, err := a.queries.GetSessionByToken(ctx, preSessionToken)
+	sessions, err := queries.GetSessionByToken(ctx, preSessionToken)
 
 	if err != nil {
 		return "", "", NewServiceErrorf(ErrCodeInternal, "failed to get pre-session: %v", err)
@@ -118,7 +114,7 @@ func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSR
 	}
 
 	// Validate credentials
-	users, err := a.queries.GetUserByUsername(ctx, username)
+	users, err := queries.GetUserByUsername(ctx, username)
 	if err != nil {
 		return "", "", NewServiceErrorf(ErrCodeInternal, "failed to get user by username: %v", err)
 	}
@@ -151,7 +147,7 @@ func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSR
 			return "", "", NewServiceErrorf(ErrCodeInternal, "failed to hash password: %v", err)
 		}
 
-		rows, err := a.queries.UpdateUserPassword(ctx, repository.UpdateUserPasswordParams{
+		rows, err := queries.UpdateUserPassword(ctx, repository.UpdateUserPasswordParams{
 			PasswordHash: newHash,
 			UpdatedAt:    currentTime,
 			ID:           user.ID,
@@ -171,7 +167,7 @@ func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSR
 	expiresAt := format.TimeToISO8601(time.Now().Add(time.Duration(env.SessionLifetimeMin) * time.Hour))
 
 	// Deactivate the pre-session
-	rows, err := a.queries.UpdateSessionByToken(ctx, repository.UpdateSessionByTokenParams{
+	rows, err := queries.UpdateSessionByToken(ctx, repository.UpdateSessionByTokenParams{
 		Token:     preSessionToken,
 		ExpiresAt: nowISO8601,
 		UpdatedAt: nowISO8601,
@@ -185,7 +181,7 @@ func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSR
 	}
 
 	// Create a new session associated with the user
-	rows, err = a.queries.CreateSession(ctx, repository.CreateSessionParams{
+	rows, err = queries.CreateSession(ctx, repository.CreateSessionParams{
 		ID:        sessionID,
 		UserID:    sql.NullString{String: user.ID, Valid: true},
 		Token:     sessionToken,
@@ -205,62 +201,11 @@ func (a *AuthService) SignIn(ctx context.Context, preSessionToken, preSessionCSR
 	return sessionToken, CSRFToken, nil
 }
 
-// GetSessionUserIDAndRefreshSession validates the session token (and CSRF token),
-// refreshes the session expiration, and returns the associated user ID.
-func (a *AuthService) GetSessionUserIDAndRefreshSession(ctx context.Context, sessionToken, CSRFToken string) (string, error) {
-	sessions, err := a.queries.GetSessionByToken(ctx, sessionToken)
+func (s *EndpointService) SignOut(ctx context.Context, sessionToken string) error {
+	queries := repository.New(s.db)
 
-	if err != nil {
-		return "", NewServiceErrorf(ErrCodeInternal, "failed to get session: %v", err)
-	}
-
-	if len(sessions) > 1 {
-		return "", NewServiceError(ErrCodeInternal, "multiple sessions found with the same token")
-	}
-
-	if len(sessions) < 1 {
-		return "", NewServiceError(ErrCodeUnauthorized, "unauthorized")
-	}
-
-	session := sessions[0]
-
-	// Check if the session is associated with a user
-	if !session.UserID.Valid {
-		return "", NewServiceError(ErrCodeUnauthorized, "unauthorized")
-	}
-
-	// CSRF token does not match
-	if CSRFToken != "" && session.CsrfToken != CSRFToken {
-		return "", NewServiceError(ErrCodeUnauthorized, "unauthorized")
-	}
-
-	// Session expired
-	now := time.Now()
-	nowISO8601 := format.TimeToISO8601(now)
-	if session.ExpiresAt < nowISO8601 {
-		return "", NewServiceError(ErrCodeUnauthorized, "unauthorized")
-	}
-
-	newExpiresAt := format.TimeToISO8601(now.Add(time.Duration(env.SessionLifetimeMin) * time.Minute))
-	rows, err := a.queries.UpdateSessionByToken(ctx, repository.UpdateSessionByTokenParams{
-		Token:     sessionToken,
-		ExpiresAt: newExpiresAt,
-		UpdatedAt: nowISO8601,
-	})
-	if err != nil {
-		return "", NewServiceErrorf(ErrCodeInternal, "failed to refresh session: %v", err)
-	}
-
-	if rows < 1 {
-		return "", NewServiceError(ErrCodeInternal, "no session updated")
-	}
-
-	return session.UserID.String, nil
-}
-
-func (a *AuthService) SignOut(ctx context.Context, sessionToken string) error {
 	now := generator.NowISO8601()
-	rows, err := a.queries.UpdateSessionByToken(ctx, repository.UpdateSessionByTokenParams{
+	rows, err := queries.UpdateSessionByToken(ctx, repository.UpdateSessionByTokenParams{
 		Token:     sessionToken,
 		ExpiresAt: now,
 		UpdatedAt: now,
@@ -276,9 +221,11 @@ func (a *AuthService) SignOut(ctx context.Context, sessionToken string) error {
 	return nil
 }
 
-func (a *AuthService) SignOutAllSession(ctx context.Context, userID string) error {
+func (s *EndpointService) SignOutAllSession(ctx context.Context, userID string) error {
+	queries := repository.New(s.db)
+
 	now := generator.NowISO8601()
-	rows, err := a.queries.UpdateSessionByUserID(ctx, repository.UpdateSessionByUserIDParams{
+	rows, err := queries.UpdateSessionByUserID(ctx, repository.UpdateSessionByUserIDParams{
 		UserID:    sql.NullString{String: userID, Valid: true},
 		ExpiresAt: now,
 		UpdatedAt: now,
@@ -294,8 +241,10 @@ func (a *AuthService) SignOutAllSession(ctx context.Context, userID string) erro
 	return nil
 }
 
-func (a *AuthService) CSRFToken(ctx context.Context, sessionToken string) (string, error) {
-	sessions, err := a.queries.GetSessionByToken(ctx, sessionToken)
+func (s *EndpointService) CSRFToken(ctx context.Context, sessionToken string) (string, error) {
+	queries := repository.New(s.db)
+
+	sessions, err := queries.GetSessionByToken(ctx, sessionToken)
 
 	if err != nil {
 		return "", NewServiceErrorf(ErrCodeInternal, "failed to get session: %v", err)

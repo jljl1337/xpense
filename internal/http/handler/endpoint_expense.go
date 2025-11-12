@@ -10,7 +10,6 @@ import (
 	"github.com/jljl1337/xpense/internal/env"
 	"github.com/jljl1337/xpense/internal/http/common"
 	"github.com/jljl1337/xpense/internal/http/middleware"
-	"github.com/jljl1337/xpense/internal/service"
 )
 
 type createExpenseRequest struct {
@@ -30,17 +29,7 @@ type updateExpenseRequest struct {
 	Remark          string  `json:"remark"`
 }
 
-type ExpenseHandler struct {
-	expenseService *service.ExpenseService
-}
-
-func NewExpenseHandler(expenseService *service.ExpenseService) *ExpenseHandler {
-	return &ExpenseHandler{
-		expenseService: expenseService,
-	}
-}
-
-func (h *ExpenseHandler) RegisterRoutes(mux *http.ServeMux) {
+func (h *EndpointHandler) registerExpenseRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /expenses", h.createExpense)
 	mux.HandleFunc("GET /expenses/count", h.getExpensesCountByBookID)
 	mux.HandleFunc("GET /expenses", h.getExpensesByBookID)
@@ -49,7 +38,7 @@ func (h *ExpenseHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("DELETE /expenses/{id}", h.deleteExpense)
 }
 
-func (h *ExpenseHandler) createExpense(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) createExpense(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	var req createExpenseRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -76,7 +65,7 @@ func (h *ExpenseHandler) createExpense(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.expenseService.CreateExpense(ctx, userID, req.BookID, req.CategoryID, req.PaymentMethodID, req.Date, req.Amount, req.Remark)
+	err = h.service.CreateExpense(ctx, userID, req.BookID, req.CategoryID, req.PaymentMethodID, req.Date, req.Amount, req.Remark)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -87,7 +76,7 @@ func (h *ExpenseHandler) createExpense(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Expense created successfully"))
 }
 
-func (h *ExpenseHandler) getExpensesCountByBookID(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) getExpensesCountByBookID(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	bookID := r.URL.Query().Get("book-id")
 	if bookID == "" {
@@ -107,7 +96,7 @@ func (h *ExpenseHandler) getExpensesCountByBookID(w http.ResponseWriter, r *http
 		return
 	}
 
-	count, err := h.expenseService.GetExpensesCountByBookID(r.Context(), userID, bookID, categoryID, paymentMethodID, remark)
+	count, err := h.service.GetExpensesCountByBookID(r.Context(), userID, bookID, categoryID, paymentMethodID, remark)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -118,7 +107,7 @@ func (h *ExpenseHandler) getExpensesCountByBookID(w http.ResponseWriter, r *http
 	json.NewEncoder(w).Encode(map[string]int64{"count": count})
 }
 
-func (h *ExpenseHandler) getExpensesByBookID(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) getExpensesByBookID(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	bookID := r.URL.Query().Get("book-id")
 	if bookID == "" {
@@ -148,7 +137,7 @@ func (h *ExpenseHandler) getExpensesByBookID(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	expenses, err := h.expenseService.GetExpensesByBookID(r.Context(), userID, bookID, categoryID, paymentMethodID, remark, page, pageSize)
+	expenses, err := h.service.GetExpensesByBookID(r.Context(), userID, bookID, categoryID, paymentMethodID, remark, page, pageSize)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -159,7 +148,7 @@ func (h *ExpenseHandler) getExpensesByBookID(w http.ResponseWriter, r *http.Requ
 	json.NewEncoder(w).Encode(expenses)
 }
 
-func (h *ExpenseHandler) getExpenseByID(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) getExpenseByID(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	expenseID := r.PathValue("id")
 	if expenseID == "" {
@@ -176,7 +165,7 @@ func (h *ExpenseHandler) getExpenseByID(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	expense, err := h.expenseService.GetExpenseByID(r.Context(), userID, expenseID)
+	expense, err := h.service.GetExpenseByID(r.Context(), userID, expenseID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -187,7 +176,7 @@ func (h *ExpenseHandler) getExpenseByID(w http.ResponseWriter, r *http.Request) 
 	json.NewEncoder(w).Encode(expense)
 }
 
-func (h *ExpenseHandler) updateExpense(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) updateExpense(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	expenseID := r.PathValue("id")
 	if expenseID == "" {
@@ -220,7 +209,7 @@ func (h *ExpenseHandler) updateExpense(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.expenseService.UpdateExpense(ctx, userID, expenseID, req.CategoryID, req.PaymentMethodID, req.Date, req.Amount, req.Remark)
+	err = h.service.UpdateExpense(ctx, userID, expenseID, req.CategoryID, req.PaymentMethodID, req.Date, req.Amount, req.Remark)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -231,7 +220,7 @@ func (h *ExpenseHandler) updateExpense(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Expense updated successfully"))
 }
 
-func (h *ExpenseHandler) deleteExpense(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) deleteExpense(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	expenseID := r.PathValue("id")
 	if expenseID == "" {
@@ -248,7 +237,7 @@ func (h *ExpenseHandler) deleteExpense(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.expenseService.DeleteExpenseByID(r.Context(), userID, expenseID)
+	err = h.service.DeleteExpenseByID(r.Context(), userID, expenseID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return

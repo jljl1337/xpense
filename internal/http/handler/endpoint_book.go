@@ -9,7 +9,6 @@ import (
 	"github.com/jljl1337/xpense/internal/env"
 	"github.com/jljl1337/xpense/internal/http/common"
 	"github.com/jljl1337/xpense/internal/http/middleware"
-	"github.com/jljl1337/xpense/internal/service"
 )
 
 type createUpdateBookRequest struct {
@@ -21,17 +20,7 @@ type getBooksCountResponse struct {
 	Count int64 `json:"count"`
 }
 
-type BookHandler struct {
-	bookService *service.BookService
-}
-
-func NewBookHandler(bookService *service.BookService) *BookHandler {
-	return &BookHandler{
-		bookService: bookService,
-	}
-}
-
-func (h *BookHandler) RegisterRoutes(mux *http.ServeMux) {
+func (h *EndpointHandler) registerBookRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /books", h.createBook)
 	mux.HandleFunc("GET /books/count", h.getBooksCount)
 	mux.HandleFunc("GET /books", h.getBooks)
@@ -40,7 +29,7 @@ func (h *BookHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("DELETE /books/{id}", h.deleteBook)
 }
 
-func (h *BookHandler) createBook(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) createBook(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	var req createUpdateBookRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -62,7 +51,7 @@ func (h *BookHandler) createBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.bookService.CreateBook(ctx, userID, req.Name, req.Description)
+	err = h.service.CreateBook(ctx, userID, req.Name, req.Description)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -73,7 +62,7 @@ func (h *BookHandler) createBook(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Book created successfully"))
 }
 
-func (h *BookHandler) getBooksCount(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) getBooksCount(w http.ResponseWriter, r *http.Request) {
 	// Process the request
 	ctx := r.Context()
 	userID, err := middleware.GetUserIDFromContext(ctx)
@@ -83,7 +72,7 @@ func (h *BookHandler) getBooksCount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	count, err := h.bookService.GetBooksCountByUserID(ctx, userID)
+	count, err := h.service.GetBooksCountByUserID(ctx, userID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -94,7 +83,7 @@ func (h *BookHandler) getBooksCount(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(getBooksCountResponse{Count: count})
 }
 
-func (h *BookHandler) getBooks(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) getBooks(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	queryValues := r.URL.Query()
 
@@ -117,7 +106,7 @@ func (h *BookHandler) getBooks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	books, err := h.bookService.GetBooksByUserID(ctx, userID, page, pageSize)
+	books, err := h.service.GetBooksByUserID(ctx, userID, page, pageSize)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -128,7 +117,7 @@ func (h *BookHandler) getBooks(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(books)
 }
 
-func (h *BookHandler) getBook(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) getBook(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	bookID := r.PathValue("id")
 	if bookID == "" {
@@ -145,7 +134,7 @@ func (h *BookHandler) getBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	book, err := h.bookService.GetBookByID(ctx, userID, bookID)
+	book, err := h.service.GetBookByID(ctx, userID, bookID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -156,7 +145,7 @@ func (h *BookHandler) getBook(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(book)
 }
 
-func (h *BookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) updateBook(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	var req createUpdateBookRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -184,7 +173,7 @@ func (h *BookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.bookService.UpdateBookByID(ctx, userID, bookID, req.Name, req.Description)
+	err = h.service.UpdateBookByID(ctx, userID, bookID, req.Name, req.Description)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -195,7 +184,7 @@ func (h *BookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Book updated successfully"))
 }
 
-func (h *BookHandler) deleteBook(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) deleteBook(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	bookID := r.PathValue("id")
 	if bookID == "" {
@@ -212,7 +201,7 @@ func (h *BookHandler) deleteBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.bookService.DeleteBookByID(ctx, userID, bookID)
+	err = h.service.DeleteBookByID(ctx, userID, bookID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return

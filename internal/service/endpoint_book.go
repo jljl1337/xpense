@@ -7,20 +7,12 @@ import (
 	"github.com/jljl1337/xpense/internal/repository"
 )
 
-type BookService struct {
-	queries *repository.Queries
-}
+func (s *EndpointService) CreateBook(ctx context.Context, userID, name, description string) error {
+	queries := repository.New(s.db)
 
-func NewBookService(queries *repository.Queries) *BookService {
-	return &BookService{
-		queries: queries,
-	}
-}
-
-func (s *BookService) CreateBook(ctx context.Context, userID, name, description string) error {
 	currentTime := generator.NowISO8601()
 
-	_, err := s.queries.CreateBook(ctx, repository.CreateBookParams{
+	_, err := queries.CreateBook(ctx, repository.CreateBookParams{
 		ID:          generator.NewULID(),
 		UserID:      userID,
 		Name:        name,
@@ -35,8 +27,10 @@ func (s *BookService) CreateBook(ctx context.Context, userID, name, description 
 	return nil
 }
 
-func (s *BookService) GetBooksCountByUserID(ctx context.Context, userID string) (int64, error) {
-	countResult, err := s.queries.GetBooksCountByUserID(ctx, userID)
+func (s *EndpointService) GetBooksCountByUserID(ctx context.Context, userID string) (int64, error) {
+	queries := repository.New(s.db)
+
+	countResult, err := queries.GetBooksCountByUserID(ctx, userID)
 	if err != nil {
 		return 0, NewServiceErrorf(ErrCodeInternal, "failed to get books count: %v", err)
 	}
@@ -47,10 +41,12 @@ func (s *BookService) GetBooksCountByUserID(ctx context.Context, userID string) 
 // GetBooksByUserID retrieves a paginated list of books for a specific user.
 //
 // It returns an empty slice if no books are found.
-func (s *BookService) GetBooksByUserID(ctx context.Context, userID string, page int64, pageSize int64) ([]repository.Book, error) {
+func (s *EndpointService) GetBooksByUserID(ctx context.Context, userID string, page int64, pageSize int64) ([]repository.Book, error) {
+	queries := repository.New(s.db)
+
 	offset := (page - 1) * pageSize
 	limit := pageSize
-	books, err := s.queries.GetBooksByUserID(ctx, repository.GetBooksByUserIDParams{
+	books, err := queries.GetBooksByUserID(ctx, repository.GetBooksByUserIDParams{
 		UserID: userID,
 		Offset: offset,
 		Limit:  limit,
@@ -63,9 +59,11 @@ func (s *BookService) GetBooksByUserID(ctx context.Context, userID string, page 
 }
 
 // GetBookByID retrieves a book by its ID if the user has access to it.
-func (s *BookService) GetBookByID(ctx context.Context, userID, bookID string) (*repository.Book, error) {
+func (s *EndpointService) GetBookByID(ctx context.Context, userID, bookID string) (*repository.Book, error) {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the book
-	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+	canAccess, err := queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
 		UserID: userID,
 	})
@@ -78,7 +76,7 @@ func (s *BookService) GetBookByID(ctx context.Context, userID, bookID string) (*
 	}
 
 	// Fetch the book details
-	books, err := s.queries.GetBookByID(ctx, bookID)
+	books, err := queries.GetBookByID(ctx, bookID)
 	if err != nil {
 		return nil, NewServiceErrorf(ErrCodeInternal, "failed to get book by ID: %v", err)
 	}
@@ -97,9 +95,11 @@ func (s *BookService) GetBookByID(ctx context.Context, userID, bookID string) (*
 }
 
 // UpdateBookByID updates a book's name and description if the user has access to it.
-func (s *BookService) UpdateBookByID(ctx context.Context, userID, bookID, name, description string) error {
+func (s *EndpointService) UpdateBookByID(ctx context.Context, userID, bookID, name, description string) error {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the book
-	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+	canAccess, err := queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
 		UserID: userID,
 	})
@@ -112,7 +112,7 @@ func (s *BookService) UpdateBookByID(ctx context.Context, userID, bookID, name, 
 	}
 
 	// Proceed to update the book
-	rows, err := s.queries.UpdateBookByID(ctx, repository.UpdateBookByIDParams{
+	rows, err := queries.UpdateBookByID(ctx, repository.UpdateBookByIDParams{
 		ID:          bookID,
 		Name:        name,
 		Description: description,
@@ -134,9 +134,11 @@ func (s *BookService) UpdateBookByID(ctx context.Context, userID, bookID, name, 
 }
 
 // DeleteBookByID deletes a book by its ID if the user has access to it.
-func (s *BookService) DeleteBookByID(ctx context.Context, userID, bookID string) error {
+func (s *EndpointService) DeleteBookByID(ctx context.Context, userID, bookID string) error {
+	queries := repository.New(s.db)
+
 	// Check if the user has access to the book
-	canAccess, err := s.queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
+	canAccess, err := queries.CheckBookAccess(ctx, repository.CheckBookAccessParams{
 		BookID: bookID,
 		UserID: userID,
 	})
@@ -149,7 +151,7 @@ func (s *BookService) DeleteBookByID(ctx context.Context, userID, bookID string)
 	}
 
 	// Proceed to delete the book
-	rows, err := s.queries.DeleteBookByID(ctx, bookID)
+	rows, err := queries.DeleteBookByID(ctx, bookID)
 	if err != nil {
 		return NewServiceErrorf(ErrCodeInternal, "failed to delete book: %v", err)
 	}

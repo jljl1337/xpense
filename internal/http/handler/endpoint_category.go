@@ -7,48 +7,37 @@ import (
 
 	"github.com/jljl1337/xpense/internal/http/common"
 	"github.com/jljl1337/xpense/internal/http/middleware"
-	"github.com/jljl1337/xpense/internal/service"
 )
 
-type createPaymentMethodRequest struct {
+type createCategoryRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	BookID      string `json:"bookID"`
 }
 
-type updatePaymentMethodRequest struct {
+type updateCategoryRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
-type PaymentMethodHandler struct {
-	paymentMethodService *service.PaymentMethodService
+func (h *EndpointHandler) registerCategoryRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("POST /categories", h.createCategory)
+	mux.HandleFunc("GET /categories", h.getCategoriesByBookID)
+	mux.HandleFunc("GET /categories/{id}", h.getCategoryByID)
+	mux.HandleFunc("PUT /categories/{id}", h.updateCategory)
+	mux.HandleFunc("DELETE /categories/{id}", h.deleteCategory)
 }
 
-func NewPaymentMethodHandler(paymentMethodService *service.PaymentMethodService) *PaymentMethodHandler {
-	return &PaymentMethodHandler{
-		paymentMethodService: paymentMethodService,
-	}
-}
-
-func (h *PaymentMethodHandler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("POST /payment-methods", h.createPaymentMethod)
-	mux.HandleFunc("GET /payment-methods", h.getPaymentMethodsByBookID)
-	mux.HandleFunc("GET /payment-methods/{id}", h.getPaymentMethodByID)
-	mux.HandleFunc("PUT /payment-methods/{id}", h.updatePaymentMethod)
-	mux.HandleFunc("DELETE /payment-methods/{id}", h.deletePaymentMethod)
-}
-
-func (h *PaymentMethodHandler) createPaymentMethod(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) createCategory(w http.ResponseWriter, r *http.Request) {
 	// Input validation
-	var req createPaymentMethodRequest
+	var req createCategoryRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
 	if req.Name == "" || req.BookID == "" {
-		http.Error(w, "Payment method name and book ID are required", http.StatusBadRequest)
+		http.Error(w, "Category name and book ID are required", http.StatusBadRequest)
 		return
 	}
 
@@ -61,7 +50,7 @@ func (h *PaymentMethodHandler) createPaymentMethod(w http.ResponseWriter, r *htt
 		return
 	}
 
-	err = h.paymentMethodService.CreatePaymentMethod(ctx, userID, req.BookID, req.Name, req.Description)
+	err = h.service.CreateCategory(ctx, userID, req.BookID, req.Name, req.Description)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -69,10 +58,10 @@ func (h *PaymentMethodHandler) createPaymentMethod(w http.ResponseWriter, r *htt
 
 	// Respond to the client
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("Payment method created successfully"))
+	w.Write([]byte("Category created successfully"))
 }
 
-func (h *PaymentMethodHandler) getPaymentMethodsByBookID(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) getCategoriesByBookID(w http.ResponseWriter, r *http.Request) {
 	// Input validation
 	bookID := r.URL.Query().Get("book-id")
 	if bookID == "" {
@@ -89,7 +78,7 @@ func (h *PaymentMethodHandler) getPaymentMethodsByBookID(w http.ResponseWriter, 
 		return
 	}
 
-	paymentMethods, err := h.paymentMethodService.GetPaymentMethodsByBookID(r.Context(), userID, bookID)
+	categories, err := h.service.GetCategoriesByBookID(r.Context(), userID, bookID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -97,14 +86,14 @@ func (h *PaymentMethodHandler) getPaymentMethodsByBookID(w http.ResponseWriter, 
 
 	// Respond to the client
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(paymentMethods)
+	json.NewEncoder(w).Encode(categories)
 }
 
-func (h *PaymentMethodHandler) getPaymentMethodByID(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) getCategoryByID(w http.ResponseWriter, r *http.Request) {
 	// Input validation
-	paymentMethodID := r.PathValue("id")
-	if paymentMethodID == "" {
-		http.Error(w, "Payment method ID is required", http.StatusBadRequest)
+	categoryID := r.PathValue("id")
+	if categoryID == "" {
+		http.Error(w, "Category ID is required", http.StatusBadRequest)
 		return
 	}
 
@@ -117,7 +106,7 @@ func (h *PaymentMethodHandler) getPaymentMethodByID(w http.ResponseWriter, r *ht
 		return
 	}
 
-	paymentMethod, err := h.paymentMethodService.GetPaymentMethodByID(r.Context(), userID, paymentMethodID)
+	category, err := h.service.GetCategoryByID(r.Context(), userID, categoryID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -125,25 +114,25 @@ func (h *PaymentMethodHandler) getPaymentMethodByID(w http.ResponseWriter, r *ht
 
 	// Respond to the client
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(paymentMethod)
+	json.NewEncoder(w).Encode(category)
 }
 
-func (h *PaymentMethodHandler) updatePaymentMethod(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) updateCategory(w http.ResponseWriter, r *http.Request) {
 	// Input validation
-	var req updatePaymentMethodRequest
+	var req updateCategoryRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
 	if req.Name == "" {
-		http.Error(w, "Payment method name is required", http.StatusBadRequest)
+		http.Error(w, "Category name is required", http.StatusBadRequest)
 		return
 	}
 
-	paymentMethodID := r.PathValue("id")
-	if paymentMethodID == "" {
-		http.Error(w, "Payment method ID is required", http.StatusBadRequest)
+	categoryID := r.PathValue("id")
+	if categoryID == "" {
+		http.Error(w, "Category ID is required", http.StatusBadRequest)
 		return
 	}
 
@@ -156,7 +145,7 @@ func (h *PaymentMethodHandler) updatePaymentMethod(w http.ResponseWriter, r *htt
 		return
 	}
 
-	err = h.paymentMethodService.UpdatePaymentMethodByID(ctx, userID, paymentMethodID, req.Name, req.Description)
+	err = h.service.UpdateCategoryByID(ctx, userID, categoryID, req.Name, req.Description)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -164,14 +153,14 @@ func (h *PaymentMethodHandler) updatePaymentMethod(w http.ResponseWriter, r *htt
 
 	// Respond to the client
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Payment method updated successfully"))
+	w.Write([]byte("Category updated successfully"))
 }
 
-func (h *PaymentMethodHandler) deletePaymentMethod(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) deleteCategory(w http.ResponseWriter, r *http.Request) {
 	// Input validation
-	paymentMethodID := r.PathValue("id")
-	if paymentMethodID == "" {
-		http.Error(w, "Payment method ID is required", http.StatusBadRequest)
+	categoryID := r.PathValue("id")
+	if categoryID == "" {
+		http.Error(w, "Category ID is required", http.StatusBadRequest)
 		return
 	}
 
@@ -184,7 +173,7 @@ func (h *PaymentMethodHandler) deletePaymentMethod(w http.ResponseWriter, r *htt
 		return
 	}
 
-	err = h.paymentMethodService.DeletePaymentMethodByID(ctx, userID, paymentMethodID)
+	err = h.service.DeleteCategoryByID(ctx, userID, categoryID)
 	if err != nil {
 		common.WriteErrorResponse(w, err)
 		return
@@ -192,5 +181,5 @@ func (h *PaymentMethodHandler) deletePaymentMethod(w http.ResponseWriter, r *htt
 
 	// Respond to the client
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Payment method deleted successfully"))
+	w.Write([]byte("Category deleted successfully"))
 }

@@ -11,17 +11,11 @@ type versionResponse struct {
 	Version string `json:"version"`
 }
 
-type VersionHandler struct{}
-
-func NewVersionHandler() *VersionHandler {
-	return &VersionHandler{}
-}
-
-func (h *VersionHandler) RegisterRoutes(mux *http.ServeMux) {
+func (h *EndpointHandler) registerVersionRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/version", h.version)
 }
 
-func (h *VersionHandler) version(w http.ResponseWriter, r *http.Request) {
+func (h *EndpointHandler) version(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(versionResponse{Version: env.Version})
 }

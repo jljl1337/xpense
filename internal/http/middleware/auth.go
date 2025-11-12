@@ -39,7 +39,7 @@ func (m *MiddlewareProvider) Auth() Middleware {
 			}
 
 			// Validate session token (and CSRF token)
-			userID, err := m.authService.GetSessionUserIDAndRefreshSession(r.Context(), cookie.Value, CSRFToken)
+			userID, err := m.service.GetSessionUserIDAndRefreshSession(r.Context(), cookie.Value, CSRFToken)
 			if err != nil {
 				common.WriteErrorResponse(w, err)
 				return
