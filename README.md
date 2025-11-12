@@ -41,6 +41,11 @@ services:
 
 ## Configuration
 
+All paths are relative to the binary location (`/xpense` in the Docker image).
+
+All environment variables have the `_FILE` alternative, which allows reading the
+value from a file.
+
 | Environment Variable | Type | Default Value | Description |
 |---------------------|------|---------------|-------------|
 | `DB_PATH` | string | `data/live/db/live.db` | Path to the SQLite database file |
