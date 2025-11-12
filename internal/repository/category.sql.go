@@ -77,7 +77,7 @@ func (q *Queries) DeleteCategoryByID(ctx context.Context, id string) (int64, err
 
 const getCategoriesByBookID = `
 SELECT
-    id, book_id, name, description, created_at, updated_at
+	*
 FROM
     category
 WHERE
@@ -98,7 +98,7 @@ func (q *Queries) GetCategoriesByBookID(ctx context.Context, bookID string) ([]C
 
 const getCategoryByID = `
 SELECT
-    id, book_id, name, description, created_at, updated_at
+    *
 FROM
     category
 WHERE

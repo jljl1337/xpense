@@ -73,7 +73,7 @@ func (q *Queries) DeleteBookByID(ctx context.Context, id string) (int64, error) 
 
 const getBookByID = `
 SELECT
-    id, user_id, name, description, created_at, updated_at
+	*
 FROM
     book
 WHERE
@@ -92,7 +92,7 @@ func (q *Queries) GetBookByID(ctx context.Context, id string) ([]Book, error) {
 
 const getBooksByUserID = `
 SELECT
-    id, user_id, name, description, created_at, updated_at
+    *
 FROM
     book
 WHERE

@@ -49,7 +49,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id string) (int64, error) {
 
 const getUserByID = `
 SELECT
-    id, username, password_hash, created_at, updated_at
+    *
 FROM
     user
 WHERE
@@ -68,7 +68,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id string) ([]User, error) {
 
 const getUserByUsername = `
 SELECT
-    id, username, password_hash, created_at, updated_at
+    *
 FROM
     user
 WHERE

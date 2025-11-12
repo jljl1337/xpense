@@ -77,7 +77,7 @@ func (q *Queries) DeletePaymentMethodByID(ctx context.Context, id string) (int64
 
 const getPaymentMethodByID = `
 SELECT
-    id, book_id, name, description, created_at, updated_at
+    *
 FROM
     payment_method
 WHERE
@@ -96,7 +96,7 @@ func (q *Queries) GetPaymentMethodByID(ctx context.Context, id string) ([]Paymen
 
 const getPaymentMethodsByBookID = `
 SELECT
-    id, book_id, name, description, created_at, updated_at
+    *
 FROM
     payment_method
 WHERE

@@ -56,7 +56,7 @@ func (q *Queries) DeleteSessionByExpiresAt(ctx context.Context, expiresAt string
 
 const getSessionByToken = `
 SELECT
-    id, user_id, token, csrf_token, expires_at, created_at, updated_at
+	*
 FROM
     session
 WHERE

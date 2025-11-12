@@ -124,7 +124,7 @@ func (q *Queries) DeleteExpenseByID(ctx context.Context, id string) (int64, erro
 
 const getExpenseByID = `
 SELECT
-    id, book_id, category_id, payment_method_id, date, amount, remark, created_at, updated_at
+	*
 FROM
     expense
 WHERE
@@ -168,7 +168,7 @@ func (q *Queries) GetExpenseCountByBookID(ctx context.Context, arg GetExpenseCou
 
 const getExpensesByBookID = `
 SELECT
-    id, book_id, category_id, payment_method_id, date, amount, remark, created_at, updated_at
+    *
 FROM
     expense
 WHERE
