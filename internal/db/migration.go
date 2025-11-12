@@ -2,10 +2,10 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"log/slog"
 
+	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 
 	s "github.com/jljl1337/xpense/internal/sql"
@@ -44,7 +44,7 @@ const insertMigration = `
 		);
 `
 
-func Migrate(db *sql.DB) error {
+func Migrate(db *sqlx.DB) error {
 	ctx := context.Background()
 
 	// Create the migrations table if it doesn't exist

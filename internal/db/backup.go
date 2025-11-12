@@ -2,23 +2,23 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/mattn/go-sqlite3"
 )
 
 // BackupToFile backs up a database to a file
-func BackupToFile(srcDB *sql.DB, backupPath string) error {
+func BackupToFile(srcDB *sqlx.DB, backupPath string) error {
 	// Create parent directories if they don't exist
 	if err := os.MkdirAll(filepath.Dir(backupPath), os.ModePerm); err != nil {
 		return err
 	}
 
 	// Open destination database
-	destDB, err := sql.Open("sqlite3", backupPath)
+	destDB, err := sqlx.Open("sqlite3", backupPath)
 	if err != nil {
 		return fmt.Errorf("failed to open backup database: %w", err)
 	}
@@ -29,7 +29,7 @@ func BackupToFile(srcDB *sql.DB, backupPath string) error {
 }
 
 // backup performs a complete backup from srcDb to destDb
-func backup(destDb, srcDb *sql.DB) error {
+func backup(destDb, srcDb *sqlx.DB) error {
 	// Get raw connections
 	destConn, err := destDb.Conn(context.Background())
 	if err != nil {

@@ -2,13 +2,13 @@ package server
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
+	"github.com/jmoiron/sqlx"
 
 	"github.com/jljl1337/xpense/internal/db"
 	"github.com/jljl1337/xpense/internal/env"
@@ -19,7 +19,7 @@ import (
 )
 
 type Server struct {
-	db         *sql.DB
+	db         *sqlx.DB
 	queries    *repository.Queries
 	httpServer *http.Server
 	scheduler  gocron.Scheduler
