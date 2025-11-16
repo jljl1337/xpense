@@ -5,26 +5,27 @@ import "net/http"
 var (
 	Version = "dev"
 
-	DbPath                string
-	DbBusyTimeout         string
-	BackupDbPath          string
-	BackupCronSchedule    string
-	LogLevel              int
-	LogHealthCheck        bool
-	Port                  string
-	CORSOrigins           string
-	PasswordBcryptCost    int
-	SessionCookieName     string
-	SessionCookieHttpOnly bool
-	SessionCookieSecure   bool
-	SessionTokenLength    int
-	SessionTokenCharset   string
-	SessionLifetimeMin    int
-	PreSessionLifetimeMin int
-	CSRFTokenLength       int
-	CSRFTokenCharset      string
-	PageSizeMax           int64
-	PageSizeDefault       int64
+	DbPath                     string
+	DbBusyTimeout              string
+	BackupDbPath               string
+	BackupCronSchedule         string
+	SessionCleanupCronSchedule string
+	LogLevel                   int
+	LogHealthCheck             bool
+	Port                       string
+	CORSOrigins                string
+	PasswordBcryptCost         int
+	SessionCookieName          string
+	SessionCookieHttpOnly      bool
+	SessionCookieSecure        bool
+	SessionTokenLength         int
+	SessionTokenCharset        string
+	SessionLifetimeMin         int
+	PreSessionLifetimeMin      int
+	CSRFTokenLength            int
+	CSRFTokenCharset           string
+	PageSizeMax                int64
+	PageSizeDefault            int64
 
 	SessionCookieSameSiteMode http.SameSite
 )
@@ -36,6 +37,7 @@ func MustSetConstants() {
 	DbBusyTimeout = MustGetString("DB_BUSY_TIMEOUT", "30000")
 	BackupDbPath = MustGetString("BACKUP_DB_PATH", "data/backup/db/backup.db")
 	BackupCronSchedule = MustGetString("BACKUP_CRON_SCHEDULE", "0 0 * * *")
+	SessionCleanupCronSchedule = MustGetString("SESSION_CLEANUP_CRON_SCHEDULE", "0 0 * * 0")
 	LogLevel = MustGetInt("LOG_LEVEL", 0)
 	LogHealthCheck = MustGetBool("LOG_HEALTH_CHECK", false)
 	Port = MustGetString("PORT", "8080")
