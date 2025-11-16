@@ -51,8 +51,8 @@ value from a file.
 | `DB_PATH` | string | `data/live/db/live.db` | Path to the SQLite database file |
 | `DB_BUSY_TIMEOUT` | string | `30000` | Database busy timeout in milliseconds |
 | `BACKUP_DB_PATH` | string | `data/backup/db/backup.db` | Path to the backup database file |
-| `BACKUP_CRON_SCHEDULE` | string | `0 0 * * *` | Cron schedule for database backups (daily at midnight) |
-| `SESSION_CLEANUP_CRON_SCHEDULE` | string | `0 0 * * 0` | Cron schedule for session cleanup (weekly on Sunday at midnight) |
+| `BACKUP_CRON_SCHEDULE` | string | `0 0 * * *` | Cron schedule for database backups |
+| `SESSION_CLEANUP_CRON_SCHEDULE` | string | `0 0 * * 0` | Cron schedule for session cleanup |
 | `LOG_LEVEL` | int | `0` | Logging level for the application |
 | `LOG_HEALTH_CHECK` | bool | `false` | Whether to log health check requests |
 | `PORT` | string | `8080` | Port number for the HTTP server |
