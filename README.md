@@ -36,7 +36,7 @@ services:
       - ./live:/xpense/data/live
       - ./backup:/xpense/data/backup
     environment:
-      - BACKUP_CRON_SCHEDULE=0 * * * * # Backup every hour
+      - SQLITE_BACKUP_CRON_SCHEDULE=0 * * * * # Backup every hour
 ```
 
 ## Configuration
@@ -48,10 +48,10 @@ value from a file.
 
 | Environment Variable | Type | Default Value | Description |
 |---------------------|------|---------------|-------------|
-| `DB_PATH` | string | `data/live/db/live.db` | Path to the SQLite database file |
-| `DB_BUSY_TIMEOUT` | string | `30000` | Database busy timeout in milliseconds |
-| `BACKUP_DB_PATH` | string | `data/backup/db/backup.db` | Path to the backup database file |
-| `BACKUP_CRON_SCHEDULE` | string | `0 0 * * *` | Cron schedule for database backups |
+| `SQLITE_DB_PATH` | string | `data/live/db/live.db` | Path to the SQLite database file |
+| `SQLITE_BUSY_TIMEOUT` | string | `30000` | SQLite database busy timeout in milliseconds |
+| `SQLITE_BACKUP_DB_PATH` | string | `data/backup/db/backup.db` | Path to the backup SQLite database file |
+| `SQLITE_BACKUP_CRON_SCHEDULE` | string | `0 0 * * *` | Cron schedule for SQLite database backups |
 | `SESSION_CLEANUP_CRON_SCHEDULE` | string | `0 0 * * 0` | Cron schedule for session cleanup |
 | `LOG_LEVEL` | int | `0` | Logging level for the application |
 | `LOG_HEALTH_CHECK` | bool | `false` | Whether to log health check requests |
