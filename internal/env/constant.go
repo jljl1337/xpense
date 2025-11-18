@@ -33,10 +33,10 @@ var (
 func MustSetConstants() {
 	mustLoadOptionalEnvFile()
 
-	DbPath = MustGetString("DB_PATH", "data/live/db/live.db")
-	DbBusyTimeout = MustGetString("DB_BUSY_TIMEOUT", "30000")
-	BackupDbPath = MustGetString("BACKUP_DB_PATH", "data/backup/db/backup.db")
-	BackupCronSchedule = MustGetString("BACKUP_CRON_SCHEDULE", "0 0 * * *")
+	DbPath = MustGetString("SQLITE_DB_PATH", "data/live/db/live.db")
+	DbBusyTimeout = MustGetString("SQLITE_BUSY_TIMEOUT", "30000")
+	BackupDbPath = MustGetString("SQLITE_BACKUP_DB_PATH", "data/backup/db/backup.db")
+	BackupCronSchedule = MustGetString("SQLITE_BACKUP_CRON_SCHEDULE", "0 0 * * *")
 	SessionCleanupCronSchedule = MustGetString("SESSION_CLEANUP_CRON_SCHEDULE", "0 0 * * 0")
 	LogLevel = MustGetInt("LOG_LEVEL", 0)
 	LogHealthCheck = MustGetBool("LOG_HEALTH_CHECK", false)
