@@ -276,5 +276,10 @@ func (s *EndpointService) CSRFToken(ctx context.Context, sessionToken string) (s
 
 	session := sessions[0]
 
+	// Check if pre-session is expired
+	if session.ExpiresAt < generator.NowISO8601() {
+		return "", NewServiceError(ErrCodeUnauthorized, "unauthorized")
+	}
+
 	return session.CsrfToken, nil
 }

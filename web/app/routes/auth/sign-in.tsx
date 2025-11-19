@@ -41,7 +41,6 @@ export async function clientLoader() {
   // Return the CSRF token of the existing pre-session if it is valid
   const existingPreSessionCSRFToken = await getCsrfToken();
   if (existingPreSessionCSRFToken.error == null) {
-    console.log("Using existing pre-session CSRF token");
     return {
       data: { preSessionCSRFToken: existingPreSessionCSRFToken.data },
       error: null,
