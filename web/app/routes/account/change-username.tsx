@@ -1,4 +1,4 @@
-import { redirect, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import type { Route } from "./+types/change-username";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,7 +25,7 @@ import { Input } from "~/components/ui/input";
 
 import { getCsrfToken } from "~/lib/db/auth";
 import { redirectIfNeeded } from "~/lib/db/common";
-import { checkUsernameExists, updateUsername } from "~/lib/db/users";
+import { updateUsername } from "~/lib/db/users";
 import { usernameSchema } from "~/lib/schemas/auth";
 
 export async function clientLoader() {
@@ -51,23 +51,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
 
   async function onSubmit(values: z.infer<typeof usernameSchema>) {
-    const { data: exists, error: checkUsernameError } =
-      await checkUsernameExists(values.username);
-
-    if (checkUsernameError) {
-      setError("root", {
-        message: checkUsernameError,
-      });
-      return;
-    }
-
-    if (exists) {
-      setError("username", {
-        message: "Username is already taken",
-      });
-      return;
-    }
-
     const { error } = await updateUsername(
       values.username,
       loaderData.csrfToken,
