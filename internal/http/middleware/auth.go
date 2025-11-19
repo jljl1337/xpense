@@ -17,7 +17,15 @@ func (m *MiddlewareProvider) Auth() Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Skip for public routes
-			if r.URL.Path == "/auth/sign-up" || r.URL.Path == "/auth/pre-session" || r.URL.Path == "/auth/sign-in" || r.URL.Path == "/health" || r.URL.Path == "/users/exists" {
+			publicRoutes := map[string]bool{
+				"/auth/sign-up":     true,
+				"/auth/pre-session": true,
+				"/auth/sign-in":     true,
+				"/auth/csrf-token":  true,
+				"/health":           true,
+				"/users/exists":     true,
+			}
+			if publicRoutes[r.URL.Path] {
 				next.ServeHTTP(w, r)
 				return
 			}
