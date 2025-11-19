@@ -18,7 +18,10 @@ export async function signUp(username: string, password: string) {
   return { error: null };
 }
 
-export async function getPreSession() {
+/**
+ * Creates a pre-session and returns the CSRF token.
+ */
+export async function createPreSession() {
   const response = await customFetch("/api/auth/pre-session", "POST");
 
   if (!response.ok) {

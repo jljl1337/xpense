@@ -23,7 +23,7 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 
-import { getPreSession, signIn } from "~/lib/db/auth";
+import { createPreSession, getCsrfToken, signIn } from "~/lib/db/auth";
 import { getMe } from "~/lib/db/users";
 
 const formSchema = z.object({
@@ -38,7 +38,17 @@ export async function clientLoader() {
     return redirect("/books");
   }
 
-  const preSessionCSRFToken = await getPreSession();
+  // Return the CSRF token of the existing pre-session if it is valid
+  const existingPreSessionCSRFToken = await getCsrfToken();
+  if (existingPreSessionCSRFToken.error == null) {
+    console.log("Using existing pre-session CSRF token");
+    return {
+      data: { preSessionCSRFToken: existingPreSessionCSRFToken.data },
+      error: null,
+    };
+  }
+
+  const preSessionCSRFToken = await createPreSession();
   if (preSessionCSRFToken.error != null) {
     return redirect("/error");
   }
