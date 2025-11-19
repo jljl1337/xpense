@@ -13,6 +13,22 @@ import (
 )
 
 func (s *EndpointService) SignUp(ctx context.Context, username, password string) error {
+	usernameValid, err := checkUsername(username)
+	if err != nil {
+		return NewServiceErrorf(ErrCodeInternal, "failed to validate username: %v", err)
+	}
+	if !usernameValid {
+		return NewServiceError(ErrCodeUnprocessable, "invalid username format")
+	}
+
+	passwordValid, err := checkPassword(password)
+	if err != nil {
+		return NewServiceErrorf(ErrCodeInternal, "failed to validate password: %v", err)
+	}
+	if !passwordValid {
+		return NewServiceError(ErrCodeUnprocessable, "invalid password format")
+	}
+
 	queries := repository.New(s.db)
 
 	users, err := queries.GetUserByUsername(ctx, username)
