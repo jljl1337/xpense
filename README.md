@@ -64,6 +64,7 @@ value from a file.
 | `SESSION_TOKEN_LENGTH` | int | `32` | Length of generated session tokens |
 | `SESSION_TOKEN_CHARSET` | string | alphanumeric characters (case-sensitive) | Character set for session token generation |
 | `SESSION_LIFETIME_MIN` | int | `10080` (7 days) | Session lifetime in minutes |
+| `SESSION_REFRESH_THRESHOLD_MIN` | int | `1440` (1 day) | Session will only be refreshed if remaining lifetime is below this threshold in minutes |
 | `PRE_SESSION_LIFETIME_MIN` | int | `15` | Pre-session lifetime in minutes |
 | `CSRF_TOKEN_LENGTH` | int | `32` | Length of generated CSRF tokens |
 | `CSRF_TOKEN_CHARSET` | string | alphanumeric characters (case-sensitive) | Character set for CSRF token generation |
