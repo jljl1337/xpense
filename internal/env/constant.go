@@ -21,6 +21,7 @@ var (
 	SessionTokenLength         int
 	SessionTokenCharset        string
 	SessionLifetimeMin         int
+	SessionRefreshThresholdMin int
 	PreSessionLifetimeMin      int
 	CSRFTokenLength            int
 	CSRFTokenCharset           string
@@ -49,6 +50,7 @@ func MustSetConstants() {
 	SessionTokenLength = MustGetInt("SESSION_TOKEN_LENGTH", 32)
 	SessionTokenCharset = MustGetString("SESSION_TOKEN_CHARSET", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	SessionLifetimeMin = MustGetInt("SESSION_LIFETIME_MIN", 60*24*7)
+	SessionRefreshThresholdMin = MustGetInt("SESSION_REFRESH_THRESHOLD_MIN", 60*24)
 	PreSessionLifetimeMin = MustGetInt("PRE_SESSION_LIFETIME_MIN", 15)
 	CSRFTokenLength = MustGetInt("CSRF_TOKEN_LENGTH", 32)
 	CSRFTokenCharset = MustGetString("CSRF_TOKEN_CHARSET", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
