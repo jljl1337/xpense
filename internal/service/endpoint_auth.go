@@ -180,7 +180,7 @@ func (s *EndpointService) SignIn(ctx context.Context, preSessionToken, preSessio
 	sessionID := generator.NewULID()
 	sessionToken := generator.NewToken(env.SessionTokenLength, env.SessionTokenCharset)
 	CSRFToken := generator.NewToken(env.CSRFTokenLength, env.CSRFTokenCharset)
-	expiresAt := format.TimeToISO8601(time.Now().Add(time.Duration(env.SessionLifetimeMin) * time.Hour))
+	expiresAt := format.TimeToISO8601(time.Now().Add(time.Duration(env.SessionLifetimeMin) * time.Minute))
 
 	// Deactivate the pre-session
 	rows, err := queries.UpdateSessionByToken(ctx, repository.UpdateSessionByTokenParams{
